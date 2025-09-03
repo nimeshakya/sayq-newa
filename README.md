@@ -11,3 +11,5 @@
 ## Getting Started
 
 This project uses React Native. To get started, clone the repo and follow the setup instructions in the documentation.
+
+Happy Coding! 🙌
