@@ -21,6 +21,10 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
+          name="learnTime"
+          options={{ title: "", headerTransparent: true }}
+        />
+        <Stack.Screen
           name="level"
           options={{ title: "", headerTransparent: true }}
         />

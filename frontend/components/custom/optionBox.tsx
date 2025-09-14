@@ -6,11 +6,15 @@ type OptionStyle = {
   color?: string;
   fontSize?: number;
   fontWeight?: number;
+  keywordFontSize?: number;
+  keywordFontWeight?: number;
 };
 
 type Options = {
   key: string;
   value: string;
+  keyword?: string;
+  icon?: string;
 };
 
 type OptionProps = {
@@ -34,6 +38,7 @@ export function OptionBox({
         <FlatList
           data={options}
           keyExtractor={(item) => item.key}
+          scrollEnabled={false}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => {
@@ -50,7 +55,25 @@ export function OptionBox({
                 },
               ]}
             >
-              <Text style={styles.text}>{item.value}</Text>
+              {item.keyword && item.icon ? (
+                <View style={styles.selector}>
+                  <Text style={styles.iconStyle}>{item.icon}</Text>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                  <Text style={styles.keywordStyle}>{item.keyword}</Text>
+                </View>
+              ) : item.keyword && !item.icon ? (
+                <View style={styles.selector}>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                  <Text style={styles.keywordStyle}>{item.keyword}</Text>
+                </View>
+              ) : !item.keyword && item.icon ? (
+                <View style={styles.selector}>
+                  <Text style={styles.iconStyle}>{item.icon}</Text>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                </View>
+              ) : (
+                <Text style={styles.textStyle}>{item.value}</Text>
+              )}
             </Pressable>
           )}
         ></FlatList>
@@ -70,14 +93,37 @@ function createStyle(
     levelContainer: {
       marginHorizontal: 26,
       marginBottom: 26,
-      padding: 14,
+      paddingHorizontal: 14,
       borderRadius: 20,
       borderWidth: 1,
+      backgroundColor: "blue", //optionInfo.color ?? theme.text,
     },
-    text: {
+    selector: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "green", //optionInfo.color ?? theme.text,
+    },
+    iconStyle: {
+      backgroundColor: "blue", //optionInfo.color ?? theme.text,
+      color: optionInfo.color ?? theme.text,
+      marginRight: 10,
+    },
+    textStyle: {
+      flex: 1,
       color: optionInfo.color ?? theme.text,
       fontSize: optionInfo.fontSize ?? 16,
       fontWeight: optionInfo.fontWeight ?? 600,
+      backgroundColor: "red",
+      flexWrap: "wrap",
+      marginVertical: 14,
+    },
+    keywordStyle: {
+      backgroundColor: "blue", //optionInfo.color ?? theme.text,
+      color: optionInfo.color ?? theme.text,
+      fontSize: optionInfo.keywordFontSize ?? 16,
+      fontWeight: optionInfo.keywordFontWeight ?? 600,
+      width: 70, // fixed width for keyword
+      textAlign: "right",
     },
   });
 }

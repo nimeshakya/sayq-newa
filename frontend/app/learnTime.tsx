@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Image, StyleSheet, View } from "react-native";
 
-export default function Level() {
+export default function Time() {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<Options | null>(null);
 
@@ -17,10 +17,10 @@ export default function Level() {
       return;
     } else {
       console.log(`selected key: ${selectedOption.key}`);
-      router.replace("/learnTime");
+      router.replace("/");
     }
   };
-  const fullText = "How familiar are you with Nepal Bhasa?";
+  const fullText = "What's your daily learning goal?";
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
@@ -34,10 +34,11 @@ export default function Level() {
     color: "black",
     fontSize: 24,
     fontWeight: 900,
+    keywordFontSize: 16,
+    keywordFontWeight: 600,
   };
 
   const messageInfo = {
-    color: "#FFAE42",
     fontSize: 20,
     fontWeight: 500,
     messageBoxWidth: "70%",
@@ -47,33 +48,28 @@ export default function Level() {
   const options = [
     {
       key: "1",
-      icon: "hellow",
-      value: "I am new to Nepal Bhasa",
+      value: "3 min/Day",
+      keyword: "Casual",
     },
     {
       key: "2",
-      icon: "hellow",
-      value: "I know some common words",
+      value: "10 min/Day",
+      keyword: "Regular",
     },
     {
       key: "3",
-      icon: "hellow",
-      value: "I can have some basic conversation",
+      value: "15 min/Day",
+      keyword: "Serious",
     },
     {
       key: "4",
-      icon: "hellow",
-      value: "I can talk about various topics",
-    },
-    {
-      key: "5",
-      icon: "hellow",
-      value: "I can discuss most topics in detail",
+      value: "20 min/Day",
+      keyword: "Intense",
     },
   ];
   const optionInfo = {
     selectedBoxColor: "#feae42",
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 600,
   };
 
