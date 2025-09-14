@@ -7,15 +7,17 @@ type MessageInfo = {
   fontWeight?: number;
   messageBoxWidth?: string;
   pointerStatus?: boolean;
+  messageBoxColor?: string;
 };
 
 type MessageProps = {
   messageInfo: MessageInfo;
   message: string;
+  theme: { background: string; text: string };
 };
 
-export function MessageBubble({ messageInfo, message }: MessageProps) {
-  const styles = createStyle(messageInfo);
+export function MessageBubble({ theme, messageInfo, message }: MessageProps) {
+  const styles = createStyle(messageInfo, theme);
   const [displayedText, setDisplayedText] = useState("");
   const pointerStatus = messageInfo.pointerStatus ?? true;
   useEffect(() => {
@@ -46,7 +48,10 @@ export function MessageBubble({ messageInfo, message }: MessageProps) {
   );
 }
 
-function createStyle(messageInfo: MessageInfo["messageInfo"]) {
+function createStyle(
+  messageInfo: MessageInfo["messageInfo"],
+  theme: { background: string; text: string }
+) {
   return StyleSheet.create({
     messageWrapper: {
       position: "relative", // parent for absolute positioning
@@ -56,7 +61,7 @@ function createStyle(messageInfo: MessageInfo["messageInfo"]) {
     messageBubble: {
       minWidth: 100,
       borderWidth: 1,
-      borderColor: "#fff",
+      borderColor: messageInfo.messageBoxColor ?? theme.text,
       borderRadius: 10,
       marginRight: 40,
       paddingVertical: 10,
@@ -74,10 +79,10 @@ function createStyle(messageInfo: MessageInfo["messageInfo"]) {
       borderTopWidth: 12,
       borderLeftColor: "transparent",
       borderRightColor: "transparent",
-      borderTopColor: "#fff",
+      borderTopColor: messageInfo.messageBoxColor ?? theme.text,
     },
     messageText: {
-      color: messageInfo.color ?? "#FFAE42",
+      color: messageInfo.color ?? theme.text,
       fontSize: messageInfo.fontSize ?? 20,
       fontWeight: messageInfo.fontWeight ?? "600",
     },

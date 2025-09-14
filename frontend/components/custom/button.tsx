@@ -1,7 +1,7 @@
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, Text } from "react-native";
 
-type ButtonProps = {
+type ButtonInfo = {
   backgroundColor?: string;
 
   height?: number | string;
@@ -28,14 +28,21 @@ type ButtonProps = {
 };
 
 type NavButtonProps = {
-  buttonInfo: ButtonProps;
+  buttonInfo: ButtonInfo;
   text: string;
   link?: string;
   onPress?: () => void;
+  theme?: { background: string; text: string };
 };
 
-export function NavButton({ buttonInfo, link, text, onPress }: NavButtonProps) {
-  const styles = createStyle(buttonInfo);
+export function NavButton({
+  theme,
+  buttonInfo,
+  link,
+  text,
+  onPress,
+}: NavButtonProps) {
+  const styles = createStyle(buttonInfo, theme);
   if (link) {
     // navigation version
     return (
@@ -54,10 +61,13 @@ export function NavButton({ buttonInfo, link, text, onPress }: NavButtonProps) {
     </Pressable>
   );
 }
-function createStyle(buttonInfo: ButtonProps["buttonInfo"]) {
+function createStyle(
+  buttonInfo: ButtonInfo["buttonInfo"],
+  theme: { background: string; text: string }
+) {
   return StyleSheet.create({
     button: {
-      backgroundColor: buttonInfo.backgroundColor ?? "#FFAE42",
+      backgroundColor: buttonInfo.backgroundColor ?? theme.text,
 
       justifyContent: "center",
       alignItems: "center",
@@ -79,10 +89,10 @@ function createStyle(buttonInfo: ButtonProps["buttonInfo"]) {
       borderRadius: buttonInfo.borderRadius ?? 10,
       borderWidth: buttonInfo.borderWidth ?? 1,
       borderStyle: buttonInfo.borderStyle ?? "solid",
-      borderColor: buttonInfo.borderColor ?? "black",
+      borderColor: buttonInfo.borderColor ?? theme.background,
     },
     buttonText: {
-      color: buttonInfo.color ?? "black",
+      color: buttonInfo.color ?? theme.background,
       fontSize: buttonInfo.fontSize ?? 24,
       fontWeight: buttonInfo.fontWeight ?? 900,
     },
