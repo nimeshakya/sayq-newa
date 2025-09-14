@@ -7,8 +7,6 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { Colors } from '@/constants/theme';
-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -27,30 +25,11 @@ export default function RootLayout() {
             >
                 <Stack
                     screenOptions={{
-                        headerStyle: {
-                            backgroundColor:
-                                Colors[colorScheme ?? 'light'].background,
-                        },
-                        headerTintColor: Colors[colorScheme ?? 'light'].text,
+                        headerShown: false,
                     }}
                 >
-                    <Stack.Screen
-                        name='index'
-                        options={{ title: '', headerShown: false }}
-                    />
-                    <Stack.Screen name='start' options={{ title: '' }} />
-                    <Stack.Screen
-                        name='learnTime'
-                        options={{
-                            title: '',
-                        }}
-                    />
-                    <Stack.Screen
-                        name='level'
-                        options={{
-                            title: '',
-                        }}
-                    />
+                    {/* load pages from special folder (pages) */}
+                    <Stack.Screen name='(pages)' />
                 </Stack>
                 <StatusBar style='auto' />
             </ThemeProvider>
