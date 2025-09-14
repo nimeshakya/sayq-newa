@@ -52,14 +52,14 @@ export default function Level() {
     { key: "5", value: "I can discuss most topics in detail" },
   ];
   const optionInfo = {
-    color: "#feae42",
+    selectedBoxColor: "#feae42",
     fontSize: 16,
     fontWeight: 600,
   };
 
   return (
     <Base>
-      {({ styles: baseStyles }) => {
+      {({ theme, colorScheme, styles: baseStyles }) => {
         const styles = createStyle(); // ✅ styles as function
         return (
           <>
@@ -67,17 +67,23 @@ export default function Level() {
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
-              <MessageBubble messageInfo={messageInfo} message={fullText} />
+              <MessageBubble
+                messageInfo={messageInfo}
+                message={fullText}
+                theme={theme}
+              />
             </View>
             <OptionBox
               options={options}
               optionInfo={optionInfo}
+              theme={theme}
               onSelect={(item) => setSelectedOption(item)}
             />
             <NavButton
               buttonInfo={buttoninfo}
               onPress={handleContinue}
               text="Continue"
+              theme={theme}
             />
           </>
         );
@@ -92,10 +98,10 @@ function createStyle() {
       flexDirection: "row",
       justifyContent: "center",
       width: "100%",
-      marginTop: 70,
+      marginTop: 65,
     },
     gifContainer: {
-      marginRight: 10,
+      marginRight: 0,
     },
     gif: {
       width: 112,

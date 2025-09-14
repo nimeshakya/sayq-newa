@@ -17,11 +17,16 @@ export default function HomeScreen() {
   };
   return (
     <Base>
-      {({ styles: baseStyles }) => {
+      {({ theme, colorScheme, styles: baseStyles }) => {
         const styles = createStyle(); // ✅ styles as function
         return (
           <View style={styles.container}>
-            <NavButton buttonInfo={buttoninfo} link="/start" text="Start" />
+            <NavButton
+              buttonInfo={buttoninfo}
+              link="/start"
+              text="Start"
+              theme={theme}
+            />
           </View>
         );
       }}

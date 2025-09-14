@@ -31,12 +31,16 @@ export default function Start() {
 
   return (
     <Base>
-      {({ styles: baseStyles }) => {
+      {({ theme, colorScheme, styles: baseStyles }) => {
         const styles = createStyle(); // ✅ styles as function
         return (
           <>
             <View style={styles.topContainer}>
-              <MessageBubble messageInfo={messageInfo} message={message} />
+              <MessageBubble
+                messageInfo={messageInfo}
+                message={message}
+                theme={theme}
+              />
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
@@ -50,6 +54,7 @@ export default function Start() {
                 setPressed(true);
               }}
               link={pressed ? "/level" : undefined}
+              theme={theme}
               text="Continue"
             />
           </>
