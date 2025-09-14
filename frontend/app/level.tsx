@@ -5,7 +5,7 @@ import { MessageBubble } from "@/components/custom/message";
 import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { ScrollView, Image, StyleSheet, View } from "react-native";
 
 export default function Level() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function Level() {
       return;
     } else {
       console.log(`selected key: ${selectedOption.key}`);
-      router.replace("/");
+      router.replace("/learnTime");
     }
   };
   const fullText = "How familiar are you with Nepal Bhasa?";
@@ -45,11 +45,31 @@ export default function Level() {
   };
 
   const options = [
-    { key: "1", value: "I am new to Nepal Bhasa" },
-    { key: "2", value: "I know some common words" },
-    { key: "3", value: "I can have some basic conversation" },
-    { key: "4", value: "I can talk about various topics" },
-    { key: "5", value: "I can discuss most topics in detail" },
+    {
+      key: "1",
+      icon: "hellow",
+      value: "I am new to Nepal Bhasa",
+    },
+    {
+      key: "2",
+      icon: "hellow",
+      value: "I know some common words",
+    },
+    {
+      key: "3",
+      icon: "hellow",
+      value: "I can have some basic conversation",
+    },
+    {
+      key: "4",
+      icon: "hellow",
+      value: "I can talk about various topics",
+    },
+    {
+      key: "5",
+      icon: "hellow",
+      value: "I can discuss most topics in detail",
+    },
   ];
   const optionInfo = {
     selectedBoxColor: "#feae42",
@@ -106,6 +126,7 @@ function createStyle() {
     gif: {
       width: 112,
       height: 159,
+      marginLeft: 50,
       resizeMode: "contain",
     },
   });
