@@ -7,6 +7,8 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { Colors } from '@/constants/theme';
+
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -23,26 +25,31 @@ export default function RootLayout() {
             <ThemeProvider
                 value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
             >
-                <Stack>
+                <Stack
+                    screenOptions={{
+                        headerStyle: {
+                            backgroundColor:
+                                Colors[colorScheme ?? 'light'].background,
+                        },
+                        headerTintColor: Colors[colorScheme ?? 'light'].text,
+                    }}
+                >
                     <Stack.Screen
-                        name='(tabs)'
-                        options={{ headerShown: false }}
+                        name='index'
+                        options={{ title: '', headerShown: false }}
                     />
+                    <Stack.Screen name='start' options={{ title: '' }} />
                     <Stack.Screen
                         name='learnTime'
-                        options={{ title: '', headerTransparent: true }}
+                        options={{
+                            title: '',
+                        }}
                     />
                     <Stack.Screen
                         name='level'
-                        options={{ title: '', headerTransparent: true }}
-                    />
-                    <Stack.Screen
-                        name='start'
-                        options={{ title: '', headerTransparent: true }}
-                    />
-                    <Stack.Screen
-                        name='modal'
-                        options={{ presentation: 'modal', title: 'Modal' }}
+                        options={{
+                            title: '',
+                        }}
                     />
                 </Stack>
                 <StatusBar style='auto' />

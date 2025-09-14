@@ -1,15 +1,30 @@
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { Stack } from 'expo-router';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 
 import appLogo from '@/assets/images/NewaSayQLogo.png';
+import { navigate } from 'expo-router/build/global-state/routing';
+import { useEffect } from 'react';
 
 const Login = () => {
     const colorScheme = useColorScheme();
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigate('/start');
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <View style={styles.container}>
+        <View
+            style={{
+                ...styles.container,
+                backgroundColor: Colors[colorScheme ?? 'light'].background,
+            }}
+        >
             <Image source={appLogo} />
             <Text
                 style={{
