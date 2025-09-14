@@ -7,7 +7,8 @@ type MessageInfo = {
   fontWeight?: number;
   messageBoxWidth?: string;
   pointerStatus?: boolean;
-  messageBoxColor?: string;
+  messageBoxOutline?: string;
+  messageBoxFill?: string;
 };
 
 type MessageProps = {
@@ -61,9 +62,10 @@ function createStyle(
     messageBubble: {
       minWidth: 100,
       borderWidth: 1,
-      borderColor: messageInfo.messageBoxColor ?? theme.text,
+      backgroundColor: messageInfo.messageBoxFill ?? theme.background,
+      borderColor: messageInfo.messageBoxOutline ?? theme.text,
       borderRadius: 10,
-      marginRight: 40,
+      marginRight: 60,
       paddingVertical: 10,
       paddingHorizontal: 20,
       maxWidth: "70%", // prevents bubble from stretching too wide
@@ -79,7 +81,7 @@ function createStyle(
       borderTopWidth: 12,
       borderLeftColor: "transparent",
       borderRightColor: "transparent",
-      borderTopColor: messageInfo.messageBoxColor ?? theme.text,
+      borderTopColor: messageInfo.messageBoxOutline ?? theme.text,
     },
     messageText: {
       color: messageInfo.color ?? theme.text,

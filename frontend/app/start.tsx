@@ -14,7 +14,6 @@ export default function Start() {
     marginHorizontal: "auto",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 35,
     borderRadius: 10,
     width: 341,
     height: 62,
