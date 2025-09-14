@@ -19,11 +19,18 @@ export function Base({ children }: BaseProps) {
   const content = children({ theme, colorScheme, styles });
 
   return Platform.OS === "web" ? (
-    <ScrollView contentContainerStyle={styles.bodyContainer}>
+    <ScrollView contentContainerStyle={[{ flex: 1 }, styles.bodyContainer]}>
       {content}
     </ScrollView>
   ) : (
-    <SafeAreaView style={styles.bodyContainer}>{content}</SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView
+        contentContainerStyle={[styles.bodyContainer, { flexGrow: 1 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {content}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -34,7 +41,6 @@ function createStyle(
   return StyleSheet.create({
     bodyContainer: {
       backgroundColor: theme.background,
-      flex: 1,
       justifyContent: "space-between",
       alignItems: "center",
       paddingBottom: 35,
