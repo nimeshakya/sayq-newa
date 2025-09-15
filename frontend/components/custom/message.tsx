@@ -72,7 +72,7 @@ function createStyle(
     },
     triangle: {
       position: "absolute",
-      bottom: -12, // below bubble
+      bottom: -11, // below bubble
       right: 90, // fixed horizontal position
       width: 0,
       height: 0,
