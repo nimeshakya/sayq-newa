@@ -15,11 +15,11 @@ export default function Start() {
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    width: 341,
-    height: 62,
+    width: 273,
+    height: 46,
     color: "black",
-    fontSize: 24,
-    fontWeight: 900,
+    fontSize: 16,
+    fontWeight: 700,
   };
 
   const messageInfo = {
