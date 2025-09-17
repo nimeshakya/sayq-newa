@@ -29,11 +29,11 @@ export default function Level() {
     alignItems: "center",
     marginBottom: 35,
     borderRadius: 10,
-    width: 341,
-    height: 62,
+    width: 273,
+    height: 46,
     color: "black",
-    fontSize: 24,
-    fontWeight: 900,
+    fontSize: 16,
+    fontWeight: 700,
   };
 
   const messageInfo = {
@@ -125,7 +125,7 @@ function createStyle() {
     },
     gif: {
       width: 112,
-      height: 159,
+      height: 149,
       marginLeft: 50,
       resizeMode: "contain",
     },
