@@ -17,7 +17,7 @@ export default function Time() {
       return;
     } else {
       console.log(`selected key: ${selectedOption.key}`);
-      router.replace("/");
+      router.replace("/courseBuildPage");
     }
   };
   const fullText = "What's your daily learning goal?";
