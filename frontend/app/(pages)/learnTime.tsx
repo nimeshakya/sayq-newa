@@ -32,8 +32,8 @@ export default function Time() {
     width: 341,
     height: 62,
     color: "black",
-    fontSize: 24,
-    fontWeight: 900,
+    fontSize: 16,
+    fontWeight: 700,
     keywordFontSize: 16,
     keywordFontWeight: 600,
   };
@@ -120,8 +120,8 @@ function createStyle() {
       marginRight: 0,
     },
     gif: {
-      width: 112,
-      height: 159,
+      width: 193,
+      height: 257,
       marginLeft: 50,
       resizeMode: "contain",
     },
