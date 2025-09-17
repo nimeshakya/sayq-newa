@@ -124,8 +124,8 @@ function createStyle() {
       marginRight: 0,
     },
     gif: {
-      width: 193,
-      height: 257,
+      width: 112,
+      height: 149,
       marginLeft: 50,
       resizeMode: "contain",
     },
