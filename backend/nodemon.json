@@ -1,5 +1,5 @@
 {
-    "wathc": ["src"],
+    "watch": ["src"],
     "ext": "ts",
     "exec": "ts-node-dev ./src/index.ts"
 }
