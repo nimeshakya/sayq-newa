@@ -26,7 +26,7 @@ app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-app.use('/', router());
+app.use('/api', router());
 
 const server = http.createServer(app);
 
