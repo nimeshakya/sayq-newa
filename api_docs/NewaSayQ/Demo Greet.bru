@@ -1,0 +1,13 @@
+meta {
+  name: Demo Greet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:6969/api/demo/greet?name=nimesh
+  auth: inherit
+}
+settings {
+  encodeUrl: true
+}
