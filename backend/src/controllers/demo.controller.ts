@@ -5,12 +5,12 @@ export const getDemoGreet = async (
     res: express.Response
 ) => {
     try {
-        const { name } = req.body;
+        const { name } = req.query;
 
         if (!name) {
             return res
                 .status(400)
-                .json({ message: 'Name is required in the request body' })
+                .json({ message: 'Name is required in the query string' })
                 .end();
         }
         return res
