@@ -13,6 +13,8 @@ type UserType = {
     id: string;
     email: string;
     name: string;
+    given_name?: string;
+    family_name?: string;
     imageUrl: string;
     expertise_lvl: 0 | 1 | 2 | 3 | 4 | 5 | null;
 };
@@ -59,11 +61,20 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
                     token: response.data.idToken,
                 })
                 .then((res) => {
-                    const { email, googleId, name, picture } = res.data.user;
+                    const {
+                        email,
+                        googleId,
+                        name,
+                        given_name,
+                        family_name,
+                        picture,
+                    } = res.data.user;
                     setUser({
                         id: googleId,
                         email,
                         name,
+                        given_name,
+                        family_name,
                         imageUrl: picture,
                         expertise_lvl: null,
                     });

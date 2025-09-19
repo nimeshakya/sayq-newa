@@ -33,12 +33,14 @@ export const authenticationController = async (
 
         console.log(payload);
 
-        const { sub, email, name, picture } = payload;
+        const { sub, email, given_name, family_name, name, picture } = payload;
 
         const user = {
             googleId: sub,
             email,
             name,
+            given_name,
+            family_name,
             picture,
         };
 
