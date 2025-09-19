@@ -5,17 +5,9 @@ meta {
 }
 
 get {
-  url: http://localhost:6969/api/demo/greet
-  body: json
+  url: http://localhost:6969/api/demo/greet?name=nimesh
   auth: inherit
 }
-
-body:json {
-  {
-    "name": "nimesh"
-  }
-}
-
 tests {
   {
     "name": "nimesh"
