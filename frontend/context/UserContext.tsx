@@ -5,6 +5,7 @@ import {
     isSuccessResponse,
     statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { router } from 'expo-router';
 import { API_BASE_URL, EXPO_PUBLIC_GOOGLE_CLIENT_ID } from '@/constants';
 
 import { useBackendAPIContext } from './BackendAPIContext';
@@ -24,6 +25,7 @@ type UserContextType = {
     user: UserType | null;
     setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
     googleSignIn: () => Promise<void>;
+    silentGoogleSignIn: () => Promise<boolean>;
     fetchUser: () => Promise<void>;
 };
 
@@ -33,20 +35,72 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
     const [user, setUser] = React.useState<any>(null);
     const { client } = useBackendAPIContext();
 
+    // get user data from backend for provided token id
+    const hydrateFromBackend = async (idToken: string) => {
+        const res = await client.post('/auth/google-sign-in', {
+            token: idToken,
+        });
+        const { email, googleId, name, given_name, family_name, picture } =
+            res.data.user;
+        setUser({
+            id: googleId,
+            email,
+            name,
+            given_name,
+            family_name,
+            imageUrl: picture,
+            expertise_lvl: null,
+        });
+        router.replace('/(pages)/start');
+    };
+
+    // Silent login to not prompt user with account selection
+    const attemptSilentSignIn = async () => {
+        try {
+            const res = await GoogleSignin.signInSilently();
+            if (res.data?.idToken) {
+                await hydrateFromBackend(res.data.idToken);
+                return true;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return false;
+    };
+
     // configure google sign in
     GoogleSignin.configure({
         webClientId: EXPO_PUBLIC_GOOGLE_CLIENT_ID,
         offlineAccess: false,
     });
 
+    const silentGoogleSignIn = async () => {
+        let signInSuccessful = false;
+        try {
+            await GoogleSignin.hasPlayServices();
+            // For dev testing purposes, sign out before signing in
+            if (GoogleSignin.hasPreviousSignIn()) {
+                if (user) {
+                    router.replace('/(pages)/start');
+                    signInSuccessful = true;
+                    return;
+                }
+
+                // Try silent restore
+                const restored = await attemptSilentSignIn();
+                if (restored) {
+                    signInSuccessful = true;
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Silent sign-in error:', error);
+        }
+        return signInSuccessful;
+    };
+
     const googleSignIn = async () => {
         try {
-            // For dev testing purposes, sign out before signing in
-            const hasPreviousSignIn = GoogleSignin.hasPreviousSignIn();
-            if (hasPreviousSignIn) {
-                await GoogleSignin.signOut();
-                setUser(null);
-            }
             // check if device has google play services
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
@@ -79,8 +133,8 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
                         imageUrl: picture,
                         expertise_lvl: null,
                     });
+                    navigate('/(pages)/start');
                 })
-                .finally(() => navigate('/(pages)/start'))
                 .catch((err) => console.error(err));
         } catch (error) {
             if (isErrorWithCode(error)) {
@@ -108,7 +162,9 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
     }, [user]);
 
     return (
-        <UserContext.Provider value={{ user, setUser, googleSignIn }}>
+        <UserContext.Provider
+            value={{ user, setUser, googleSignIn, silentGoogleSignIn }}
+        >
             {children}
         </UserContext.Provider>
     );

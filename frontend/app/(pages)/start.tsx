@@ -8,7 +8,9 @@ import { useUserContext } from '@/context/UserContext';
 
 export default function Start() {
     const { user } = useUserContext();
-    const [message, setMessage] = useState(`Welcome, ${user.given_name}!`);
+    const [message, setMessage] = useState(
+        `Welcome, ${user.given_name ? user.given_name : 'Friend'}!`
+    );
     const [pressed, setPressed] = useState(false);
 
     const buttoninfo = {
