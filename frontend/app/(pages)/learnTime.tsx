@@ -22,11 +22,11 @@ export default function Time() {
   }, []);
 
   const handleContinue = async () => {
-    if (!option) {
+    if (!option.key || !option.value) {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected time: ${time.key}:${time.value}`);
+      console.log(`selected time: ${option.key}:${option.value}`);
       setTime(option);
       clearOption();
       router.replace("/courseBuildPage");
