@@ -20,7 +20,7 @@ export default function Level() {
   }, []);
 
   const handleContinue = async () => {
-    if (!option) {
+    if (!option.key || !option.value) {
       console.log("Please select an option!");
       return;
     } else {
@@ -55,28 +55,18 @@ export default function Level() {
   const options = [
     {
       key: "1",
-      icon: "hellow",
+      icon: "hello",
       value: "I am new to Nepal Bhasa",
     },
     {
       key: "2",
-      icon: "hellow",
+      icon: "hello",
       value: "I know some common words",
     },
     {
       key: "3",
-      icon: "hellow",
+      icon: "hello",
       value: "I can have some basic conversation",
-    },
-    {
-      key: "4",
-      icon: "hellow",
-      value: "I can talk about various topics",
-    },
-    {
-      key: "5",
-      icon: "hellow",
-      value: "I can discuss most topics in detail",
     },
   ];
   const optionInfo = {
