@@ -10,9 +10,8 @@ import { useMessage } from "@/context/messageContext";
 
 export default function Start() {
   const { user } = useUserContext();
-  const [message, setMessage] = useState(
-    `Welcome, ${user.given_name ? user.given_name : "Friend"}!`
-  );
+  const { setMessage } = useMessage();
+  setMessage(`Welcome, ${user.given_name ? user.given_name : "Friend"}!`);
   const [pressed, setPressed] = useState(false);
 
   const buttoninfo = {
@@ -41,12 +40,8 @@ export default function Start() {
         return (
           <>
             <View style={styles.topContainer}>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={message}
-                theme={theme}
-              />
-              <View style={styles.gifContainer}>
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
+              <View>
                 <Image source={pigeon} style={styles.gif} />
               </View>
             </View>
