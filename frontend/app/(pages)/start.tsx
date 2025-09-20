@@ -10,7 +10,7 @@ import { useMessage } from "@/context/messageContext";
 export default function Start() {
   const { setMessage, message } = useMessage();
   useEffect(() => {
-    setMessage("Welcome, My Dear Friend!");
+    setMessage("Welcome, My Dear Friend!\nलसकुस दु पासापिं");
   }, []);
 
   const [pressed, setPressed] = useState(false);
