@@ -2,11 +2,17 @@ import pigeon from "@/assets/video/Pigeon.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
+import { useMessage } from "@/context/messageContext";
+
 export default function Start() {
-  const [message, setMessage] = useState("Welcome, My Dear Friend!");
+  const { setMessage, message } = useMessage();
+  useEffect(() => {
+    setMessage("Welcome, My Dear Friend!");
+  }, []);
+
   const [pressed, setPressed] = useState(false);
 
   const buttoninfo = {
@@ -25,7 +31,7 @@ export default function Start() {
   const messageInfo = {
     color: "#FFAE42",
     fontSize: 20,
-    fontWeight: 600,
+    fontWeight: "600",
   };
 
   return (
@@ -35,12 +41,8 @@ export default function Start() {
         return (
           <>
             <View style={styles.topContainer}>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={message}
-                theme={theme}
-              />
-              <View style={styles.gifContainer}>
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
+              <View>
                 <Image source={pigeon} style={styles.gif} />
               </View>
             </View>

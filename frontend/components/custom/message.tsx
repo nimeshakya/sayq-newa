@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { ViewStyle, TextStyle } from "react-native";
+
+import { useMessage } from "@/context/messageContext";
 
 type MessageInfo = {
   color?: string;
   fontSize?: number;
-  fontWeight?: number;
+  fontWeight?: string | string;
   messageBoxWidth?: string;
   pointerStatus?: boolean;
   messageBoxOutline?: string;
@@ -13,14 +16,15 @@ type MessageInfo = {
 
 type MessageProps = {
   messageInfo: MessageInfo;
-  message: string;
   theme: { background: string; text: string };
 };
 
-export function MessageBubble({ theme, messageInfo, message }: MessageProps) {
+export function MessageBubble({ theme, messageInfo }: MessageProps) {
   const styles = createStyle(messageInfo, theme);
   const [displayedText, setDisplayedText] = useState("");
   const pointerStatus = messageInfo.pointerStatus ?? true;
+
+  const { message } = useMessage();
   useEffect(() => {
     let index = 0;
     let interval: number | undefined;
@@ -50,7 +54,7 @@ export function MessageBubble({ theme, messageInfo, message }: MessageProps) {
 }
 
 function createStyle(
-  messageInfo: MessageInfo["messageInfo"],
+  messageInfo: MessageInfo,
   theme: { background: string; text: string }
 ) {
   return StyleSheet.create({
@@ -58,7 +62,7 @@ function createStyle(
       position: "relative", // parent for absolute positioning
       width: messageInfo.messageBoxWidth ?? "100%", // full width container
       alignItems: "flex-end", // bubble on left
-    },
+    } as ViewStyle,
     messageBubble: {
       minWidth: 100,
       borderWidth: 1,
@@ -69,7 +73,7 @@ function createStyle(
       paddingVertical: 10,
       paddingHorizontal: 20,
       maxWidth: "70%", // prevents bubble from stretching too wide
-    },
+    } as ViewStyle,
     triangle: {
       position: "absolute",
       bottom: -11, // below bubble
@@ -82,11 +86,11 @@ function createStyle(
       borderLeftColor: "transparent",
       borderRightColor: "transparent",
       borderTopColor: messageInfo.messageBoxOutline ?? theme.text,
-    },
+    } as ViewStyle,
     messageText: {
       color: messageInfo.color ?? theme.text,
       fontSize: messageInfo.fontSize ?? 20,
       fontWeight: messageInfo.fontWeight ?? "600",
-    },
+    } as TextStyle,
   });
 }

@@ -4,15 +4,20 @@ import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
 import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
 import { useOption } from "@/context/optionContext";
+import { useMessage } from "@/context/messageContext";
 
 export default function Level() {
   const router = useRouter();
 
   const { clearOption, option } = useOption();
+  const { setMessage } = useMessage();
+  useEffect(() => {
+    setMessage("How familiar are you with Nepal Bhasa?");
+  }, []);
 
   const handleContinue = async () => {
     if (!option) {
@@ -24,14 +29,12 @@ export default function Level() {
       router.replace("/learnTime");
     }
   };
-  const fullText = "How familiar are you with Nepal Bhasa?";
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
     marginHorizontal: "auto",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 35,
     borderRadius: 10,
     width: 273,
     height: 46,
@@ -43,7 +46,7 @@ export default function Level() {
   const messageInfo = {
     color: "#FFAE42",
     fontSize: 20,
-    fontWeight: 500,
+    fontWeight: "500",
     messageBoxWidth: "70%",
     pointerStatus: false,
   };
@@ -91,11 +94,7 @@ export default function Level() {
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={fullText}
-                theme={theme}
-              />
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
             </View>
             <OptionBox
               options={options}

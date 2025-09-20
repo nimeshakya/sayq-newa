@@ -2,11 +2,16 @@ import pigeon from "@/assets/video/Pigeon.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
+import { useMessage } from "@/context/messageContext";
+
 export default function Start() {
-  const [message, setMessage] = useState("Ok, we will start fresh");
+  const { setMessage } = useMessage();
+  useEffect(() => {
+    setMessage("Ok, we will start fresh");
+  }, []);
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
@@ -24,7 +29,7 @@ export default function Start() {
   const messageInfo = {
     color: "#FFAE42",
     fontSize: 20,
-    fontWeight: 600,
+    fontWeight: "600",
   };
 
   return (
@@ -34,11 +39,7 @@ export default function Start() {
         return (
           <>
             <View style={styles.topContainer}>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={message}
-                theme={theme}
-              />
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
               <View>
                 <Image source={pigeon} style={styles.gif} />
               </View>

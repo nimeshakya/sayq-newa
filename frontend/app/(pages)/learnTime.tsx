@@ -6,13 +6,20 @@ import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
+import { useEffect } from "react";
 
 import { useOption } from "@/context/optionContext";
+import { useMessage } from "@/context/messageContext";
 
 export default function Time() {
   const router = useRouter();
 
   const { clearOption, option } = useOption();
+  const { setMessage } = useMessage();
+
+  useEffect(() => {
+    setMessage("What's your daily learning goal?");
+  }, []);
 
   const handleContinue = async () => {
     if (!option) {
@@ -24,14 +31,12 @@ export default function Time() {
       router.replace("/courseBuildPage");
     }
   };
-  const fullText = "What's your daily learning goal?";
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
     marginHorizontal: "auto",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 35,
     borderRadius: 10,
     width: 273,
     height: 46,
@@ -44,7 +49,7 @@ export default function Time() {
 
   const messageInfo = {
     fontSize: 20,
-    fontWeight: 500,
+    fontWeight: "500",
     messageBoxWidth: "70%",
     pointerStatus: false,
   };
@@ -87,11 +92,7 @@ export default function Time() {
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={fullText}
-                theme={theme}
-              />
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
             </View>
             <OptionBox
               options={options}
