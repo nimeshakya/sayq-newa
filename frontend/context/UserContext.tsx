@@ -25,14 +25,14 @@ type UserContextType = {
     user: UserType | null;
     setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
     googleSignIn: () => Promise<void>;
-    silentGoogleSignIn: () => Promise<boolean>;
-    fetchUser: () => Promise<void>;
+    silentGoogleSignIn: () => Promise<boolean | undefined>;
+    // fetchUser: () => Promise<void>;
 };
 
-export const UserContext = React.createContext<any>(null);
+const UserContext = React.createContext<UserContextType | null>(null);
 
 const UserProvider = ({ children }: React.PropsWithChildren) => {
-    const [user, setUser] = React.useState<any>(null);
+    const [user, setUser] = React.useState<UserType | null>(null);
     const { client } = useBackendAPIContext();
 
     // get user data from backend for provided token id
@@ -78,19 +78,21 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
         let signInSuccessful = false;
         try {
             await GoogleSignin.hasPlayServices();
+            // for dev testing sign out before signing in
+            // await GoogleSignin.signOut();
             // For dev testing purposes, sign out before signing in
             if (GoogleSignin.hasPreviousSignIn()) {
                 if (user) {
                     router.replace('/(pages)/start');
                     signInSuccessful = true;
-                    return;
+                    return signInSuccessful;
                 }
 
                 // Try silent restore
                 const restored = await attemptSilentSignIn();
                 if (restored) {
                     signInSuccessful = true;
-                    return;
+                    return signInSuccessful;
                 }
             }
         } catch (error) {
