@@ -4,19 +4,23 @@ import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
 import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { ScrollView, Image, StyleSheet, View } from "react-native";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
+
+import { useOption } from "@/context/optionContext";
 
 export default function Time() {
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<Options | null>(null);
+
+  const { clearOption, option } = useOption();
 
   const handleContinue = async () => {
-    if (!selectedOption) {
+    if (!option) {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected key: ${selectedOption.key}`);
+      console.log(`selected key: ${option.key}:${option.value}`);
+      clearOption();
       router.replace("/courseBuildPage");
     }
   };
@@ -93,7 +97,6 @@ export default function Time() {
               options={options}
               optionInfo={optionInfo}
               theme={theme}
-              onSelect={(item) => setSelectedOption(item)}
             />
             <NavButton
               buttonInfo={buttoninfo}
