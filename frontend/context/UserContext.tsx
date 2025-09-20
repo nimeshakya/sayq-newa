@@ -78,7 +78,7 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
         try {
             await GoogleSignin.hasPlayServices();
             // for dev testing sign out before signing in
-            // await GoogleSignin.signOut();
+            await GoogleSignin.signOut();
             // For dev testing purposes, sign out before signing in
             if (GoogleSignin.hasPreviousSignIn()) {
                 if (user) {
@@ -111,32 +111,7 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
             }
 
             // send token to backend and retrieve data of user as well as signed token
-            const url = `${API_BASE_URL}/auth/google-sign-in`;
-            client
-                .post(url, {
-                    token: response.data.idToken,
-                })
-                .then((res) => {
-                    const {
-                        email,
-                        googleId,
-                        name,
-                        given_name,
-                        family_name,
-                        picture,
-                    } = res.data.user;
-                    setUser({
-                        id: googleId,
-                        email,
-                        name,
-                        given_name,
-                        family_name,
-                        imageUrl: picture,
-                        expertise_lvl: null,
-                    });
-                    router.replace('/(pages)/start');
-                })
-                .catch((err) => console.error(err));
+            hydrateFromBackend(response.data.idToken!);
         } catch (error) {
             if (isErrorWithCode(error)) {
                 switch (error.code) {
