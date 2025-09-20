@@ -4,30 +4,40 @@ import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
 import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { ScrollView, Image, StyleSheet, View } from "react-native";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { useEffect } from "react";
+
+import { useOption } from "@/context/optionContext";
+import { useMessage } from "@/context/messageContext";
 
 export default function Time() {
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<Options | null>(null);
+
+  const { clearOption, option, time, setTime } = useOption();
+  const { setMessage } = useMessage();
+
+  useEffect(() => {
+    setMessage("What's your daily learning goal?");
+  }, []);
 
   const handleContinue = async () => {
-    if (!selectedOption) {
+    if (!option.key || !option.value) {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected key: ${selectedOption.key}`);
+      console.log(`selected time: ${option.key}:${option.value}`);
+      setTime(option);
+      clearOption();
       router.replace("/courseBuildPage");
     }
   };
-  const fullText = "What's your daily learning goal?";
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
     marginHorizontal: "auto",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 35,
     borderRadius: 10,
     width: 273,
     height: 46,
@@ -40,7 +50,7 @@ export default function Time() {
 
   const messageInfo = {
     fontSize: 20,
-    fontWeight: 500,
+    fontWeight: "500",
     messageBoxWidth: "70%",
     pointerStatus: false,
   };
@@ -83,17 +93,12 @@ export default function Time() {
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={fullText}
-                theme={theme}
-              />
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
             </View>
             <OptionBox
               options={options}
               optionInfo={optionInfo}
               theme={theme}
-              onSelect={(item) => setSelectedOption(item)}
             />
             <NavButton
               buttonInfo={buttoninfo}

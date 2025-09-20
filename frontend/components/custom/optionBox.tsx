@@ -1,6 +1,8 @@
-import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { SignalBar } from "./signalBar";
+
+import { useOption } from "@/context/optionContext";
+
 type OptionStyle = {
   selectedBoxColor?: string;
   boxColor?: string;
@@ -23,24 +25,18 @@ type Options = {
 type OptionProps = {
   optionInfo: OptionStyle;
   options: Options[];
-  onSelect?: (item: Options) => void; //call back to parent
   theme: { background: string; text: string };
 };
 
-export function OptionBox({
-  theme,
-  options,
-  optionInfo,
-  onSelect,
-}: OptionProps) {
+export function OptionBox({ theme, options, optionInfo }: OptionProps) {
   const styles = createStyle(optionInfo, theme);
-  const [selectedItem, setSelectedItem] = useState("");
-  const [strength, setStrenth] = useState();
 
   const barInfo = {
     signalWidth: 26,
     signalHeight: 23,
   };
+
+  const { setOption, option } = useOption(); //to set selected item
 
   return (
     <>
@@ -51,61 +47,45 @@ export function OptionBox({
           scrollEnabled={false}
           renderItem={({ item }) => (
             <Pressable
-              key={item.key}
               onPress={() => {
-                setSelectedItem(item.key);
-                onSelect?.(item); // notify parent}
+                setOption(item);
               }}
               style={({ pressed }) => [
                 styles.levelContainer,
                 {
                   borderColor:
-                    selectedItem === item.key
+                    option?.key === item.key
                       ? optionInfo.selectedBoxColor ?? "red"
                       : optionInfo.boxColor ?? theme.text,
                 },
               ]}
             >
               {item.keyword && item.icon ? (
-                <View key={item.key} style={styles.selector}>
+                <View style={styles.selector}>
                   <SignalBar
-                    key={`${item.key}-signal`}
                     theme={theme}
                     barInfo={barInfo}
                     strength={Number(item.key) - 1}
                   />
-                  <Text key={`${item.key}-value`} style={styles.textStyle}>
-                    {item.value}
-                  </Text>
-                  <Text key={`${item.key}-keyword`} style={styles.keywordStyle}>
-                    {item.keyword}
-                  </Text>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                  <Text style={styles.keywordStyle}>{item.keyword}</Text>
                 </View>
               ) : item.keyword && !item.icon ? (
-                <View key={item.key} style={styles.selector}>
-                  <Text key={`${item.key}-value`} style={styles.textStyle}>
-                    {item.value}
-                  </Text>
-                  <Text key={`${item.key}-keyword`} style={styles.keywordStyle}>
-                    {item.keyword}
-                  </Text>
+                <View style={styles.selector}>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                  <Text style={styles.keywordStyle}>{item.keyword}</Text>
                 </View>
               ) : !item.keyword && item.icon ? (
-                <View key={item.key} style={styles.selector}>
+                <View style={styles.selector}>
                   <SignalBar
-                    key={`${item.key}-signal`}
                     theme={theme}
                     barInfo={barInfo}
                     strength={Number(item.key) - 1}
                   />
-                  <Text key={`${item.key}-value`} style={styles.textStyle}>
-                    {item.value}
-                  </Text>
+                  <Text style={styles.textStyle}>{item.value}</Text>
                 </View>
               ) : (
-                <Text key={`${item.key}-value`} style={styles.textStyle}>
-                  {item.value}
-                </Text>
+                <Text style={styles.textStyle}>{item.value}</Text>
               )}
             </Pressable>
           )}
@@ -114,11 +94,19 @@ export function OptionBox({
     </>
   );
 }
+import { ViewStyle, TextStyle } from "react-native";
+
 function createStyle(
-  optionInfo: OptionInfo["optionInfo"],
+  optionInfo: OptionStyle,
   theme: { background: string; text: string }
 ) {
-  return StyleSheet.create({
+  return StyleSheet.create<{
+    levelGroup: ViewStyle;
+    levelContainer: ViewStyle;
+    selector: ViewStyle;
+    textStyle: TextStyle;
+    keywordStyle: TextStyle;
+  }>({
     levelGroup: {
       flex: 1,
       width: "100%",
@@ -129,7 +117,7 @@ function createStyle(
       paddingHorizontal: 14,
       borderRadius: 20,
       borderWidth: 1,
-      backgroundColor: optionInfo.color ?? null,
+      backgroundColor: optionInfo.boxColor ?? undefined,
     },
     selector: {
       flexDirection: "row",
@@ -139,14 +127,15 @@ function createStyle(
       flex: 1,
       color: optionInfo.color ?? theme.text,
       fontSize: optionInfo.fontSize ?? 16,
-      fontWeight: optionInfo.fontWeight ?? 600,
+      fontWeight: (optionInfo.fontWeight as TextStyle["fontWeight"]) ?? "600",
       flexWrap: "wrap",
       marginVertical: 14,
     },
     keywordStyle: {
       color: optionInfo.color ?? theme.text,
       fontSize: optionInfo.keywordFontSize ?? 16,
-      fontWeight: optionInfo.keywordFontWeight ?? 600,
+      fontWeight:
+        (optionInfo.keywordFontWeight as TextStyle["fontWeight"]) ?? "600",
       width: 70, // fixed width for keyword
       textAlign: "right",
     },
