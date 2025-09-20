@@ -9,7 +9,6 @@ import { router } from 'expo-router';
 import { API_BASE_URL, EXPO_PUBLIC_GOOGLE_CLIENT_ID } from '@/constants';
 
 import { useBackendAPIContext } from './BackendAPIContext';
-import { navigate } from 'expo-router/build/global-state/routing';
 
 type UserType = {
     id: string;
@@ -135,7 +134,7 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
                         imageUrl: picture,
                         expertise_lvl: null,
                     });
-                    navigate('/(pages)/start');
+                    router.replace('/(pages)/start');
                 })
                 .catch((err) => console.error(err));
         } catch (error) {
