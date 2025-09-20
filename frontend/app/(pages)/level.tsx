@@ -13,7 +13,7 @@ import { useMessage } from "@/context/messageContext";
 export default function Level() {
   const router = useRouter();
 
-  const { clearOption, option } = useOption();
+  const { clearOption, option, level, setLevel } = useOption();
   const { setMessage } = useMessage();
   useEffect(() => {
     setMessage("How familiar are you with Nepal Bhasa?");
@@ -24,7 +24,8 @@ export default function Level() {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected key: ${option.key}:${option.value}`);
+      console.log(`selected level: ${option.key}:${option.value}`);
+      setLevel(option);
       clearOption();
       router.replace("/learnTime");
     }

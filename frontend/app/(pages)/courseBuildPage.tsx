@@ -6,11 +6,15 @@ import React, { useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
 import { useMessage } from "@/context/messageContext";
+import { useOption } from "@/context/optionContext";
 
 export default function Start() {
   const { setMessage } = useMessage();
+  const { level } = useOption();
   useEffect(() => {
-    setMessage("Ok, we will start fresh");
+    level.key === "1"
+      ? setMessage("Ok, we will start fresh!")
+      : setMessage("Ok, we will build on what you know!");
   }, []);
 
   const buttoninfo = {

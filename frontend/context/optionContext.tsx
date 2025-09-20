@@ -6,7 +6,11 @@ type OptionType = { key: string; value: string };
 
 type OptionContextType = {
   option: OptionType;
+  level: OptionType;
+  time: OptionType;
   setOption: (option: OptionType) => void;
+  setLevel: (option: OptionType) => void;
+  setTime: (option: OptionType) => void;
   clearOption: () => void;
 };
 
@@ -19,13 +23,23 @@ export const OptionProvider = ({ children }: { children: React.ReactNode }) => {
     key: "",
     value: "",
   });
+  const [level, setLevel] = useState<OptionType>({
+    key: "",
+    value: "",
+  });
+  const [time, setTime] = useState<OptionType>({
+    key: "",
+    value: "",
+  });
   const clearOption = () =>
     setOption({
       key: "",
       value: "",
     });
   return (
-    <OptionContext.Provider value={{ option, setOption, clearOption }}>
+    <OptionContext.Provider
+      value={{ option, level, time, setOption, clearOption, setLevel, setTime }}
+    >
       {children}
     </OptionContext.Provider>
   );

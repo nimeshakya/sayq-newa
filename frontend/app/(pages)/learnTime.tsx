@@ -14,7 +14,7 @@ import { useMessage } from "@/context/messageContext";
 export default function Time() {
   const router = useRouter();
 
-  const { clearOption, option } = useOption();
+  const { clearOption, option, time, setTime } = useOption();
   const { setMessage } = useMessage();
 
   useEffect(() => {
@@ -26,7 +26,8 @@ export default function Time() {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected key: ${option.key}:${option.value}`);
+      console.log(`selected time: ${time.key}:${time.value}`);
+      setTime(option);
       clearOption();
       router.replace("/courseBuildPage");
     }
