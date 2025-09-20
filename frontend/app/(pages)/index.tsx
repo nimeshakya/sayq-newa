@@ -13,9 +13,12 @@ import { useColorScheme } from 'react-native';
 import appLogo from '@/assets/images/NewaSayQLogo.png';
 import { navigate } from 'expo-router/build/global-state/routing';
 
+import { useUserContext } from '@/context/UserContext';
+
 const Login = () => {
     const [showSignIn, setShowSignIn] = useState(false);
     const colorScheme = useColorScheme();
+    const { googleSignIn, silentGoogleSignIn } = useUserContext();
     const [loadedFonts] = useFonts({
         'Poppins-Black': require('@/assets/fonts/Poppins-Black.ttf'),
         'Poppins-BlackItalic': require('@/assets/fonts/Poppins-BlackItalic.ttf'),
@@ -46,7 +49,12 @@ const Login = () => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setShowSignIn(true);
+            // show sign in button after 2 seconds only if silent sign in fails
+            silentGoogleSignIn().then((success: boolean) => {
+                if (!success) {
+                    setShowSignIn(true);
+                }
+            });
         }, 2000);
         return () => clearTimeout(timer);
     }, []);
@@ -100,7 +108,7 @@ const Login = () => {
                     }}
                 >
                     <View style={styles.signInButtonContainer}>
-                        <Pressable onPress={() => navigate('/start')}>
+                        <Pressable onPress={() => googleSignIn()}>
                             <Image
                                 source={require('@/assets/images/google_icon.png')}
                             />

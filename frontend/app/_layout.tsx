@@ -9,6 +9,9 @@ import 'react-native-reanimated';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import UserProvider from '@/context/UserContext';
+import BackendAPIProvider from '@/context/BackendAPIContext';
+
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
@@ -23,15 +26,20 @@ export default function RootLayout() {
             <ThemeProvider
                 value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
             >
-                <Stack
-                    screenOptions={{
-                        headerShown: false,
-                    }}
-                >
-                    {/* load pages from special folder (pages) */}
-                    <Stack.Screen name='(pages)' />
-                </Stack>
-                <StatusBar style='auto' />
+                <BackendAPIProvider>
+                    <UserProvider>
+                        <Stack
+                            screenOptions={{
+                                headerShown: false,
+                            }}
+                        >
+                            {/* load pages from special folder (pages) */}
+                            <Stack.Screen name='(pages)' />
+                        </Stack>
+
+                        <StatusBar style='auto' />
+                    </UserProvider>
+                </BackendAPIProvider>
             </ThemeProvider>
         </SafeAreaProvider>
     );
