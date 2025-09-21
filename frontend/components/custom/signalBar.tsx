@@ -1,3 +1,4 @@
+import { ViewStyle } from "react-native";
 import { StyleSheet, View } from "react-native";
 type BarInfo = {
   containerOutlineColor?: string;
@@ -30,7 +31,7 @@ export function SignalBar({ theme, strength, barInfo }: BarProps) {
   );
 }
 function createStyle(
-  barInfo: BarInfo["barInfo"],
+  barInfo: BarInfo,
   theme: { background: string; text: string }
 ) {
   return StyleSheet.create({
@@ -47,14 +48,14 @@ function createStyle(
       justifyContent: "center",
       alignItems: "flex-end",
       marginRight: 14,
-    },
+    } as ViewStyle,
     bars: {
       borderColor: barInfo.barBorderColor ?? theme.text,
       borderWidth: 1,
       flex: 1,
-    },
+    } as ViewStyle,
     fill: {
       backgroundColor: barInfo.barFillColor ?? theme.text,
-    },
+    } as ViewStyle,
   });
 }

@@ -4,30 +4,38 @@ import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
 import { OptionBox } from "@/components/custom/optionBox";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { ScrollView, Image, StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import { Image, StyleSheet, View } from "react-native";
+
+import { useOption } from "@/context/optionContext";
+import { useMessage } from "@/context/messageContext";
 
 export default function Level() {
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<Options | null>(null);
+
+  const { clearOption, option, level, setLevel } = useOption();
+  const { setMessage } = useMessage();
+  useEffect(() => {
+    setMessage("How familiar are you with Nepal Bhasa?");
+  }, []);
 
   const handleContinue = async () => {
-    if (!selectedOption) {
+    if (!option.key || !option.value) {
       console.log("Please select an option!");
       return;
     } else {
-      console.log(`selected key: ${selectedOption.key}`);
+      console.log(`selected level: ${option.key}:${option.value}`);
+      setLevel(option);
+      clearOption();
       router.replace("/learnTime");
     }
   };
-  const fullText = "How familiar are you with Nepal Bhasa?";
 
   const buttoninfo = {
     backgroundColor: "#FFAE42",
     marginHorizontal: "auto",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 35,
     borderRadius: 10,
     width: 273,
     height: 46,
@@ -39,7 +47,7 @@ export default function Level() {
   const messageInfo = {
     color: "#FFAE42",
     fontSize: 20,
-    fontWeight: 500,
+    fontWeight: "500",
     messageBoxWidth: "70%",
     pointerStatus: false,
   };
@@ -47,28 +55,18 @@ export default function Level() {
   const options = [
     {
       key: "1",
-      icon: "hellow",
+      icon: "hello",
       value: "I am new to Nepal Bhasa",
     },
     {
       key: "2",
-      icon: "hellow",
+      icon: "hello",
       value: "I know some common words",
     },
     {
       key: "3",
-      icon: "hellow",
+      icon: "hello",
       value: "I can have some basic conversation",
-    },
-    {
-      key: "4",
-      icon: "hellow",
-      value: "I can talk about various topics",
-    },
-    {
-      key: "5",
-      icon: "hellow",
-      value: "I can discuss most topics in detail",
     },
   ];
   const optionInfo = {
@@ -87,17 +85,12 @@ export default function Level() {
               <View style={styles.gifContainer}>
                 <Image source={pigeon} style={styles.gif} />
               </View>
-              <MessageBubble
-                messageInfo={messageInfo}
-                message={fullText}
-                theme={theme}
-              />
+              <MessageBubble messageInfo={messageInfo} theme={theme} />
             </View>
             <OptionBox
               options={options}
               optionInfo={optionInfo}
               theme={theme}
-              onSelect={(item) => setSelectedOption(item)}
             />
             <NavButton
               buttonInfo={buttoninfo}
