@@ -4,6 +4,8 @@ import { GOOGLE_CLIENT_ID, JWT_SECRET } from '../constants';
 
 import jwt from 'jsonwebtoken';
 
+import UserModel from '../models/user.model';
+
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export const authenticationController = async (
@@ -31,21 +33,27 @@ export const authenticationController = async (
             throw new Error('No payload from Google!');
         }
 
-        console.log(payload);
-
         const { sub, email, given_name, family_name, name, picture } = payload;
 
-        const user = {
-            googleId: sub,
-            email,
-            name,
-            given_name,
-            family_name,
-            picture,
-        };
+        // Check if user exists in our database
+        let user = await UserModel.findOne({ googleId: sub });
+        if (!user) {
+            user = await UserModel.create({
+                googleId: sub,
+                email,
+                name,
+                given_name,
+                family_name,
+                picture,
+                expertise_lvl: null,
+            });
+        }
 
         // jwt token for client
-        const appToken = jwt.sign({sub: user.googleId}, JWT_SECRET!, { expiresIn: '20s' });
+        // 20 seconds for testing purposes
+        const appToken = jwt.sign({ sub: user.googleId }, JWT_SECRET!, {
+            expiresIn: '20s',
+        });
 
         res.status(200).json({ user, token: appToken }).end();
     } catch (error) {
