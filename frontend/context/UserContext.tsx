@@ -6,7 +6,8 @@ import {
     statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { router } from 'expo-router';
-import { API_BASE_URL, EXPO_PUBLIC_GOOGLE_CLIENT_ID } from '@/constants';
+import { EXPO_PUBLIC_GOOGLE_CLIENT_ID } from '@/constants';
+import * as SecureStore from 'expo-secure-store';
 
 import { useBackendAPIContext } from './BackendAPIContext';
 
@@ -39,8 +40,15 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
         const res = await client.post('/auth/google-sign-in', {
             token: idToken,
         });
-        const { email, googleId, name, given_name, family_name, picture } =
-            res.data.user;
+        const {
+            email,
+            googleId,
+            name,
+            given_name,
+            family_name,
+            picture,
+            expertise_lvl,
+        } = res.data.user;
         setUser({
             id: googleId,
             email,
@@ -48,8 +56,14 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
             given_name,
             family_name,
             imageUrl: picture,
-            expertise_lvl: null,
+            expertise_lvl,
         });
+        // Save token securely for api requests
+        await SecureStore.setItemAsync('userToken', res.data.token);
+        client.defaults.headers.common[
+            'Authorization'
+        ] = `Bearer ${res.data.token}`;
+
         router.replace('/(pages)/start');
     };
 

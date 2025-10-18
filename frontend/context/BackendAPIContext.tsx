@@ -1,6 +1,7 @@
 import React from 'react';
 import axios, { AxiosInstance } from 'axios';
 import { API_BASE_URL } from '@/constants';
+import * as SecureStore from 'expo-secure-store';
 
 type BackendAPIContextType = {
     client: AxiosInstance;
@@ -15,6 +16,16 @@ const BackendAPIProvider = ({ children }: React.PropsWithChildren) => {
         baseURL: API_BASE_URL,
         withCredentials: true,
     });
+
+    React.useEffect(() => {
+        const initAuth = async () => {
+            const savedToken = await SecureStore.getItemAsync('userToken');
+            if (savedToken) {
+                client.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+            }
+        }
+        initAuth();
+    }, [])
 
     return (
         <BackendAPIContext.Provider value={{ client }}>
