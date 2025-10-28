@@ -1,5 +1,13 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import { SignalBar } from "./signalBar";
+import { Colors } from "@/constants/theme";
 
 import { useOption } from "@/context/optionContext";
 
@@ -13,6 +21,7 @@ type OptionStyle = {
   fontWeight?: number;
   keywordFontSize?: number;
   keywordFontWeight?: number;
+  type?: string;
 };
 
 type Options = {
@@ -25,10 +34,12 @@ type Options = {
 type OptionProps = {
   optionInfo: OptionStyle;
   options: Options[];
-  theme: { background: string; text: string };
 };
 
-export function OptionBox({ theme, options, optionInfo }: OptionProps) {
+export function OptionBox({ options, optionInfo }: OptionProps) {
+  const colorScheme = useColorScheme() ?? "light";
+  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
+
   const styles = createStyle(optionInfo, theme);
 
   const barInfo = {
@@ -40,7 +51,7 @@ export function OptionBox({ theme, options, optionInfo }: OptionProps) {
 
   return (
     <>
-      <View style={styles.levelGroup}>
+      <View style={styles.optionsGroup}>
         <FlatList
           data={options}
           keyExtractor={(item) => item.key}
@@ -51,7 +62,7 @@ export function OptionBox({ theme, options, optionInfo }: OptionProps) {
                 setOption(item);
               }}
               style={({ pressed }) => [
-                styles.levelContainer,
+                styles.optionsContainer,
                 {
                   borderColor:
                     option?.key === item.key
@@ -85,7 +96,9 @@ export function OptionBox({ theme, options, optionInfo }: OptionProps) {
                   <Text style={styles.textStyle}>{item.value}</Text>
                 </View>
               ) : (
-                <Text style={styles.textStyle}>{item.value}</Text>
+                <View style={styles.selector}>
+                  <Text style={styles.textStyle}>{item.value}</Text>
+                </View>
               )}
             </Pressable>
           )}
@@ -100,18 +113,12 @@ function createStyle(
   optionInfo: OptionStyle,
   theme: { background: string; text: string }
 ) {
-  return StyleSheet.create<{
-    levelGroup: ViewStyle;
-    levelContainer: ViewStyle;
-    selector: ViewStyle;
-    textStyle: TextStyle;
-    keywordStyle: TextStyle;
-  }>({
-    levelGroup: {
+  return StyleSheet.create({
+    optionsGroup: {
       flex: 1,
       width: "100%",
     },
-    levelContainer: {
+    optionsContainer: {
       marginHorizontal: 26,
       marginBottom: 26,
       paddingHorizontal: 14,
@@ -122,6 +129,7 @@ function createStyle(
     selector: {
       flexDirection: "row",
       alignItems: "center",
+      paddingVertical: 14,
     },
     textStyle: {
       flex: 1,
@@ -129,7 +137,6 @@ function createStyle(
       fontSize: optionInfo.fontSize ?? 16,
       fontWeight: (optionInfo.fontWeight as TextStyle["fontWeight"]) ?? "600",
       flexWrap: "wrap",
-      marginVertical: 14,
     },
     keywordStyle: {
       color: optionInfo.color ?? theme.text,

@@ -1,5 +1,6 @@
+import { Colors } from "@/constants/theme";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text, useColorScheme } from "react-native";
 import { TextStyle, ViewStyle } from "react-native";
 
 type ButtonInfo = {
@@ -33,16 +34,11 @@ type NavButtonProps = {
   text: string;
   link?: string;
   onPress?: () => void;
-  theme?: { background: string; text: string };
 };
 
-export function NavButton({
-  theme,
-  buttonInfo,
-  link,
-  text,
-  onPress,
-}: NavButtonProps) {
+export function NavButton({ buttonInfo, link, text, onPress }: NavButtonProps) {
+  const colorScheme = useColorScheme() ?? "light";
+  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyle(
     buttonInfo,
     theme ?? { background: "#fff", text: "#000" }
@@ -67,38 +63,38 @@ export function NavButton({
 }
 function createStyle(
   buttonInfo: ButtonInfo,
-  theme: { background: string; text: string }
+  theme: { background: string; text: string; colorText: string }
 ) {
   return StyleSheet.create({
     button: {
-      backgroundColor: buttonInfo.backgroundColor ?? theme.text,
+      backgroundColor: buttonInfo.backgroundColor ?? theme.colorText,
 
       justifyContent: "center",
       alignItems: "center",
+      alignContent: "center",
 
-      alignSelf: "flex-start",
       width: buttonInfo.width ?? "auto",
       height: buttonInfo.height ?? "auto",
 
       padding: buttonInfo.padding ?? 0,
-      paddingHorizontal: buttonInfo.paddingHorizontal ?? 0,
-      paddingVertical: buttonInfo.paddingVertical ?? 0,
+      paddingHorizontal: buttonInfo.paddingHorizontal ?? 20,
+      paddingVertical: buttonInfo.paddingVertical ?? 5,
 
       margin: buttonInfo.margin ?? 0,
-      marginHorizontal: buttonInfo.marginHorizontal ?? 0,
+      marginHorizontal: buttonInfo.marginHorizontal ?? "auto",
       marginVertical: buttonInfo.marginVertical ?? 0,
-      marginTop: buttonInfo.marginTop ?? 0,
+      marginTop: buttonInfo.marginTop ?? 20,
       marginBottom: buttonInfo.marginBottom ?? 0,
 
       borderRadius: buttonInfo.borderRadius ?? 10,
       borderWidth: buttonInfo.borderWidth ?? 1,
       borderStyle: buttonInfo.borderStyle ?? "solid",
-      borderColor: buttonInfo.borderColor ?? theme.background,
+      borderColor: buttonInfo.borderColor ?? "transparent",
     } as ViewStyle,
     buttonText: {
       color: buttonInfo.color ?? theme.background,
       fontSize: buttonInfo.fontSize ?? 24,
-      fontWeight: buttonInfo.fontWeight ?? "900",
+      fontWeight: buttonInfo.fontWeight ?? "700",
     } as TextStyle,
   });
 }

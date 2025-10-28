@@ -40,7 +40,7 @@ function createStyle(
       borderWidth: barInfo.containerOutlineColor ? 1 : 0,
       borderRadius: barInfo.containerOutlineColor ? 2 : 0,
       borderColor: barInfo.containerOutlineColor ?? theme.background,
-      backgroundColor: barInfo.containerFillColor ?? theme.background,
+      backgroundColor: barInfo.containerFillColor ?? "transparent",
 
       width: barInfo.signalWidth,
       height: barInfo.signalHeight ?? "100%",
