@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/theme";
 import React from "react";
-import { Appearance, Platform, ScrollView, StyleSheet } from "react-native";
+import { Platform, ScrollView, StyleSheet, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type BaseProps = {
@@ -12,7 +12,7 @@ type BaseProps = {
 };
 
 export function Base({ children }: BaseProps) {
-  const colorScheme = Appearance.getColorScheme() ?? "light";
+  const colorScheme = useColorScheme() ?? "light";
   const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyle(theme, colorScheme);
 
@@ -35,8 +35,6 @@ function createStyle(
     bodyContainer: {
       backgroundColor: theme.background,
       flex: 1,
-      justifyContent: "space-between",
-      alignItems: "center",
       paddingBottom: 35,
     },
   });

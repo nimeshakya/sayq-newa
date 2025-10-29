@@ -2,21 +2,26 @@ import pigeon from "@/assets/video/Pigeon.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
+import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
 import { useMessage } from "@/context/messageContext";
 import { useOption } from "@/context/optionContext";
 
-export default function Start() {
+export default function Build() {
   const { setMessage } = useMessage();
   const { level } = useOption();
+  const router = useRouter();
   useEffect(() => {
     level.key === "1"
       ? setMessage("Ok, we will start fresh!")
       : setMessage("Ok, we will build on what you know!");
   }, []);
 
+  const handleContinue = async () => {
+    router.replace("/dashboard");
+  };
   const buttoninfo = {
     backgroundColor: "#FFAE42",
     marginHorizontal: "auto",
@@ -50,8 +55,7 @@ export default function Start() {
             </View>
             <NavButton
               buttonInfo={buttoninfo}
-              link={"/"}
-              theme={theme}
+              onPress={handleContinue}
               text="Continue"
             />
           </>

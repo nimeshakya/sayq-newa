@@ -66,7 +66,7 @@ function createStyle(
     messageBubble: {
       minWidth: 100,
       borderWidth: 1,
-      backgroundColor: messageInfo.messageBoxFill ?? theme.background,
+      backgroundColor: messageInfo.messageBoxFill ?? "transparent",
       borderColor: messageInfo.messageBoxOutline ?? theme.text,
       borderRadius: 10,
       marginRight: 60,
