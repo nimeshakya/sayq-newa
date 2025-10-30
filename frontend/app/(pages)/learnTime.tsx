@@ -95,16 +95,11 @@ export default function Time() {
               </View>
               <MessageBubble messageInfo={messageInfo} theme={theme} />
             </View>
-            <OptionBox
-              options={options}
-              optionInfo={optionInfo}
-              theme={theme}
-            />
+            <OptionBox options={options} optionInfo={optionInfo} />
             <NavButton
               buttonInfo={buttoninfo}
               onPress={handleContinue}
               text="Continue"
-              theme={theme}
             />
           </>
         );
