@@ -11,7 +11,10 @@ import { useMessage } from "@/context/messageContext";
 export default function Start() {
   const { user } = useUserContext();
   const { setMessage } = useMessage();
-  setMessage(`Welcome, ${user?.given_name ?? "Friend"}!`);
+  useEffect(() => {
+    setMessage(`Welcome, ${user?.given_name ?? "Friend"}!`);
+  }, []);
+
   const [pressed, setPressed] = useState(false);
 
   const buttoninfo = {
