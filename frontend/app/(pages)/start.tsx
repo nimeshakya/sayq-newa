@@ -11,7 +11,7 @@ import { useMessage } from "@/context/messageContext";
 export default function Start() {
   const { user } = useUserContext();
   const { setMessage } = useMessage();
-  setMessage(`Welcome, ${user.given_name ? user.given_name : "Friend"}!`);
+  setMessage(`Welcome, ${user?.given_name ?? "Friend"}!`);
   const [pressed, setPressed] = useState(false);
 
   const buttoninfo = {
@@ -54,7 +54,6 @@ export default function Start() {
                 setPressed(true);
               }}
               link={pressed ? "/level" : undefined}
-              theme={theme}
               text="Continue"
             />
           </>
