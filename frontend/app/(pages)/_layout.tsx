@@ -24,8 +24,8 @@ export default function PagesLayout() {
               headerTintColor: Colors[colorScheme ?? "light"].text,
             }}
           >
-            {/* <Stack.Screen name="index" /> */}
-            <Stack.Screen name="start" />
+            <Stack.Screen name="index" />
+            {/* <Stack.Screen name="start" /> */}
             {/* You can add more screens and options here if needed */}
           </Stack>
         </MCQProvider>
