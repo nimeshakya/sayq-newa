@@ -1,8 +1,7 @@
 import { Base } from "@/components/custom/base";
 import { StyleSheet, Text, View } from "react-native";
-import { useOption } from "@/context/optionContext";
 import { useMCQContext } from "@/context/MCQContext";
-import { MCQ } from "@/components/questions/MCQ";
+import { QuizMCQ } from "@/components/questions/MCQ";
 import { useEffect } from "react";
 
 export default function QuestionPage() {
@@ -11,22 +10,22 @@ export default function QuestionPage() {
       id: "1",
       question:
         " Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe in quis velit exercitationem sed hic error quibusdam explicabo, atque sint natus sunt rem voluptas iste provident, labore vitae veritatis aut.",
-      answers: ["a", "b", "c"],
-      correct: "a",
+      options: ["a", "b", "c"],
+      correctAnswer: "a",
     },
     {
       id: "2",
       question:
         " Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe in quis velit exercitationem sed hic error quibusdam explicabo, atque sint natus sunt rem voluptas iste provident, labore vitae veritatis aut.",
-      answers: ["a", "b", "c"],
-      correct: "a",
+      options: ["a", "b", "c"],
+      correctAnswer: "a",
     },
     {
       id: "3",
       question:
         " Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe in quis velit exercitationem sed hic error quibusdam explicabo, atque sint natus sunt rem voluptas iste provident, labore vitae veritatis aut.",
-      answers: ["a", "b", "c"],
-      correct: "a",
+      options: ["a", "b", "c"],
+      correctAnswer: "a",
     },
   ];
 
@@ -44,7 +43,7 @@ export default function QuestionPage() {
         return (
           <>
             <View style={styles.baseContainer}>
-              <MCQ />
+              <QuizMCQ />
             </View>
           </>
         );
@@ -52,6 +51,7 @@ export default function QuestionPage() {
     </Base>
   );
 }
+
 function createStyle(theme: { text: string; background: string }) {
   return StyleSheet.create({
     baseContainer: {
