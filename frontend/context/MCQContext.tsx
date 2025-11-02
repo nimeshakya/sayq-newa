@@ -1,15 +1,16 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import React from "react";
 import { useState } from "react";
 
 type TestType = {
   id: string;
   question: string;
-  answers: string[];
-  correct: string;
+  options: string[];
+  correctAnswer: string;
   difficulty_lvl?: string;
   category?: string;
   marks?: number;
+  user_difficulty?: number;
 };
 
 type ResultType = {
@@ -44,6 +45,10 @@ export const MCQProvider = ({ children }: { children: React.ReactNode }) => {
     setResults([]);
     setScores(0);
   };
+
+  useEffect(() => {
+    clearTest();
+  }, []);
 
   return (
     <MCQContext.Provider
