@@ -50,9 +50,8 @@ export const authenticationController = async (
         }
 
         // jwt token for client
-        // 20 seconds for testing purposes
         const appToken = jwt.sign({ sub: user.googleId }, JWT_SECRET!, {
-            expiresIn: '20s',
+            expiresIn: '1d',
         });
 
         res.status(200).json({ user, token: appToken }).end();
