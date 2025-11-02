@@ -13,7 +13,12 @@ export default function Dashboard() {
             </View>
             <NavButton
               link="/questionPage"
-              text="Continue"
+              text="MCQ"
+              buttonInfo={{ width: "300" }}
+            />
+            <NavButton
+              link="/flashCardPage"
+              text="Flash Card"
               buttonInfo={{ width: "300" }}
             />
           </>
