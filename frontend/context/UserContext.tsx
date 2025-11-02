@@ -92,8 +92,9 @@ const UserProvider = ({ children }: React.PropsWithChildren) => {
         try {
             await GoogleSignin.hasPlayServices();
             // for dev testing sign out before signing in
-            await GoogleSignin.signOut();
+            // await GoogleSignin.signOut();
             // For dev testing purposes, sign out before signing in
+
             if (GoogleSignin.hasPreviousSignIn()) {
                 if (user) {
                     router.replace('/(pages)/start');
