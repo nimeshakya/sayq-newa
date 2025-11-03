@@ -14,6 +14,7 @@ type MessageInfo = {
   messageBoxFill?: string;
   pointerX?: number;
   pointerY?: number;
+  alignBox?: string;
 };
 
 type MessageProps = {
@@ -63,7 +64,7 @@ function createStyle(
     messageWrapper: {
       position: "relative", // parent for absolute positioning
       width: messageInfo.messageBoxWidth ?? "100%", // full width container
-      alignItems: "flex-end", // bubble on left
+      alignItems: messageInfo.alignBox ?? "flex-end", // bubble on left
     } as ViewStyle,
     messageBubble: {
       minWidth: 100,
