@@ -12,6 +12,8 @@ type MessageInfo = {
   pointerStatus?: boolean;
   messageBoxOutline?: string;
   messageBoxFill?: string;
+  pointerX?: number;
+  pointerY?: number;
 };
 
 type MessageProps = {
@@ -69,15 +71,14 @@ function createStyle(
       backgroundColor: messageInfo.messageBoxFill ?? "transparent",
       borderColor: messageInfo.messageBoxOutline ?? theme.text,
       borderRadius: 10,
-      marginRight: 60,
       paddingVertical: 10,
       paddingHorizontal: 20,
       maxWidth: "70%", // prevents bubble from stretching too wide
     } as ViewStyle,
     triangle: {
       position: "absolute",
-      bottom: -11, // below bubble
-      right: 90, // fixed horizontal position
+      bottom: messageInfo.pointerY ?? -11, // below bubble
+      right: messageInfo.pointerX ?? 90, // fixed horizontal position
       width: 0,
       height: 0,
       borderLeftWidth: 10,
