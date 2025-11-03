@@ -11,18 +11,7 @@ import {
 
 import { useMCQContext } from "@/context/MCQContext";
 
-type Options = {
-  id: string;
-  question: string;
-  answers: string[];
-  correct: string;
-};
-
-type MCQProps = {
-  options: Options[];
-};
-
-export function MCQ() {
+export function QuizMCQ() {
   const colorScheme = useColorScheme() ?? "light";
   const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyle(theme);
@@ -60,7 +49,7 @@ export function MCQ() {
   const handleSubmit = () => {
     if (!selectedAnswer) return; // Prevent skipping
 
-    const isCorrect = selectedAnswer === currentQuestion.correct;
+    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
     const currentMarks = Number(currentQuestion.marks ?? 1);
     const updateScore = isCorrect ? scores + currentMarks : scores;
 
@@ -78,7 +67,7 @@ export function MCQ() {
     setScores(updateScore);
 
     console.log(
-      `selected:${selectedAnswer} correct: ${currentQuestion.correct} is correct: ${isCorrect}`
+      `selected:${selectedAnswer} correct: ${currentQuestion.correctAnswer} is correct: ${isCorrect}`
     );
 
     if (currentIndex + 1 < test.length) {
@@ -93,14 +82,26 @@ export function MCQ() {
 
   if (showResult) {
     const correctCount = results.filter((r) => r.isCorrect).length;
-    console.log(`Test: ${test}`);
-    console.log(`Result: ${results}`);
-    console.log(`Scores: ${scores}`);
+
     return (
       <View style={styles.resultContainer}>
-        <Text style={styles.resultText}>
-          Quiz Completed 🎉{"\n"}
-          You got {correctCount} out of {test.length} correct!
+        <Text style={styles.resultText}>Quiz Completed 🎉{"\n"}</Text>
+        {results.map((result, index) => (
+          <View key={result.id ?? index} style={{ marginVertical: 8 }}>
+            <Text style={styles.textStyle}>ID: {result.id}</Text>
+            <Text style={styles.textStyle}>Selected: {result.selected}</Text>
+            <Text style={styles.textStyle}>Attempts: {result.attempts}</Text>
+            <Text style={styles.textStyle}>
+              ResponseTime: {result.responseTime}
+            </Text>
+            <Text style={styles.textStyle}>
+              Correct: {String(result.isCorrect)}
+            </Text>
+          </View>
+        ))}
+        <Text style={styles.textStyle}>
+          Your Score: {scores} out of {results.length}
+          {"\n"}
         </Text>
         <NavButton link="/dashboard" buttonInfo={{}} text="Continue" />
       </View>
@@ -116,7 +117,7 @@ export function MCQ() {
       </View>
 
       <View style={styles.optionGroup}>
-        {currentQuestion.answers.map((item) => {
+        {currentQuestion.options.map((item) => {
           const isSelected = selectedAnswer === item;
           return (
             <Pressable
@@ -142,9 +143,9 @@ export function MCQ() {
 function createStyle(theme: { colorText: string; text: string }) {
   return StyleSheet.create({
     baseContainer: {
-      borderWidth: 1,
+      borderWidth: 2,
       borderRadius: 16,
-      borderColor: theme.colorText,
+      borderColor: theme.text,
       padding: 16,
       margin: 16,
     },
@@ -157,7 +158,7 @@ function createStyle(theme: { colorText: string; text: string }) {
     },
     optionBox: {
       borderWidth: 2,
-      borderColor: theme.colorText,
+      borderColor: theme.text,
       borderRadius: 8,
       marginVertical: 6,
       paddingHorizontal: 20,
@@ -165,11 +166,12 @@ function createStyle(theme: { colorText: string; text: string }) {
     },
     selectedBox: {
       backgroundColor: theme.colorText,
+      borderWidth: 0,
     },
     questionText: {
-      color: theme.colorText,
+      color: theme.text,
       fontWeight: "700",
-      fontSize: 18,
+      fontSize: 20,
     },
     optionText: {
       color: theme.text,
@@ -192,6 +194,13 @@ function createStyle(theme: { colorText: string; text: string }) {
       fontSize: 22,
       fontWeight: "bold",
       textAlign: "center",
+    },
+
+    textStyle: {
+      color: theme.text,
+      fontWeight: 700,
+      fontSize: 18,
+      width: "100%",
     },
   });
 }
