@@ -1,4 +1,4 @@
-import pigeon from "@/assets/video/Pigeon.gif";
+import LadyGreeting from "@/assets/video/appuse/GreetingNamasteIllustration.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
@@ -34,6 +34,7 @@ export default function Start() {
     color: "#FFAE42",
     fontSize: 20,
     fontWeight: "600",
+    pointerX: 50,
   };
 
   return (
@@ -45,7 +46,7 @@ export default function Start() {
             <View style={styles.topContainer}>
               <MessageBubble messageInfo={messageInfo} theme={theme} />
               <View>
-                <Image source={pigeon} style={styles.gif} />
+                <Image source={LadyGreeting} style={styles.gif} />
               </View>
             </View>
             <NavButton
@@ -73,6 +74,7 @@ function createStyle() {
       alignItems: "center",
       justifyContent: "center",
       width: "100%",
+      padding: 50,
     },
     gif: {
       width: 250,
