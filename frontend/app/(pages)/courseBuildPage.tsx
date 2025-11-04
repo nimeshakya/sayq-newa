@@ -1,4 +1,4 @@
-import pigeon from "@/assets/video/Pigeon.gif";
+import LadyWriting from "@/assets/video/appuse/WritingNotesIllustratorFinal.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
@@ -39,6 +39,8 @@ export default function Build() {
     color: "#FFAE42",
     fontSize: 20,
     fontWeight: "600",
+    alignBox: "flex-start",
+    pointerX: 230,
   };
 
   return (
@@ -50,7 +52,7 @@ export default function Build() {
             <View style={styles.topContainer}>
               <MessageBubble messageInfo={messageInfo} theme={theme} />
               <View>
-                <Image source={pigeon} style={styles.gif} />
+                <Image source={LadyWriting} style={styles.gif} />
               </View>
             </View>
             <NavButton
@@ -71,7 +73,7 @@ function createStyle() {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      width: "100%",
+      padding: 50,
     },
     gif: {
       width: 250,

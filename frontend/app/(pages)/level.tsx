@@ -1,4 +1,4 @@
-import pigeon from "@/assets/video/Pigeon.gif";
+import LadyWriting from "@/assets/video/appuse/WritingNotesIllustratorFinal.gif";
 import { Base } from "@/components/custom/base";
 import { NavButton } from "@/components/custom/button";
 import { MessageBubble } from "@/components/custom/message";
@@ -80,20 +80,22 @@ export default function Level() {
       {({ theme, colorScheme, styles: baseStyles }) => {
         const styles = createStyle(); // ✅ styles as function
         return (
-          <>
+          <View style={styles.baseContainer}>
             <View style={styles.topContainer}>
-              <View style={styles.gifContainer}>
-                <Image source={pigeon} style={styles.gif} />
+              <View style={styles.messageContainer}>
+                <MessageBubble messageInfo={messageInfo} theme={theme} />
+                <View style={styles.gifContainer}>
+                  <Image source={LadyWriting} style={styles.gif} />
+                </View>
               </View>
-              <MessageBubble messageInfo={messageInfo} theme={theme} />
+              <OptionBox options={options} optionInfo={optionInfo} />
             </View>
-            <OptionBox options={options} optionInfo={optionInfo} />
             <NavButton
               buttonInfo={buttoninfo}
               onPress={handleContinue}
               text="Continue"
             />
-          </>
+          </View>
         );
       }}
     </Base>
@@ -102,11 +104,19 @@ export default function Level() {
 
 function createStyle() {
   return StyleSheet.create({
+    baseContainer: {
+      flex: 1,
+    },
     topContainer: {
-      flexDirection: "row",
+      flex: 1,
       justifyContent: "center",
-      width: "100%",
-      marginTop: 65,
+      alignItems: "center",
+      padding: 30,
+    },
+    messageContainer: {
+      flexDirection: "row",
+
+      alignItems: "center",
     },
     gifContainer: {
       marginRight: 0,
@@ -114,7 +124,6 @@ function createStyle() {
     gif: {
       width: 112,
       height: 149,
-      marginLeft: 50,
       resizeMode: "contain",
     },
   });

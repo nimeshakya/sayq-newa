@@ -115,11 +115,9 @@ function createStyle(
 ) {
   return StyleSheet.create({
     optionsGroup: {
-      flex: 1,
       width: "100%",
     },
     optionsContainer: {
-      marginHorizontal: 26,
       marginBottom: 26,
       paddingHorizontal: 14,
       borderRadius: 20,
