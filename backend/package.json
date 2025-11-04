@@ -20,7 +20,8 @@
         "http": "^0.0.1-security",
         "jsonwebtoken": "^9.0.2",
         "lodash": "^4.17.21",
-        "mongoose": "^8.18.1"
+        "mongoose": "^8.18.1",
+        "stream-json": "^1.9.1"
     },
     "devDependencies": {
         "@types/body-parser": "^1.19.6",
