@@ -41,18 +41,37 @@ export const addWord = async (req: Request, res: Response) => {
   }
 };
 
+export const getWords = async (req: Request, res: Response) => {
+  try {
+    const pageSize = req.query.pageSize ? Number(req.query.pageSize) : null;
+    let words;
+    if (pageSize && pageSize > 0) {
+      words = await Word.find().limit(pageSize);
+    } else {
+      words = await Word.find();
+    }
+    res.status(200).json({
+      success: true,
+      count: words.length,
+      data: words,
+    });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const getWordById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const word = await Word.findOne({id});
+    const word = await Word.findOne({ id });
 
-    if(!word){
-      return res.status(404).json({message: "Word not found."});
+    if (!word) {
+      return res.status(404).json({ message: "Word not found." });
     }
 
     res.status(200).json(word);
-  } catch (err:any) {
-    res.status(500).json({message: err.message});
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
   }
 };
