@@ -75,3 +75,22 @@ export const getWordById = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getWordsByLevel = async (req: Request, res: Response) => {
+  try {
+    const level = parseInt(req.params.level);
+    if (isNaN(level)) {
+      return res.status(400).json({ message: "Level must be a number." });
+    }
+
+    const words = await Word.find({ expertise_lvl: level });
+    if (!words.length) {
+      return res
+        .status(404)
+        .json({ message: `No words found fo level ${level}` });
+    }
+    res.status(200).json(words);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
