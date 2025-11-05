@@ -40,3 +40,19 @@ export const addWord = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getWordById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const word = await Word.findOne({id});
+
+    if(!word){
+      return res.status(404).json({message: "Word not found."});
+    }
+
+    res.status(200).json(word);
+  } catch (err:any) {
+    res.status(500).json({message: err.message});
+  }
+};
