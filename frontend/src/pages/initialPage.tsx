@@ -1,6 +1,6 @@
-import { useEffect, useState, type MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/pages.style.scss";
+import "../styles/initialPages.style.scss";
 
 export default function InitialPage() {
   const pages = ["welcome", "level", "time"];
@@ -69,7 +69,9 @@ export default function InitialPage() {
   const [selectedLevel, setSelectedLevel] = useState<LevelProp | undefined>();
   const navigate = useNavigate();
 
-  useEffect(() => {}, []);
+  const [imagePath, setImagePath] = useState<string>(
+    "../public/Assets/GreetingNamasteIllustration.gif"
+  );
 
   const handleSelect = (item: LevelProp | TimeProp) => {
     if (currentPage === "time") {
@@ -81,6 +83,7 @@ export default function InitialPage() {
 
   const handleContinue = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setImagePath("../public/Assets/WritingNotesIllustratorFinal.gif");
     console.log(`Pressed on page: ${currentPage}`);
     if (currentIndex + 1 < pages.length) {
       setCurrentIndex(currentIndex + 1);
@@ -128,11 +131,7 @@ export default function InitialPage() {
               );
             })}
         </div>
-        <img
-          src="../public/Assets/WritingNotesIllustratorFinal.gif"
-          alt="Newa girl"
-          className="mascontStyle"
-        />
+        <img src={imagePath} alt="Newa girl" className="mascontStyle" />
       </div>
 
       <button className="button" onClick={handleContinue}>
