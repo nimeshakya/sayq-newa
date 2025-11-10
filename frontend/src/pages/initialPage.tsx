@@ -131,7 +131,7 @@ export default function InitialPage() {
               );
             })}
         </div>
-        <img src={imagePath} alt="Newa girl" className="mascontStyle" />
+        <img src={imagePath} alt="Newa girl" className="mascotStyle" />
       </div>
 
       <button className="button" onClick={handleContinue}>
