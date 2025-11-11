@@ -1,0 +1,70 @@
+$highlight-color: #e33629;
+$base-color: #e8f9ff;
+.base {
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+  font-size: 20px;
+  font-weight: 600;
+  background-color: $base-color;
+
+  .messageContainer {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+  }
+
+  .mascotContainer {
+    align-self: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+  }
+  .mascotStyle {
+    width: 360px;
+    height: 540px;
+  }
+
+  .optionGroup {
+    justify-content: center;
+    align-content: center;
+  }
+  .optionStyle {
+    border-style: solid;
+    border-radius: 20px;
+    border-width: 2px;
+    background-color: black;
+    padding: 11px 14px;
+    margin: 20px;
+    color: white;
+
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+    &.selected {
+      border-color: $highlight-color;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+  }
+}
+
+.button {
+  margin: auto;
+  background-color: black;
+  border-radius: 30px;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px 50px;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.highlightText {
+  color: $highlight-color;
+}
