@@ -1,10 +1,10 @@
-import { useState, type MouseEvent } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/initialPages.style.scss";
 
 export default function InitialPage() {
-  const pages = ["welcome", "level", "time", "start"];
-  const path = "../public/Assets/";
+  const pages = ["greeting", "welcome", "level", "time", "start"];
+  const path = "Assets/";
 
   type LevelProp = { id: number; level: string; value: string };
   type TimeProp = { id: number; time: number; value: string };
@@ -77,6 +77,10 @@ export default function InitialPage() {
     },
   ];
 
+  // controls the mount animation: login button appears after 2s
+  const [loginVisible, setLoginVisible] = useState<boolean>(false);
+  const [isLoggedin, setIsLoggedin] = useState<boolean>(false);
+  const [hideQuestionTab, setHideQuestionTab] = useState<boolean>(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const currentPage = pages[currentIndex];
   const [selectedTime, setSelectedTime] = useState<TimeProp | undefined>();
@@ -84,37 +88,93 @@ export default function InitialPage() {
   const [selectedStartOption, setSlectedStartOption] = useState<
     StartingProp | undefined
   >();
+  const [isSelected, setIsSelected] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const [imagePath, setImagePath] = useState<string>(path + "hy.gif");
+  const [imagePath, setImagePath] = useState<string>(path + "Namaste.gif");
+
+  const AllocImage = () => {
+    switch (currentPage) {
+      case "greeting":
+        setImagePath(path + "Hy.gif");
+        break;
+      case "welcome":
+        setImagePath(path + "Write.gif");
+        setHideQuestionTab(false);
+        break;
+      case "level":
+        setImagePath(path + "Write.gif");
+        break;
+      case "time":
+        setImagePath(path + "TakingNote.gif");
+        setHideQuestionTab(true);
+        break;
+      case "start":
+        setImagePath(path + "Namaste.gif");
+        break;
+
+      default:
+        setImagePath(path + "Namaste.gif");
+        break;
+    }
+  };
+
+  // on mount, show login after 2 seconds and shift image left
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoginVisible(true);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLogin = () => {
+    setIsLoggedin(!isLoggedin);
+    setLoginVisible(false);
+    setCurrentIndex(currentIndex + 1);
+    console.log(`User loggedin ${!isLoggedin}`);
+  };
 
   const handleSelect = (item: LevelProp | TimeProp | StartingProp) => {
     if (currentPage === "time") {
       setSelectedTime(item as TimeProp);
+      setIsSelected(true);
     } else if (currentPage === "level") {
       setSelectedLevel(item as LevelProp);
+      setIsSelected(true);
     } else if (currentPage === "start") {
       setSlectedStartOption(item as StartingProp);
+      setIsSelected(true);
     }
   };
 
   const handleContinue = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (currentPage === "welcome" || currentPage === "level") {
-      setImagePath(path + "Write.gif");
-    } else if (currentPage === "time") {
-      setImagePath(path + "TakingNote.gif");
-    }
+
     console.log(`Pressed on page: ${currentPage}`);
+    if (!isLoggedin) {
+      setCurrentIndex(0);
+      console.log(`Cannot login
+        user login status: ${isLoggedin}`);
+      return;
+    }
+
+    if (currentIndex > 1 && !isSelected) {
+      console.log(`select option first`);
+      return;
+    }
+
     if (currentIndex + 1 < pages.length) {
       setCurrentIndex(currentIndex + 1);
+      setIsSelected(false);
     } else {
       console.log(`Pages completed`);
       console.log(`selected time: ${selectedTime?.time}`);
       console.log(`seleceted level: ${selectedLevel?.level}`);
       console.log(`seleceted start option: ${selectedStartOption?.value}`);
+      setIsSelected(false);
       navigate("/dashboard");
     }
+    AllocImage();
   };
 
   return (
@@ -126,10 +186,7 @@ export default function InitialPage() {
         </div>
 
         <div className="mascotContainer">
-          <div
-            className="optionGroup"
-            hidden={currentPage !== "time" && currentPage !== "level"}
-          >
+          <div className="optionGroup" hidden={hideQuestionTab}>
             {currentPage === "time" &&
               timeOption.map((option) => {
                 const isSelected = selectedTime?.id === option.id;
@@ -143,6 +200,7 @@ export default function InitialPage() {
                   </div>
                 );
               })}
+
             {currentPage === "level" &&
               levelOption.map((option) => {
                 const isSelected = selectedLevel?.id === option.id;
@@ -157,7 +215,24 @@ export default function InitialPage() {
                 );
               })}
           </div>
-          <img src={imagePath} alt="Newa girl" className="mascotStyle" />
+
+          <img
+            src={imagePath}
+            alt="Newa girl"
+            className={`mascotStyle ${loginVisible ? "shift-left" : ""}`}
+          />
+
+          <div
+            className={`loginOption ${loginVisible ? "visible" : "hidden"}`}
+            onClick={handleLogin}
+            role="button"
+            tabIndex={loginVisible ? 0 : -1}
+            aria-hidden={!loginVisible}
+          >
+            <img src="Assets/google_icon.png" alt="google logo" />
+            Sign in with google
+          </div>
+
           <div className="optionGroup " hidden={currentPage !== "start"}>
             {currentPage === "start" &&
               startOptions.map((option) => {
@@ -184,7 +259,11 @@ export default function InitialPage() {
           </div>
         </div>
 
-        <button className="button" onClick={handleContinue}>
+        <button
+          className="button"
+          onClick={handleContinue}
+          hidden={!isLoggedin}
+        >
           Continue
         </button>
       </div>

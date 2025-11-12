@@ -10,13 +10,11 @@ $base-color: #e8f9ff;
   padding: 50px;
   font-size: 20px;
   font-weight: 600;
-  background-color: blue;
   box-sizing: border-box;
 
   .container {
     display: flex;
     flex-direction: column;
-    background-color: bisque;
     justify-content: center;
     align-items: center;
     align-content: center;
@@ -27,21 +25,77 @@ $base-color: #e8f9ff;
     text-align: center;
     font-size: 42px;
     font-weight: 700;
-    background-color: pink;
   }
 
   .mascotContainer {
     align-self: center;
     justify-content: center;
     display: flex;
+    align-items: center; /* center children vertically */
+    position: relative; /* allow absolute-positioning of loginOption to avoid layout space */
     flex-direction: row;
     width: 60%;
-    background-color: red;
   }
   .mascotStyle {
     width: 40%;
     height: 100%;
-    background-color: yellow;
+    /* allow smooth horizontal shift when login appears */
+    transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .mascotStyle.shift-left {
+    transform: translateX(-90px);
+  }
+
+  .loginOption {
+    background-color: white;
+    color: black;
+    font-size: 20px;
+    font-weight: 500;
+    /* make login contents (icon + text) align vertically */
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: auto;
+    border: 3px solid black;
+    border-radius: 25px;
+    padding: 8px 12px;
+    cursor: pointer;
+
+    /* remove from document flow so it doesn't create layout space when hidden */
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(20px);
+    opacity: 0;
+    transition: opacity 420ms ease, transform 420ms ease;
+    pointer-events: none; /* prevent interaction while hidden */
+    z-index: 5; /* ensure it's above the mascot image when visible */
+
+    &:hover {
+      /* preserve vertical centering transform while scaling on hover */
+      transform: translateY(-50%) translateX(0) scale(1.04);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  .loginOption img {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+
+  /* visible state applied from component when loginVisible is true */
+  .loginOption.visible {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+  }
+
+  /* ensure hover wins when visible: placed after the .visible rule so it takes precedence */
+  .loginOption.visible:hover {
+    transform: translateY(-50%) translateX(0) scale(1.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   }
 
   .optionGroup {
@@ -58,6 +112,7 @@ $base-color: #e8f9ff;
     margin: 20px 0;
     color: white;
     min-height: 45px;
+    cursor: pointer;
     transition: transform 0.2s ease;
 
     &:hover {
@@ -84,6 +139,7 @@ $base-color: #e8f9ff;
   font-size: 20px;
   font-weight: 600;
   padding: 6px 50px;
+  cursor: pointer;
   transition: transform 0.2s ease;
   &:hover {
     transform: scale(1.1);
