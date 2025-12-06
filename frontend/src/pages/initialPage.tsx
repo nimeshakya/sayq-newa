@@ -145,7 +145,7 @@ export default function InitialPage() {
       return;
     }
 
-    if (currentIndex > 1 && !isSelected) {
+    if (currentIndex > 0 && !isSelected) {
       console.log(`select option first`);
       return;
     }
