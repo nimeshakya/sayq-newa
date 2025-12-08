@@ -25,7 +25,7 @@ const App = () => {
         {" | "}
         <Link to="/initialPage">Initial Page</Link>
         {" | "}
-        <Link to="/signinPage">Signup Page</Link>
+        <Link to="/signinPage">Sign In Page</Link>
         {" | "}
       </nav>
 
