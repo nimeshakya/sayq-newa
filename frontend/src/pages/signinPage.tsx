@@ -29,7 +29,6 @@ export default function SignInPage() {
     navigate("/initialPage");
   };
 
-  SignInPage;
 
   return (
     <div className="base">
