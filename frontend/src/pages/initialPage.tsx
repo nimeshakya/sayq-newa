@@ -1,10 +1,22 @@
-import { useState, useEffect, type MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../context/user.context";
 import "../styles/initialPages.style.scss";
 
 export default function InitialPage() {
-  const pages = ["greeting", "welcome", "level", "time", "start"];
+  const pages = ["welcome", "level", "time", "start"];
   const path = "Assets/";
+  const {
+    isLoggedin,
+    isLoginVisible,
+
+    selectedLevel,
+    selectedTime,
+    selectedStartOption,
+    setSelectedLevel,
+    setSelectedTime,
+    setSelectedStartOption,
+  } = useUserContext();
 
   type LevelProp = { id: number; level: string; value: string };
   type TimeProp = { id: number; time: number; value: string };
@@ -77,27 +89,17 @@ export default function InitialPage() {
     },
   ];
 
-  // controls the mount animation: login button appears after 2s
-  const [loginVisible, setLoginVisible] = useState<boolean>(false);
-  const [isLoggedin, setIsLoggedin] = useState<boolean>(false);
   const [hideQuestionTab, setHideQuestionTab] = useState<boolean>(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const currentPage = pages[currentIndex];
-  const [selectedTime, setSelectedTime] = useState<TimeProp | undefined>();
-  const [selectedLevel, setSelectedLevel] = useState<LevelProp | undefined>();
-  const [selectedStartOption, setSlectedStartOption] = useState<
-    StartingProp | undefined
-  >();
+
   const [isSelected, setIsSelected] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const [imagePath, setImagePath] = useState<string>(path + "Namaste.gif");
+  const [imagePath, setImagePath] = useState<string>(path + "Hy.gif");
 
   const AllocImage = () => {
     switch (currentPage) {
-      case "greeting":
-        setImagePath(path + "Hy.gif");
-        break;
       case "welcome":
         setImagePath(path + "Write.gif");
         setHideQuestionTab(false);
@@ -114,24 +116,9 @@ export default function InitialPage() {
         break;
 
       default:
-        setImagePath(path + "Namaste.gif");
+        setImagePath(path + "NewaSayQDark.png");
         break;
     }
-  };
-
-  // on mount, show login after 2 seconds and shift image left
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoginVisible(true);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleLogin = () => {
-    setIsLoggedin(!isLoggedin);
-    setLoginVisible(false);
-    setCurrentIndex(currentIndex + 1);
-    console.log(`User loggedin ${!isLoggedin}`);
   };
 
   const handleSelect = (item: LevelProp | TimeProp | StartingProp) => {
@@ -158,7 +145,7 @@ export default function InitialPage() {
       return;
     }
 
-    if (currentIndex > 1 && !isSelected) {
+    if (currentIndex > 0 && !isSelected) {
       console.log(`select option first`);
       return;
     }
@@ -219,19 +206,8 @@ export default function InitialPage() {
           <img
             src={imagePath}
             alt="Newa girl"
-            className={`mascotStyle ${loginVisible ? "shift-left" : ""}`}
+            className={`mascotStyle ${isLoginVisible ? "shift-left" : ""}`}
           />
-
-          <div
-            className={`loginOption ${loginVisible ? "visible" : "hidden"}`}
-            onClick={handleLogin}
-            role="button"
-            tabIndex={loginVisible ? 0 : -1}
-            aria-hidden={!loginVisible}
-          >
-            <img src="Assets/google_icon.png" alt="google logo" />
-            Sign in with google
-          </div>
 
           <div className="optionGroup " hidden={currentPage !== "start"}>
             {currentPage === "start" &&

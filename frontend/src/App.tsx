@@ -2,6 +2,7 @@ import "./App.scss";
 import { Routes, Route, Link } from "react-router-dom";
 import Dashboard from "./pages/dashboard";
 import InitialPage from "./pages/initialPage";
+import SignInPage from "./pages/signinPage";
 
 const Home = () => (
   <div className="app">
@@ -24,12 +25,15 @@ const App = () => {
         {" | "}
         <Link to="/initialPage">Initial Page</Link>
         {" | "}
+        <Link to="/signinPage">Sign In Page</Link>
+        {" | "}
       </nav>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/initialPage" element={<InitialPage />} />
+        <Route path="/signinPage" element={<SignInPage />} />
       </Routes>
     </div>
   );
