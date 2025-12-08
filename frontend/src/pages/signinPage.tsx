@@ -20,7 +20,7 @@ export default function SignInPage() {
       setLoginVisible(true);
     }, 4000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [setLoginVisible]);
 
   const handleLogin = () => {
     setIsLoggedin(true);
