@@ -15,7 +15,7 @@ export default function InitialPage() {
     selectedStartOption,
     setSelectedLevel,
     setSelectedTime,
-    setSlectedStartOption,
+    setSelectedStartOption,
   } = useUserContext();
 
   type LevelProp = { id: number; level: string; value: string };
