@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 type User = {
-  usename: string;
+  username: string;
   fname: string;
   lname: string;
 };
