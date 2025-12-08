@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState } from "react";
 
 type User = {
   usename: string;
-  fname: number;
-  lname: number;
+  fname: string;
+  lname: string;
 };
 
 type LevelProp = { id: number; level: string; value: string };
