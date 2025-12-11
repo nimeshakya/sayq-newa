@@ -129,7 +129,7 @@ export default function InitialPage() {
       setSelectedLevel(item as LevelProp);
       setIsSelected(true);
     } else if (currentPage === "start") {
-      setSlectedStartOption(item as StartingProp);
+      setSelectedStartOption(item as StartingProp);
       setIsSelected(true);
     }
   };
