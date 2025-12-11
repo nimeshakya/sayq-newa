@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUserContext } from "../context/user.context";
 import { useNavigate } from "react-router-dom";
 import "../styles/initialPages.style.scss";
-
+import "../styles/_shared.scss";
 export default function SignInPage() {
   const path = "Assets/";
   const navigate = useNavigate();
@@ -28,7 +28,6 @@ export default function SignInPage() {
     console.log(`User loggedin ${!isLoggedin}`);
     navigate("/initialPage");
   };
-
 
   return (
     <div className="base">
