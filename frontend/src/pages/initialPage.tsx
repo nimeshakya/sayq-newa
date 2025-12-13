@@ -2,6 +2,7 @@ import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/user.context";
 import "../styles/initialPages.style.scss";
+import "../styles/_shared.scss";
 
 export default function InitialPage() {
   const pages = ["welcome", "level", "time", "start"];
@@ -129,7 +130,7 @@ export default function InitialPage() {
       setSelectedLevel(item as LevelProp);
       setIsSelected(true);
     } else if (currentPage === "start") {
-      setSlectedStartOption(item as StartingProp);
+      setSelectedStartOption(item as StartingProp);
       setIsSelected(true);
     }
   };
@@ -173,13 +174,15 @@ export default function InitialPage() {
         </div>
 
         <div className="mascotContainer">
-          <div className="optionGroup" hidden={hideQuestionTab}>
+          <div className="selectionGroup" hidden={hideQuestionTab}>
             {currentPage === "time" &&
               timeOption.map((option) => {
                 const isSelected = selectedTime?.id === option.id;
                 return (
                   <div
-                    className={`optionStyle ${isSelected ? "selected" : ""}`}
+                    className={`selectionOption ${
+                      isSelected ? "selected" : ""
+                    }`}
                     key={option.id}
                     onClick={() => handleSelect(option)}
                   >
@@ -193,7 +196,9 @@ export default function InitialPage() {
                 const isSelected = selectedLevel?.id === option.id;
                 return (
                   <div
-                    className={`optionStyle ${isSelected ? "selected" : ""}`}
+                    className={`selectionOption ${
+                      isSelected ? "selected" : ""
+                    }`}
                     key={option.id}
                     onClick={() => handleSelect(option)}
                   >
@@ -209,13 +214,13 @@ export default function InitialPage() {
             className={`mascotStyle ${isLoginVisible ? "shift-left" : ""}`}
           />
 
-          <div className="optionGroup " hidden={currentPage !== "start"}>
+          <div className="selectionGroup " hidden={currentPage !== "start"}>
             {currentPage === "start" &&
               startOptions.map((option) => {
                 const isSelected = selectedStartOption?.id === option.id;
                 return (
                   <div
-                    className={`optionStyle
+                    className={`selectionOption
                       ${isSelected ? "selected" : ""}`}
                     key={option.id}
                     onClick={() => handleSelect(option)}

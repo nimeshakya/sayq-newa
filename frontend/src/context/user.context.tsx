@@ -20,7 +20,7 @@ type UserContextType = {
 
   setSelectedTime: React.Dispatch<React.SetStateAction<TimeProp | undefined>>;
   setSelectedLevel: React.Dispatch<React.SetStateAction<LevelProp | undefined>>;
-  setSlectedStartOption: React.Dispatch<
+  setSelectedStartOption: React.Dispatch<
     React.SetStateAction<StartingProp | undefined>
   >;
 
@@ -41,7 +41,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedLevel, setSelectedLevel] = useState<LevelProp | undefined>(
     undefined
   );
-  const [selectedStartOption, setSlectedStartOption] = useState<
+  const [selectedStartOption, setSelectedStartOption] = useState<
     StartingProp | undefined
   >(undefined);
 
@@ -57,7 +57,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         setSelectedTime,
         setSelectedLevel,
-        setSlectedStartOption,
+        setSelectedStartOption,
         selectedTime,
         selectedLevel,
         selectedStartOption,

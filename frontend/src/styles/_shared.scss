@@ -1,0 +1,20 @@
+@use "./variables" as *;
+
+.button {
+  margin: auto;
+  background-color: black;
+  border-radius: 30px;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px 50px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.highlightText {
+  color: $highlight-color;
+}

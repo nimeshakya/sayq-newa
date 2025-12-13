@@ -1,0 +1,40 @@
+@use "./variables" as *;
+
+// Reusable option/button pattern used across pages
+@mixin option-base {
+  display: flex;
+  flex-direction: row;
+  border: 2px solid black;
+  background-color: black;
+  color: white;
+  border-radius: $radius-md;
+  padding: 11px 14px;
+  min-height: 45px;
+  cursor: pointer;
+  transition: transform $transition-fast;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.selected {
+    border-color: $highlight-color;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Flex container centered vertically and horizontally
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// Flex column layout with centering
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
