@@ -1,0 +1,60 @@
+import React, { createContext, useContext, useState } from "react";
+
+type QuestionProp = {
+  id: number;
+  question: string;
+  sub_question: string | undefined;
+  correct_answer: string;
+  options: string[];
+};
+type ResultProp = {
+  id: number;
+  questionID: string;
+  selected_answer: string;
+  attempts: number;
+  responseTime: number;
+  isCorrect: boolean;
+};
+
+type QuestionContextType = {
+  setQuestions: React.Dispatch<React.SetStateAction<QuestionProp[]>>;
+  setResults: React.Dispatch<React.SetStateAction<ResultProp[]>>;
+
+  Questions: QuestionProp[];
+  Results: ResultProp[];
+};
+
+const QuestionContext = createContext<QuestionContextType | undefined>(
+  undefined
+);
+
+export const QuestionProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [Questions, setQuestions] = useState<QuestionProp[]>([]);
+  const [Results, setResults] = useState<ResultProp[]>([]);
+
+  return (
+    <QuestionContext.Provider
+      value={{
+        Questions,
+        Results,
+
+        setQuestions,
+        setResults,
+      }}
+    >
+      {children}
+    </QuestionContext.Provider>
+  );
+};
+
+export const useQuestionContext = () => {
+  const context = useContext(QuestionContext);
+  if (!context) {
+    throw new Error("useQuestionContext must be used inside QuestionProvider");
+  }
+  return context;
+};
