@@ -4,14 +4,12 @@
 .questionContainer {
   display: flex;
   flex-direction: column;
-  width: 40%;
   padding: 20px;
   border: 2px solid red;
   border-radius: 24px;
   justify-content: center;
   align-items: center;
   align-content: center;
-  margin-bottom: 35px;
 
   .questionGroup {
     background-color: $background-color;
