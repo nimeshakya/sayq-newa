@@ -19,6 +19,8 @@ type ResultProp = {
 type QuestionContextType = {
   setQuestions: React.Dispatch<React.SetStateAction<QuestionProp[]>>;
   setResults: React.Dispatch<React.SetStateAction<ResultProp[]>>;
+  ResetQuestions: () => void;
+  ResetResult: () => void;
 
   Questions: QuestionProp[];
   Results: ResultProp[];
@@ -36,6 +38,13 @@ export const QuestionProvider = ({
   const [Questions, setQuestions] = useState<QuestionProp[]>([]);
   const [Results, setResults] = useState<ResultProp[]>([]);
 
+  const ResetResult = () => {
+    setResults([]);
+  };
+  const ResetQuestions = () => {
+    setQuestions([]);
+  };
+
   return (
     <QuestionContext.Provider
       value={{
@@ -44,6 +53,9 @@ export const QuestionProvider = ({
 
         setQuestions,
         setResults,
+
+        ResetQuestions,
+        ResetResult,
       }}
     >
       {children}

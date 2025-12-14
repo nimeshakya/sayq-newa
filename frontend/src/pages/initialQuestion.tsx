@@ -39,5 +39,16 @@ export default function InitialQuestion() {
     setQuestions(questions);
   }, []);
 
-  return <Question model_type="mcq" />;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: " translate(-50%, -50%)",
+      }}
+    >
+      <Question model_type="mcq" />
+    </div>
+  );
 }
