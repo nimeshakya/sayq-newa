@@ -42,7 +42,6 @@ export default function InitialQuestion() {
   return (
     <div
       style={{
-        backgroundColor: "green",
         position: "absolute",
         top: "50%",
         left: "50%",
