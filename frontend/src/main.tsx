@@ -1,19 +1,19 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "./context/user.context";
-import { QuestionProvider } from "./context/question.context";
-import "./index.scss";
-import App from "./App";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { UserProvider } from './context/user.context';
+import { QuestionProvider } from './context/question.context';
+import './index.scss';
+import App from './App';
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <UserProvider>
-        <QuestionProvider>
-          <App />
-        </QuestionProvider>
-      </UserProvider>
-    </BrowserRouter>
-  </StrictMode>
+createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+        <BrowserRouter>
+            <UserProvider>
+                <QuestionProvider>
+                    <App />
+                </QuestionProvider>
+            </UserProvider>
+        </BrowserRouter>
+    </StrictMode>
 );
