@@ -11,6 +11,8 @@ import BackendAPIProvider from './context/backendAPI.context';
 import './index.scss';
 import App from './App';
 
+console.log(GOOGLE_CLIENT_ID);
+
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <BrowserRouter>

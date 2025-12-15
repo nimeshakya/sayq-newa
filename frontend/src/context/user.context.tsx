@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { CredentialResponse } from '@react-oauth/google';
-
+import { useNavigate } from 'react-router-dom';
 import { useBackendAPIContext } from './backendAPI.context';
 
 export type UserType = {
@@ -59,6 +59,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { client } = useBackendAPIContext();
     const [loading, setLoading] = React.useState<boolean>(true);
+    const navigate = useNavigate();
 
     // Check for existing session on mount
     useEffect(() => {
@@ -66,6 +67,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             try {
                 const res = await client.get('/auth/check-session');
                 setUser(res.data.user);
+                navigate('/dashboard');
             } catch (error) {
                 setUser(null);
             } finally {
@@ -82,8 +84,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const res = await client.post('/auth/google-sign-in', {
                 credential: credentialResponse.credential,
             });
+            console.log(res.data.user);
 
             setUser(res.data.user);
+            setIsLoggedin(true);
+            navigate('/initialPage');
         } catch (error) {
             console.error('Login Error: ', error);
         }

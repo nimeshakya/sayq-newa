@@ -5,12 +5,21 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
 
 import { MONGO_URI, PORT } from './constants';
 
 import router from './router';
 
 const app = express();
+
+app.use(
+    helmet({
+        crossOriginOpenerPolicy: {
+            policy: 'same-origin-allow-popups',
+        },
+    })
+);
 
 app.use(
     cors({
