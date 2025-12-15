@@ -4,6 +4,7 @@ import Dashboard from "./pages/dashboard";
 import InitialPage from "./pages/initialPage";
 import SignInPage from "./pages/signinPage";
 import InitialQuestion from "./pages/initialQuestion";
+import LearnPage from "./pages/learnPage";
 
 const Home = () => (
   <div className="app">
@@ -30,6 +31,8 @@ const App = () => {
         {" | "}
         <Link to="/initialQuestionPage">Initial Question Page</Link>
         {" | "}
+        <Link to="/learnPage">Learn Page</Link>
+        {" | "}
       </nav>
 
       <Routes>
@@ -38,6 +41,7 @@ const App = () => {
         <Route path="/initialPage" element={<InitialPage />} />
         <Route path="/signinPage" element={<SignInPage />} />
         <Route path="/initialQuestionPage" element={<InitialQuestion />} />
+        <Route path="/learnPage" element={<LearnPage />} />
       </Routes>
     </div>
   );
