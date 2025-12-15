@@ -1,0 +1,39 @@
+@use "./variables" as *;
+@use "./mixins" as *;
+
+.dataPrintContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 2px solid red;
+  border-radius: $radius-lg;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  min-width: 500px;
+  .dataList {
+    border: 2px solid blue;
+    padding: 20px 30px;
+    width: 100%;
+    border-radius: $radius-md;
+  }
+
+  .heading-word {
+    font-size: 60px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .title-word {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .section-word {
+    font-size: 20px;
+  }
+
+  .section {
+    margin: 10px 0;
+  }
+}
