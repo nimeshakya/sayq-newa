@@ -1,18 +1,45 @@
 @use "./variables" as *;
 
+.main-centered-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dual-button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  gap: 10px;
+  padding: 10px;
+  gap: 16px;
+}
+
 .button {
   margin: auto;
   background-color: black;
-  border-radius: 30px;
+  border-radius: $radius-xl;
   color: white;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 6px 50px;
   cursor: pointer;
   transition: transform 0.2s ease;
   &:hover {
     transform: scale(1.1);
   }
+}
+
+.proceed {
+  background-color: $proceed-color;
+  border: 2px solid $base-color;
+}
+.recede {
+  background-color: $recede-color;
+  border: 2px solid black;
+  color: black;
 }
 
 .highlightText {
