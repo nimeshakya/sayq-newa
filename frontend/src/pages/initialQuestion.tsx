@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import "../styles/question.style.scss";
+import "../styles/_shared.scss";
 import { useQuestionContext } from "../context/question.context";
 import Question from "../components/questions.components";
 
@@ -40,14 +41,7 @@ export default function InitialQuestion() {
   }, []);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: " translate(-50%, -50%)",
-      }}
-    >
+    <div className="main-centered-container">
       <Question model_type="mcq" />
     </div>
   );
