@@ -8,22 +8,22 @@ import UserModel from '../models/user.model';
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-export const authenticationController = async (
+export const googleSignIn = async (
     req: express.Request,
     res: express.Response
 ) => {
     try {
-        const { token } = req.body;
-        if (!token) {
+        const { credential } = req.body;
+        if (!credential) {
             return res
                 .status(400)
-                .json({ message: 'Token is required!' })
+                .json({ message: 'Credential is required!' })
                 .end();
         }
 
         // Verify the token with Google
         const ticket = await client.verifyIdToken({
-            idToken: token,
+            idToken: credential,
             audience: GOOGLE_CLIENT_ID,
         });
 
@@ -45,7 +45,7 @@ export const authenticationController = async (
                 given_name,
                 family_name,
                 picture,
-                expertise_lvl: null,
+                expertise_lvl: 0,
             });
         }
 
@@ -54,10 +54,30 @@ export const authenticationController = async (
             expiresIn: '1d',
         });
 
-        res.status(200).json({ user, token: appToken }).end();
+        // Send token as HTTP-only cookie
+        // And return user info as json
+        res.status(200)
+            .cookie('token', appToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000, // 1 day
+            })
+            .json({ user, token: appToken })
+            .end();
     } catch (error) {
         res.status(500)
             .json({ message: 'Google Authentication Failed!', error })
             .end();
     }
+};
+
+export const logout = async (req: express.Request, res: express.Response) => {
+    res.status(200)
+        .clearCookie('token', {
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+        })
+        .json({ message: 'Logged out successfully!' })
+        .end();
 };

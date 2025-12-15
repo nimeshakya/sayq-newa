@@ -17,7 +17,7 @@ const UserSchema = new Schema<UserType>({
     given_name: { type: String, required: false },
     family_name: { type: String, required: false },
     picture: { type: String, required: false },
-    expertise_lvl: { type: Number, enum: [0, 1, 2, 3, 4, 5], default: null }, // Expertise level from 0 to 5
+    expertise_lvl: { type: Number, enum: [0, 1, 2, 3, 4, 5], default: 0 }, // Expertise level from 0 to 5
 });
 
 export default UserSchema;

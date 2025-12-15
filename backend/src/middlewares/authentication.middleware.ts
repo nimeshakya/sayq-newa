@@ -20,33 +20,19 @@ export const hasAuthenticationToken = (
                 'JWT_SECRET is not defined in environment variables'
             );
         }
-        const authHeader = req.headers['authorization'];
-        if (!authHeader) {
-            return res
-                .status(401)
-                .json({ message: 'No token provided!' })
-                .end();
-        }
 
-        const token = authHeader.split(' ')[1]; // Bearer <token>
-        if (!token) {
-            return res
-                .status(401)
-                .json({ message: 'No token provided!' })
-                .end();
-        }
+        const token = req.cookies.token; // read the token in cookie
+        if (!token) return res.status(401).json({ message: 'No token!' });
 
-        jwt.verify(token, JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return res
-                    .status(401)
-                    .json({ message: 'Invalid token!' })
-                    .end();
-            }
+        // verify jwt
+        const decoded = jwt.verify(token, JWT_SECRET);
 
-            req.user = decoded;
-            next();
-        });
+        if (!decoded)
+            return res.status(401).json({ message: 'Invalid token!' });
+        req.user = decoded;
+        console.log(decoded);
+
+        next();
     } catch (error) {
         return res
             .status(500)
