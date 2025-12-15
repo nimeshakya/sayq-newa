@@ -4,12 +4,14 @@ type QuestionProp = {
   id: number;
   question: string;
   sub_question: string | undefined;
+  difficulty_lvl?: number | undefined;
   correct_answer: string;
   options: string[];
 };
 type ResultProp = {
   id: number;
   questionID: string;
+  difficulty_lvl?: number | undefined;
   selected_answer: string;
   attempts: number;
   responseTime: number;
