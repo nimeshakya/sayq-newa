@@ -1,4 +1,7 @@
-import React, { createContext } from 'react';
+import React, { createContext, useEffect } from 'react';
+import type { CredentialResponse } from '@react-oauth/google';
+
+import { useBackendAPIContext } from './BackendAPIContext';
 
 export type UserType = {
     id: string;
@@ -13,18 +16,58 @@ export type UserType = {
 export type UserContextType = {
     user: UserType | null;
     setUser: React.Dispatch<React.SetStateAction<UserContextType['user']>>;
-    googleSignIn: () => Promise<void>;
-    silentGoogleSignIn: () => Promise<boolean | undefined>;
+    googleSignIn: (credentialResponse: CredentialResponse) => Promise<void>;
+    logout: () => void;
+    loading: boolean;
+    // silentGoogleSignIn: () => Promise<boolean | undefined>;
     // fetchUser: () => Promise<void>;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
 
 const UserProvider = ({ children }: React.PropsWithChildren) => {
+    const { client } = useBackendAPIContext();
     const [user, setUser] = React.useState<UserType | null>(null);
+    const [loading, setLoading] = React.useState<boolean>(true);
+
+    // Check for existing session on mount
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await client.get('/auth/check-session');
+                setUser(res.data.user);
+            } catch (error) {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        checkSession();
+    }, []);
+
+    const googleSignIn = async (credentialResponse: CredentialResponse) => {
+        try {
+            if (!credentialResponse.credential) return;
+
+            const res = await client.post('/auth/google-sign-in', {
+                credential: credentialResponse.credential,
+            });
+
+            setUser(res.data.user);
+        } catch (error) {
+            console.error('Login Error: ', error);
+        }
+    };
+
+    const logout = async () => {
+        await client.post('/auth/logout');
+        setUser(null);
+    };
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider
+            value={{ user, setUser, googleSignIn, logout, loading }}
+        >
             {children}
         </UserContext.Provider>
     );

@@ -24,11 +24,11 @@ const BackendAPIProvider = ({ children }: React.PropsWithChildren) => {
     );
 };
 
-export const useBackendAPI = () => {
+export const useBackendAPIContext = () => {
     const context = React.useContext(BackendAPIContext);
     if (!context) {
         throw new Error(
-            'useBackendAPI must be used within a BackendAPIProvider'
+            'useBackendAPIContext must be used within a BackendAPIProvider'
         );
     }
     return context;
