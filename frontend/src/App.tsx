@@ -1,47 +1,16 @@
 import "./App.scss";
-import { Routes, Route, Link } from "react-router-dom";
-import Dashboard from "./pages/dashboard";
-import InitialPage from "./pages/initialPage";
-import SignInPage from "./pages/signinPage";
-import InitialQuestion from "./pages/initialQuestion";
-import LearnPage from "./pages/learnPage";
-
-const Home = () => (
-  <div className="app">
-    <div className="container1">
-      <h1>Hello, world!</h1>
-    </div>
-    <div className="container2">
-      <h2>Hello, people!</h2>
-    </div>
-  </div>
-);
+import { Routes, Route } from "react-router-dom";
+import Navigation from "./components/navigation.component";
+import { routes } from "./routes/allRoutes";
 
 const App = () => {
   return (
     <div className="app">
-      <nav style={{ padding: 12, marginTop: 12 }}>
-        <Link to="/">Home</Link>
-        {" | "}
-        <Link to="/dashboard">Dashboard</Link>
-        {" | "}
-        <Link to="/initialPage">Initial Page</Link>
-        {" | "}
-        <Link to="/signinPage">Sign In Page</Link>
-        {" | "}
-        <Link to="/initialQuestionPage">Initial Question Page</Link>
-        {" | "}
-        <Link to="/learnPage">Learn Page</Link>
-        {" | "}
-      </nav>
-
+      <Navigation />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/initialPage" element={<InitialPage />} />
-        <Route path="/signinPage" element={<SignInPage />} />
-        <Route path="/initialQuestionPage" element={<InitialQuestion />} />
-        <Route path="/learnPage" element={<LearnPage />} />
+        {routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
       </Routes>
     </div>
   );

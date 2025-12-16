@@ -1,0 +1,126 @@
+// Update your src/styles/landing/landing.scss with this
+
+.landing {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Animated floating circles - same as Why section
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139, 0, 56, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 200px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(196, 30, 58, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 25s ease-in-out infinite reverse;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Additional floating elements for more depth
+  .floating-decoration {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+
+    &.circle-1 {
+      top: 40%;
+      left: 10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139, 0, 56, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 30s ease-in-out infinite;
+    }
+
+    &.circle-2 {
+      top: 60%;
+      right: 5%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(196, 30, 58, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 22s ease-in-out infinite reverse;
+    }
+
+    &.circle-3 {
+      bottom: 20%;
+      left: 15%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(139, 0, 56, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 28s ease-in-out infinite;
+    }
+  }
+
+  // Ensure content is above decorations
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Floating animation
+@keyframes float {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1); 
+  }
+  50% { 
+    transform: translate(50px, 50px) scale(1.1); 
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .landing {
+    &::before,
+    &::after {
+      width: 300px;
+      height: 300px;
+    }
+
+    .floating-decoration {
+      &.circle-1,
+      &.circle-2,
+      &.circle-3 {
+        width: 150px;
+        height: 150px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .landing {
+    &::before,
+    &::after {
+      width: 200px;
+      height: 200px;
+    }
+
+    .floating-decoration {
+      display: none; // Hide extra decorations on very small screens
+    }
+  }
+}

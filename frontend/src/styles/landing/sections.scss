@@ -1,0 +1,113 @@
+// Add this to your src/styles/landing/sections.scss file
+
+.section.about {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 100px 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(
+      circle,
+      rgba(139, 0, 56, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .about-header {
+    text-align: center;
+    margin-bottom: 60px;
+
+    h2 {
+      font-size: 2.8rem;
+      color: #8b0038;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .header-underline {
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #8b0038, transparent);
+      margin: 0 auto;
+      border-radius: 2px;
+    }
+  }
+
+  .about-content {
+    display: grid;
+    gap: 50px;
+  }
+
+  .about-text {
+    .about-intro {
+      font-size: 1.3rem;
+      line-height: 1.8;
+      color: #333;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 50px;
+
+      .highlight {
+        color: #8b0038;
+        font-weight: 600;
+        position: relative;
+
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, #8b0038, #c41e3a);
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .section.about {
+    padding: 60px 20px;
+
+    .about-header h2 {
+      font-size: 2rem;
+    }
+
+    .about-text .about-intro {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .section.about {
+    .about-header h2 {
+      font-size: 1.8rem;
+    }
+
+    .about-text .about-intro {
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+  }
+}
