@@ -5,3 +5,67 @@
   justify-content: center;
   // height: 100vh;
 }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+  overflow: hidden;
+
+  /* Animated floating circles */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+      circle,
+      rgba(139, 0, 56, 0.08) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 200px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(
+      circle,
+      rgba(196, 30, 58, 0.08) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: float 25s ease-in-out infinite reverse;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Floating animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(50px, 50px) scale(1.1);
+  }
+}

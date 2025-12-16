@@ -5,12 +5,13 @@ import InitialPage from "../pages/initialPage";
 import SignInPage from "../pages/signinPage";
 import InitialQuestion from "../pages/initialQuestion";
 import LearnPage from "../pages/learnPage";
+import LandingPage from "../pages/LandingPage/LandingPage";
 
 export const routes: RouteObject[] = [
-//   {
-//     path: "/",
-//     element: <Landing />,
-//   },
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
   {
     path: "/dashboard",
     element: <Dashboard />,
