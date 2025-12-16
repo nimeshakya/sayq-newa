@@ -3,7 +3,7 @@ import "../../styles/landing/sections.scss";
 
 const AboutSection = () => {
   return (
-    <section className="section about">
+    <section className="section about" id="about">
       <div className="about-container">
         <div className="about-header">
           <h2>What is NewaSayQ?</h2>

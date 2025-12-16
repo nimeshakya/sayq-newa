@@ -4,7 +4,7 @@ import heroImage from "../../assets/landing/Landing.png";
 
 const HeroSection = () => {
   return (
-    <section className="hero">
+    <section className="hero" id="home">
       <div className="hero__content">
         <div>
           <h1>NewaSayQ</h1>
@@ -12,11 +12,14 @@ const HeroSection = () => {
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
           <h3>ज्वजलपा</h3>
           <span className="arrow">↓</span>
-          <div className="hero__actions">
+
             <strong>Namaste</strong> <br />
             <span>नमस्ते</span>
-            {/* <button className="btn primary">Get Started</button>
-            <button className="btn secondary">Explore Features</button> */}
+          {/* <div className="hero__actions">
+          </div> */}
+          <div className="hero__actions">
+            <button className="btn primary">Get Started</button>
+            <button className="btn secondary">Explore Features</button>
           </div>
         </div>
 
