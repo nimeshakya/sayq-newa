@@ -7,8 +7,6 @@ import "../../styles/landing/landing.scss";
 const LandingPage = () => {
   return (
     <div className="landing">
-      
-      {/* Main content */}
       <HeroSection />
       <AboutSection />
       <WhyNewariSection />
