@@ -1,17 +1,13 @@
 import "./App.scss";
-import { Routes, Route } from "react-router-dom";
-import Navigation from "./components/navigation.component";
+import { useRoutes } from "react-router-dom";
 import { routes } from "./routes/allRoutes";
 
 const App = () => {
+  const element = useRoutes(routes);
+  
   return (
     <div className="app">
-      <Navigation />
-      <Routes>
-        {routes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
-      </Routes>
+      {element}
     </div>
   );
 };

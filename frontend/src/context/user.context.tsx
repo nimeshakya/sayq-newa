@@ -67,9 +67,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             try {
                 const res = await client.get('/auth/check-session');
                 setUser(res.data.user);
-                navigate('/dashboard');
+                setIsLoggedin(true);
+                // Only redirect if user is actually logged in
+                if (res.data.user) {
+                    navigate('/dashboard');
+                }
             } catch (error) {
                 setUser(null);
+                setIsLoggedin(false);
             } finally {
                 setLoading(false);
             }
