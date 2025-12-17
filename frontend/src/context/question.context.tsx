@@ -10,6 +10,7 @@ type QuestionProp = {
 };
 type ResultProp = {
   id: number;
+  userID: string;
   questionID: string;
   difficulty_lvl?: number | undefined;
   selected_answer: string;
