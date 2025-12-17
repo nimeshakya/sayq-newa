@@ -6,7 +6,6 @@ export default function LearnPage() {
   return (
     <div>
       <div className="main-centered-container">
-        <div>this is direct you know</div>
         <DataPrint headingDisplay="Random word" />
       </div>
     </div>
