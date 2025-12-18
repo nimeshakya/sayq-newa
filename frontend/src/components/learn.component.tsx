@@ -9,29 +9,29 @@ import "../styles/learn.style.scss";
 
 interface DataPrintProps {
   category?: string; // e.g., "animals", "food"
-  level?: number; // e.g., "beginner", "intermediate", "advanced"
+  expertise_lvl?: number; // e.g., "beginner", "intermediate", "advanced"
   count?: number; // e.g., 10
   headingDisplay?: string;
 }
 
 export default function DataPrint({
   category,
-  level,
+  expertise_lvl,
   count = 10,
   headingDisplay,
 }: DataPrintProps) {
   const navigate = useNavigate();
 
-  const { words, fetchRandomWords } = useWordContext();
+  const { words, fetchWords } = useWordContext();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   useEffect(() => {
-    fetchRandomWords({
+    fetchWords({
       category,
-      level,
+      expertise_lvl,
       count,
     });
-  }, [category, level, count]);
+  }, [category, expertise_lvl, count]);
 
   if (words.length === 0) {
     return <div>No words found matching criteria</div>;
