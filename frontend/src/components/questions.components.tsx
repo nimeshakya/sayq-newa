@@ -28,6 +28,17 @@ export default function Question({ model_type }: QuestionProps) {
   const [reset, setReset] = useState<boolean>(false);
   const [response, setResponse] = useState<number>(0);
 
+  //for saving user test result
+  const saveResult = async (resultsToSave: any[]) => {
+    await fetch("http://localhost:6969/api/user-stat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resultsToSave),
+    });
+  };
+
   const handleAnswerSelect = (option: string) => {
     console.log(option);
     setSelectedAnswer(option);
@@ -48,21 +59,26 @@ export default function Question({ model_type }: QuestionProps) {
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
     const newResult = {
       id: Results.length + 1,
+      userID: "1f", //change garna parxa user id sanga
       questionID: String(currentQuestion.id),
+      difficulty_lvl: currentQuestion.difficulty_lvl || 0,
       selected_answer: selectedAnswer,
       attempts: 1,
       responseTime: response,
       isCorrect: isCorrect,
+      createdAt: new Date().toISOString(),
     };
-    setResults([...Results, newResult]);
 
     if (!isLastQuestion) {
+      setResults([...Results, newResult]);
       setCurrentIndex(currentIndex + 1);
       setSelectedAnswer(null);
     } else {
-      // Handle quiz completion
+      // Handle quiz completion - pass updated results directly
+      const finalResults = [...Results, newResult];
       alert("Quiz completed!");
-      console.log("Final Results:", [...Results, newResult]);
+      console.log("Final Results:", finalResults);
+      saveResult(finalResults); // Pass the updated array
       navigate("/dashboard");
     }
   };

@@ -34,12 +34,18 @@ const Navigation = () => {
           <Link to="/" className="nav-link active">
             Home
           </Link>
-          <a href="#about" className="nav-link">
+          <a href="/#about" className="nav-link">
             About
           </a>
-          <a href="#learning" className="nav-link">
+          <Link to="learnPage" className="nav-link">
             Learning
-          </a>
+          </Link>
+          <Link to="initialQuestionPage" className="nav-link">
+            Quiz
+          </Link>
+          {/* <a href="#learning" className="nav-link">
+            Learning
+          </a> */}
         </div>
 
         <div className={`nav-auth ${isMenuOpen ? "active" : ""}`}>
