@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import TimeTracker from "./timer.component";
 import { useQuestionContext } from "../context/question.context";
 
+import { API_BASE_URL } from "../constants";
+
 interface QuestionProps {
   model_type: string;
 }
@@ -30,7 +32,7 @@ export default function Question({ model_type }: QuestionProps) {
 
   //for saving user test result
   const saveResult = async (resultsToSave: any[]) => {
-    await fetch("http://localhost:6969/api/user-stat", {
+    await fetch(`${API_BASE_URL}/user-stat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

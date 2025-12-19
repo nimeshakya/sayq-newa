@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Word } from "../models/word.model";
+import { searchDataWord } from "../utils/wordSearch.util";
 
 export const addWord = async (req: Request, res: Response) => {
   console.log("Received body:", req.body);
@@ -38,5 +39,22 @@ export const addWord = async (req: Request, res: Response) => {
     res.status(201).json(savedWord);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const fetchDataWord = async (req: Request, res: Response) => {
+  try {
+    const { category, expertise_lvl, count } = req.query;
+
+    const result = searchDataWord({
+      category: category as string | undefined,
+      expertise_lvl: expertise_lvl ? Number(expertise_lvl) : undefined,
+      count: count ? Number(count) : undefined,
+    });
+
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };
