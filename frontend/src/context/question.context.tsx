@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
+import { API_BASE_URL } from "../constants";
 
 type QuestionProp = {
   id: number;
   question: string;
-  sub_question: string | undefined;
+  sub_question?: string | undefined;
   difficulty_lvl?: number | undefined;
   correct_answer: string;
   options: string[];
@@ -19,11 +20,19 @@ type ResultProp = {
   isCorrect: boolean;
 };
 
+type FetchQuestionProps = {
+  category?: string;
+  expertise_lvl?: number;
+  count?: number;
+};
+
 type QuestionContextType = {
   setQuestions: React.Dispatch<React.SetStateAction<QuestionProp[]>>;
   setResults: React.Dispatch<React.SetStateAction<ResultProp[]>>;
   ResetQuestions: () => void;
   ResetResult: () => void;
+
+  FetchQuestion: (params: FetchQuestionProps) => Promise<void>;
 
   Questions: QuestionProp[];
   Results: ResultProp[];
@@ -48,6 +57,34 @@ export const QuestionProvider = ({
     setQuestions([]);
   };
 
+  const FetchQuestion = async (
+    params: FetchQuestionProps = {}
+  ): Promise<void> => {
+    const query = new URLSearchParams();
+
+    if (params.category) {
+      query.append("category", params.category);
+    }
+
+    if (params.expertise_lvl !== undefined) {
+      query.append("expertise_lvl", params.expertise_lvl.toString());
+    }
+
+    if (params.count) {
+      query.append("count", params.count.toString());
+    }
+
+    const res = await fetch(`${API_BASE_URL}/questions?${query.toString()}`);
+
+    if (!res.ok) {
+      console.error("Failed to fetch words");
+      throw new Error("Failed to fetch words");
+    }
+
+    const data: QuestionProp[] = await res.json();
+    setQuestions(data); // ✅ update context state
+  };
+
   return (
     <QuestionContext.Provider
       value={{
@@ -56,6 +93,8 @@ export const QuestionProvider = ({
 
         setQuestions,
         setResults,
+
+        FetchQuestion,
 
         ResetQuestions,
         ResetResult,

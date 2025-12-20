@@ -9,12 +9,29 @@ import { useQuestionContext } from "../context/question.context";
 import { API_BASE_URL } from "../constants";
 
 interface QuestionProps {
-  model_type: string;
+  category?: string; // e.g., "animals", "food"
+  expertise_lvl?: number; // e.g., "beginner", "intermediate", "advanced"
+  count?: number; // e.g., 10
+  headingDisplay?: string;
 }
 
-export default function Question({ model_type }: QuestionProps) {
-  const { Questions, Results, setResults, ResetResult } = useQuestionContext();
+export default function Question({
+  category,
+  expertise_lvl,
+  count,
+  headingDisplay,
+}: QuestionProps) {
+  const { Questions, Results, setResults, ResetResult, FetchQuestion } =
+    useQuestionContext();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    FetchQuestion({
+      category,
+      expertise_lvl,
+      count,
+    });
+  }, [category, expertise_lvl, count]);
 
   useEffect(() => {
     ResetResult();
@@ -39,6 +56,7 @@ export default function Question({ model_type }: QuestionProps) {
       },
       body: JSON.stringify(resultsToSave),
     });
+    console.log("save request sent");
   };
 
   const handleAnswerSelect = (option: string) => {
@@ -91,7 +109,7 @@ export default function Question({ model_type }: QuestionProps) {
 
   return (
     <div className="questionContainer">
-      <div className="modelType">{model_type}</div>
+      <div className="modelType">{headingDisplay}</div>
       <div className="questionProgress">
         Question {currentIndex + 1} of {Questions.length}
         <TimeTracker reset={reset} trackedTime={setResponse} />
