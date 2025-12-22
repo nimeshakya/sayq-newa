@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
+import { API_BASE_URL } from "../constants";
+
+/* ================= TYPES ================= */
 
 type WordProp = {
-  id: number;
+  id: string; // ✅ fixed
   newari_word: string;
   nepali_meaning: string;
   category: string;
@@ -9,76 +12,69 @@ type WordProp = {
   type: string;
 };
 
+type FetchWordsOptions = {
+  category?: string;
+  expertise_lvl?: number;
+  count?: number;
+};
+
 type WordContextType = {
   words: WordProp[];
-  setWords: React.Dispatch<React.SetStateAction<WordProp[]>>;
-  ResetWords: () => void;
-  fetchRandomWords: (options?: {
-    category?: string;
-    level?: number;
-    count?: number;
-  }) => Promise<void>;
+  fetchWords: (options?: FetchWordsOptions) => Promise<void>;
+  resetWords: () => void;
 };
+
+/* ================= CONTEXT ================= */
 
 const WordContext = createContext<WordContextType | undefined>(undefined);
 
 export const WordProvider = ({ children }: { children: React.ReactNode }) => {
   const [words, setWords] = useState<WordProp[]>([]);
 
-  const ResetWords = () => {
+  const resetWords = () => {
     setWords([]);
   };
 
-  const fetchRandomWords = async (options?: {
-    category?: string;
-    level?: number;
-    count?: number;
-  }) => {
-    try {
-      const response = await fetch("/data.json");
-      if (!response.ok) throw new Error("Failed to fetch data.json");
+  const fetchWords = async (options: FetchWordsOptions = {}): Promise<void> => {
+    const query = new URLSearchParams();
 
-      let allData: WordProp[] = await response.json();
-
-      // Filter by category
-      if (options?.category) {
-        allData = allData.filter(
-          (word) =>
-            word.category.toLowerCase() === options.category?.toLowerCase()
-        );
-      }
-
-      // Filter by level (numeric)
-      if (options?.level !== undefined) {
-        allData = allData.filter(
-          (word) => word.expertise_lvl === options.level
-        );
-      }
-
-      // Shuffle and get N random items
-      const shuffled = allData.sort(() => Math.random() - 0.5);
-      const count = options?.count || allData.length;
-      const selected = shuffled.slice(0, count);
-
-      setWords(selected);
-    } catch (err) {
-      console.error("Error fetching words:", err);
+    if (options.category) {
+      query.append("category", options.category);
     }
+
+    if (options.expertise_lvl !== undefined) {
+      query.append("expertise_lvl", options.expertise_lvl.toString());
+    }
+
+    if (options.count) {
+      query.append("count", options.count.toString());
+    }
+
+    const res = await fetch(`${API_BASE_URL}/words?${query.toString()}`);
+
+    if (!res.ok) {
+      console.error("Failed to fetch words");
+      throw new Error("Failed to fetch words");
+    }
+
+    const data: WordProp[] = await res.json();
+    setWords(data); // ✅ update context state
   };
 
   return (
     <WordContext.Provider
       value={{
         words,
-        setWords,
-        ResetWords,
-        fetchRandomWords,
+        fetchWords,
+        resetWords,
       }}
     >
       {children}
     </WordContext.Provider>
   );
 };
+
+/* ================= HOOK ================= */
 
 export const useWordContext = () => {
   const context = useContext(WordContext);
