@@ -64,17 +64,18 @@ export default function TimeTracker({
   // Reset timer
   useEffect(() => {
     if (reset) setSeconds(0);
-
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
   }, [reset]);
 
   //timer
 
   useEffect(() => {
-    if (!running) return;
+    if (!running) {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
 
     intervalRef.current = window.setInterval(() => {
       setSeconds((prev) => prev + 1);
@@ -91,7 +92,7 @@ export default function TimeTracker({
   // Notify parent safely
   useEffect(() => {
     trackedTime?.(seconds);
-  }, [seconds, trackedTime]);
+  }, [seconds]);
 
   const FormatTime = (secs: number) => {
     const minutes = Math.floor(secs / 60);
