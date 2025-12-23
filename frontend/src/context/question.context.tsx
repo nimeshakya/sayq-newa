@@ -2,9 +2,10 @@ import React, { createContext, useContext, useState } from "react";
 import { API_BASE_URL } from "../constants";
 
 type QuestionProp = {
-  id: number;
+  id: string;
   question: string;
   sub_question?: string | undefined;
+  category?: string | undefined;
   difficulty_lvl?: number | undefined;
   correct_answer: string;
   options: string[];
