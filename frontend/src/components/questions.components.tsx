@@ -77,6 +77,7 @@ export default function Question({
 
     // Store the answer in Results context
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+    console.log(isCorrect);
     const newResult = {
       id: Results.length + 1,
       userID: "1f", //change garna parxa user id sanga
@@ -112,6 +113,10 @@ export default function Question({
       <div className="modelType">{headingDisplay}</div>
       <div className="questionProgress">
         Question {currentIndex + 1} of {Questions.length}
+        <br /> Category:
+        {currentQuestion.category}
+        <br />
+        difficulty_lvl:{currentQuestion.difficulty_lvl}
         <TimeTracker reset={reset} trackedTime={setResponse} />
       </div>
       {currentQuestion && (

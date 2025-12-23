@@ -2,11 +2,12 @@ import fs from "fs";
 import path from "path";
 
 export interface Question {
-  id: number;
+  id: string;
   question: string;
   sub_question: string | undefined;
   difficulty_lvl?: number | undefined;
   correct_answer: string;
+  category: string;
   options: string[];
 }
 
@@ -86,9 +87,10 @@ export const createQuestion = ({
     const options = shuffleArray([word.nepali_meaning, ...distractors]);
 
     return {
-      id: index + 1,
+      id: (index + 1).toString(),
       question: word.newari_word,
       sub_question: undefined,
+      category: word.category,
       difficulty_lvl: word.expertise_lvl,
       correct_answer: word.nepali_meaning,
       options,
