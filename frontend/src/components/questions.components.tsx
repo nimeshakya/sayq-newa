@@ -85,6 +85,7 @@ export default function Question({
       id: (Results.length + 1).toString(),
       userID: user?._id, //change garna parxa user id sanga
       questionID: String(currentQuestion.id),
+      wordID: currentQuestion.wordId,
       difficulty_lvl: currentQuestion.difficulty_lvl || 0,
       selected_answer: selectedAnswer,
       attempts: 1,
