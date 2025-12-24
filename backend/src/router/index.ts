@@ -6,6 +6,7 @@ import sessioncheckRouter from "./sessioncheck.router";
 import wordRouter from "./word.router";
 import userRouter from "./userResultStore.route";
 import questionRouter from "./question.router";
+import userWordProgressRouter from "./userWordProgress.router";
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ export default (): express.Router => {
   wordRouter(router);
 
   userRouter(router);
+  userWordProgressRouter(router);
 
   questionRouter(router);
   return router;
