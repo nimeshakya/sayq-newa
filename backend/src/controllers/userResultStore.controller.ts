@@ -46,6 +46,7 @@ export const pullResultsFromMongoToJSON = async (
       id: result.id,
       userID: result.userID,
       questionID: result.questionID,
+      wordID: result.wordID,
       difficulty_lvl: parseInt(result.difficulty_lvl?.toString() || "0"),
       selected_answer: result.selected_answer,
       attempts: result.attempts,
