@@ -3,11 +3,13 @@ import { Schema, Document } from "mongoose";
 export interface ResultProp extends Document {
   userID: string;
   questionID: string;
+  wordID: string;
   difficulty_lvl?: number | undefined;
   selected_answer: string;
   attempts: number;
   responseTime: number;
   isCorrect: boolean;
+  createdDate: Date;
 }
 export interface ExamProp extends Document {
   userID: string;
@@ -18,16 +20,19 @@ export interface ExamProp extends Document {
   medium_accuracy: number;
   hard_accuracy: number;
   average_time: number;
+  createdDate: Date;
 }
 
 export const resultSchema = new Schema<ResultProp>({
   userID: { type: String, required: true },
   questionID: { type: String, required: true },
+  wordID: { type: String, required: true, ref: "Word" },
   difficulty_lvl: { type: Number, required: true },
   selected_answer: { type: String, required: true },
   attempts: { type: Number, required: true },
   responseTime: { type: Number, required: true },
   isCorrect: { type: Boolean, required: true },
+  createdDate: { type: Date, default: Date.now },
 });
 
 export const examSchema = new Schema<ExamProp>({
@@ -39,4 +44,5 @@ export const examSchema = new Schema<ExamProp>({
   medium_accuracy: { type: Number, required: true },
   hard_accuracy: { type: Number, required: true },
   average_time: { type: Number, required: true },
+  createdDate: { type: Date, default: Date.now },
 });
