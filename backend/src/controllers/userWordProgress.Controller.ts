@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import UserWordProgressModel from "../models/userWordProgress.model";
+import { calculateNextReview } from "../utils/reviewSchedule.util";
 
 interface WordProgressData {
   userId: string;
@@ -8,22 +9,6 @@ interface WordProgressData {
   responseTime: number;
   boxLevel?: number;
 }
-
-// Leitner Box intervals in milliseconds
-const LEITNER_INTERVALS = [
-  1000 * 60 * 60 * 24, // Box 1: 1 day
-  1000 * 60 * 60 * 24 * 3, // Box 2: 3 days
-  1000 * 60 * 60 * 24 * 7, // Box 3: 7 days
-  1000 * 60 * 60 * 24 * 14, // Box 4: 14 days
-  1000 * 60 * 60 * 24 * 30, // Box 5: 30 days
-];
-
-// Calculate next review date based on Leitner box system
-const calculateNextReview = (boxLevel: number): Date => {
-  const safeBoxLevel = Math.min(Math.max(1, boxLevel), 5);
-  const interval = LEITNER_INTERVALS[safeBoxLevel - 1];
-  return new Date(Date.now() + interval);
-};
 
 // Save or update word progress
 export const saveProgress = async (

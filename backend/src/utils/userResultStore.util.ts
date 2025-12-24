@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { ResultModel, ExamModel } from "../models/result.model";
+import UserWordProgressModel from "../models/userWordProgress.model";
+import { calculateNextReview } from "../utils/reviewSchedule.util";
 
 export interface UserResultProp {
   userID?: string;
@@ -116,6 +118,51 @@ export const saveUserResultToMongoDB = async (
 
     await ExamModel.create(examData);
     console.log(`Saved exam statistics for user ${userID}`);
+
+    // Update user word progress for each answered word
+    for (const r of data) {
+      const uid = r.userID || userID;
+      const wid = r.wordID;
+      if (!uid || !wid) continue;
+
+      const existing = await UserWordProgressModel.findOne({
+        userId: uid,
+        wordId: wid,
+      });
+      if (existing) {
+        existing.attempts += 1;
+        if (r.isCorrect) {
+          existing.correct += 1;
+          existing.boxLevel = Math.min(existing.boxLevel + 1, 5);
+        } else {
+          existing.boxLevel = Math.max(1, existing.boxLevel - 1);
+        }
+        existing.mastery = Math.round(
+          (existing.correct / existing.attempts) * 100
+        );
+        existing.avgResponseTime = Math.round(
+          (existing.avgResponseTime * (existing.attempts - 1) +
+            r.responseTime) /
+            existing.attempts
+        );
+        existing.nextReviewAt = calculateNextReview(existing.boxLevel);
+        existing.lastReviewedAt = new Date();
+        await existing.save();
+      } else {
+        await UserWordProgressModel.create({
+          userId: uid,
+          wordId: wid,
+          boxLevel: r.isCorrect ? 1 : 1,
+          mastery: r.isCorrect ? 100 : 0,
+          attempts: 1,
+          correct: r.isCorrect ? 1 : 0,
+          avgResponseTime: r.responseTime,
+          nextReviewAt: calculateNextReview(1),
+          lastReviewedAt: new Date(),
+        });
+      }
+    }
+    console.log(`Updated user word progress for ${data.length} records`);
   } catch (error: any) {
     console.error("Error saving results to MongoDB:", error);
     throw error;
