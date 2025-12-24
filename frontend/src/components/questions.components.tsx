@@ -8,6 +8,8 @@ import { useQuestionContext } from "../context/question.context";
 
 import { API_BASE_URL } from "../constants";
 
+import { useUserContext } from "../context/user.context";
+
 interface QuestionProps {
   category?: string; // e.g., "animals", "food"
   expertise_lvl?: number; // e.g., "beginner", "intermediate", "advanced"
@@ -23,6 +25,7 @@ export default function Question({
 }: QuestionProps) {
   const { Questions, Results, setResults, ResetResult, FetchQuestion } =
     useQuestionContext();
+  const { user } = useUserContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,8 +82,8 @@ export default function Question({
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
     console.log(isCorrect);
     const newResult = {
-      id: Results.length + 1,
-      userID: "1f", //change garna parxa user id sanga
+      id: (Results.length + 1).toString(),
+      userID: user?._id, //change garna parxa user id sanga
       questionID: String(currentQuestion.id),
       difficulty_lvl: currentQuestion.difficulty_lvl || 0,
       selected_answer: selectedAnswer,
@@ -112,6 +115,10 @@ export default function Question({
     <div className="questionContainer">
       <div className="modelType">{headingDisplay}</div>
       <div className="questionProgress">
+        <div>
+          USER ID: {user?._id}
+          Name:{user?.given_name}
+        </div>
         Question {currentIndex + 1} of {Questions.length}
         <br /> Category:
         {currentQuestion.category}

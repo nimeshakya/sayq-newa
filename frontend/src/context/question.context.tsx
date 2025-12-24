@@ -11,7 +11,7 @@ type QuestionProp = {
   options: string[];
 };
 type ResultProp = {
-  id: number;
+  id: string;
   userID: string;
   questionID: string;
   difficulty_lvl?: number | undefined;
