@@ -5,6 +5,7 @@ import { ResultModel, ExamModel } from "../models/result.model";
 export interface UserResultProp {
   userID?: string;
   questionID: string;
+  wordID: string;
   difficulty_lvl?: number | undefined;
   selected_answer: string;
   attempts: number;
@@ -91,11 +92,13 @@ export const saveUserResultToMongoDB = async (
     const resultsToInsert = data.map((result) => ({
       userID: result.userID || "unknown",
       questionID: result.questionID,
+      wordID: result.wordID,
       difficulty_lvl: result.difficulty_lvl,
       selected_answer: result.selected_answer,
       attempts: result.attempts,
       responseTime: result.responseTime,
       isCorrect: result.isCorrect,
+      createdDate: result.createdAt ? new Date(result.createdAt) : new Date(),
     }));
 
     if (resultsToInsert.length > 0) {
@@ -108,6 +111,7 @@ export const saveUserResultToMongoDB = async (
     const examData = {
       userID,
       ...examStats,
+      createdDate: new Date(),
     };
 
     await ExamModel.create(examData);
