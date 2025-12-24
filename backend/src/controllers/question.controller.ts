@@ -5,7 +5,7 @@ export const generateQuestion = async (req: Request, res: Response) => {
   try {
     const { category, expertise_lvl, count } = req.query;
 
-    const result = createQuestion({
+    const result = await createQuestion({
       category: category as string | undefined,
       expertise_lvl: expertise_lvl ? Number(expertise_lvl) : undefined,
       count: count ? Number(count) : undefined,

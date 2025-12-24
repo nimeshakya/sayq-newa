@@ -1,5 +1,4 @@
-import fs from "fs";
-import path from "path";
+import { Word as WordModel } from "../models/word.model";
 
 export interface Word {
   id: string;
@@ -16,27 +15,26 @@ interface SearchQuery {
   count?: number;
 }
 
-const DATA_PATH = path.resolve(process.cwd(), "..", "data", "data.json");
+// Words are fetched from MongoDB via the Word model
 
-export const searchDataWord = ({
+export const searchDataWord = async ({
   category,
   expertise_lvl,
-  count = 10, // ✅ default
-}: SearchQuery): Word[] => {
-  const raw = fs.readFileSync(DATA_PATH, "utf-8");
-  const words: Word[] = JSON.parse(raw);
+  count = 10, // default
+}: SearchQuery): Promise<Word[]> => {
+  // Build aggregation pipeline for random sampling
+  const pipeline: Record<string, any>[] = [];
 
-  let result = words;
-
-  // ✅ filter only if provided
-  if (category) {
-    result = result.filter((w) => w.category === category);
+  const match: Record<string, any> = {};
+  if (category) match.category = category;
+  if (expertise_lvl !== undefined) match.expertise_lvl = expertise_lvl;
+  if (Object.keys(match).length > 0) {
+    pipeline.push({ $match: match });
   }
 
-  if (expertise_lvl !== undefined) {
-    result = result.filter((w) => w.expertise_lvl === expertise_lvl);
-  }
+  // Randomly sample documents
+  pipeline.push({ $sample: { size: count } });
 
-  // ✅ limit result count
-  return result.slice(0, count);
+  const words = await (WordModel as any).aggregate(pipeline);
+  return words as Word[];
 };
