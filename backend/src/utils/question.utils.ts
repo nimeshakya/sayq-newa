@@ -1,9 +1,9 @@
-import fs from "fs";
-import path from "path";
+import { Word as WordModel } from "../models/word.model";
 
 export interface Question {
   id: string;
   question: string;
+  wordId: string;
   sub_question: string | undefined;
   difficulty_lvl?: number | undefined;
   correct_answer: string;
@@ -12,7 +12,8 @@ export interface Question {
 }
 
 export interface Word {
-  id: string;
+  _id: any; // MongoDB ObjectId
+  id?: string; // legacy/custom id if present
   newari_word: string;
   nepali_meaning: string;
   category: string;
@@ -26,7 +27,7 @@ interface SearchQuery {
   count?: number;
 }
 
-const DATA_PATH = path.resolve(process.cwd(), "..", "data", "data.json");
+// Words are now fetched directly from MongoDB via the Word model
 
 const shuffleArray = <T>(items: T[]): T[] => {
   const copy = [...items];
@@ -43,12 +44,14 @@ const pickRandomMeanings = (
   amount: number,
   category: string
 ): string[] => {
+  const getIdStr = (w: Word) => (w._id ? String(w._id) : String(w.id));
+
   const primary = pool.filter(
-    (word) => word.id !== excludeId && word.category === category
+    (word) => getIdStr(word) !== excludeId && word.category === category
   );
 
   const extras = pool.filter(
-    (word) => word.id !== excludeId && word.category !== category
+    (word) => getIdStr(word) !== excludeId && word.category !== category
   );
 
   const ordered = [...shuffleArray(primary), ...shuffleArray(extras)];
@@ -56,31 +59,30 @@ const pickRandomMeanings = (
   return ordered.slice(0, amount).map((word) => word.nepali_meaning);
 };
 
-export const createQuestion = ({
+export const createQuestion = async ({
   category,
   expertise_lvl,
   count = 10,
-}: SearchQuery): Question[] => {
-  const raw = fs.readFileSync(DATA_PATH, "utf-8");
-  const words: Word[] = JSON.parse(raw);
+}: SearchQuery): Promise<Question[]> => {
+  // Build filter for MongoDB
+  const filter: Record<string, any> = {};
+  if (category) filter.category = category;
+  if (expertise_lvl !== undefined) filter.expertise_lvl = expertise_lvl;
 
-  let filtered = words;
-
-  if (category) {
-    filtered = filtered.filter((w) => w.category === category);
+  // Fetch words from MongoDB; fallback to all words if filtered is empty
+  let questionPool: Word[] = (await WordModel.find(
+    filter
+  ).lean()) as unknown as Word[];
+  if (!questionPool || questionPool.length === 0) {
+    questionPool = (await WordModel.find({}).lean()) as unknown as Word[];
   }
 
-  if (expertise_lvl !== undefined) {
-    filtered = filtered.filter((w) => w.expertise_lvl === expertise_lvl);
-  }
-
-  const questionPool = filtered.length > 0 ? filtered : words;
   const selected = shuffleArray(questionPool).slice(0, count);
 
   return selected.map((word, index) => {
     const distractors = pickRandomMeanings(
       questionPool,
-      word.id,
+      String((word as Word)._id ?? (word as Word).id),
       3,
       word.category
     );
@@ -88,6 +90,7 @@ export const createQuestion = ({
 
     return {
       id: (index + 1).toString(),
+      wordId: String((word as Word)._id ?? (word as Word).id),
       question: word.newari_word,
       sub_question: undefined,
       category: word.category,
