@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../constants";
 
 type QuestionProp = {
   id: string;
+  wordId: string;
   question: string;
   sub_question?: string | undefined;
   category?: string | undefined;
@@ -14,6 +15,7 @@ type ResultProp = {
   id: string;
   userID: string;
   questionID: string;
+  wordID: string;
   difficulty_lvl?: number | undefined;
   selected_answer: string;
   attempts: number;
