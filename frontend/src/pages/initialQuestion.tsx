@@ -5,7 +5,7 @@ import Question from "../components/questions.components";
 export default function InitialQuestion() {
   return (
     <div className="main-centered-container">
-      <Question headingDisplay="mcq" count={4} />
+      <Question headingDisplay="mcq" />
     </div>
   );
 }
