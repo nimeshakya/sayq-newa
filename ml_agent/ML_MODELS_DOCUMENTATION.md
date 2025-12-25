@@ -280,7 +280,10 @@ Run Cells 1-2-5-6-7-8 → Verify saved model works correctly
 
 ### Model Storage
 
-**Collection**: `db.ml_models`
+**Primary Storage**: MongoDB `db.ml_models` collection  
+**Backup Storage**: Local files in `ml_agent/checkpoints/`
+
+All models are saved to **both MongoDB and local files** with comprehensive metadata.
 
 **Document Structure**:
 
@@ -301,6 +304,13 @@ Run Cells 1-2-5-6-7-8 → Verify saved model works correctly
   }
 }
 ```
+
+**Benefits of MongoDB Storage:**
+
+- ✅ Cloud-accessible for deployment
+- ✅ Version control with timestamps
+- ✅ Automatic backups
+- ✅ Easy model updates
 
 ---
 
@@ -875,6 +885,168 @@ File System
 
 ---
 
+## � Unified Model Storage System
+
+All ML models in this project save to **both MongoDB and local files** for reliability and flexibility.
+
+### Storage Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      MODEL TRAINING                          │
+│  (updateModel.ipynb, rl_vocab_agent.ipynb, etc.)           │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ├──────────────┬──────────────────────┐
+                         ↓              ↓                      ↓
+                    ┌─────────┐   ┌──────────┐        ┌──────────┐
+                    │ MongoDB │   │  Local   │        │ Metadata │
+                    │ml_models│   │checkpoints│        │  & Info  │
+                    └─────────┘   └──────────┘        └──────────┘
+```
+
+### MongoDB Collection: `ml_models`
+
+#### Document Schema
+
+```javascript
+{
+  "model_name": String,        // Unique identifier
+  "model_type": String,        // catboost | pytorch_dqn | pytorch_scorer | q_table
+  "model_data": Binary,        // Serialized model (pickle or torch)
+  "metadata": {
+    "training_date": Date,
+    "num_users": Number,
+    "num_words": Number,
+    // Model-specific params...
+  },
+  "created_at": Date,
+  "updated_at": Date
+}
+```
+
+#### Stored Models
+
+| Model Name              | Type        | Source Notebook             | Description                     |
+| ----------------------- | ----------- | --------------------------- | ------------------------------- |
+| `expertise_classifier`  | CatBoost    | updateModel.ipynb           | User expertise predictor (0-5)  |
+| `dqn_vocab_agent`       | PyTorch DQN | rl_vocab_agent.ipynb        | RL-based word recommender       |
+| `vocab_scorer`          | PyTorch     | train_from_mongo_full.ipynb | Word difficulty scorer          |
+| `qlearning_vocab_agent` | Q-Table     | agent.ipynb                 | Q-learning recommendation agent |
+
+### Local Backup: `ml_agent/checkpoints/`
+
+Local files serve as backup and for offline development:
+
+```
+ml_agent/
+  checkpoints/
+    ├── dqn_vocab.pt          # DQN agent state dict
+    └── scorer.pt             # Scorer model state dict
+```
+
+### Model Loading Priority
+
+Models load with fallback logic:
+
+1. **Try MongoDB** (primary source, always up-to-date)
+2. **Fallback to local file** (if MongoDB unavailable)
+3. **Error if neither found**
+
+### Save/Load Examples
+
+#### Expertise Classifier
+
+```python
+# Save (updateModel.ipynb Cell 4)
+model_doc = {
+    "model_name": "expertise_classifier",
+    "model_binary": pickle.dumps(model),
+    "features": feature_names,
+    "target_classes": [0, 1, 2, 3, 4, 5],
+    "f1_score": 0.95,
+    "trained_at": datetime.utcnow()
+}
+db.ml_models.insert_one(model_doc)
+
+# Load (from backend)
+doc = db.ml_models.find_one({"model_name": "expertise_classifier"})
+model = pickle.loads(doc["model_binary"])
+```
+
+#### DQN Vocab Agent
+
+```python
+# Save (rl_vocab_agent.ipynb Cell 8)
+buffer = io.BytesIO()
+torch.save({
+    "q_net": q_net.state_dict(),
+    "target_net": target_net.state_dict(),
+    "optimizer": optimizer.state_dict()
+}, buffer)
+db.ml_models.update_one(
+    {"model_name": "dqn_vocab_agent"},
+    {"$set": {"model_data": buffer.getvalue()}},
+    upsert=True
+)
+
+# Load
+doc = db.ml_models.find_one({"model_name": "dqn_vocab_agent"})
+buffer = io.BytesIO(doc["model_data"])
+state = torch.load(buffer)
+q_net.load_state_dict(state["q_net"])
+```
+
+#### Vocab Scorer
+
+```python
+# Save (train_from_mongo_full.ipynb Cell 6)
+buffer = io.BytesIO()
+torch.save(model.state_dict(), buffer)
+db.ml_models.update_one(
+    {"model_name": "vocab_scorer"},
+    {"$set": {"model_data": buffer.getvalue()}},
+    upsert=True
+)
+```
+
+#### Q-Learning Agent
+
+```python
+# Save (agent.ipynb)
+qtable_bytes = pickle.dumps({
+    "Q": Q,
+    "actions": actions,
+    "num_states": num_states
+})
+db.ml_models.update_one(
+    {"model_name": "qlearning_vocab_agent"},
+    {"$set": {"model_data": qtable_bytes}},
+    upsert=True
+)
+```
+
+### Benefits of Dual Storage
+
+| Benefit          | MongoDB    | Local Files |
+| ---------------- | ---------- | ----------- |
+| Cloud deployment | ✅         | ❌          |
+| Version control  | ✅         | ⚠️ Manual   |
+| Backup           | ✅ Auto    | ⚠️ Manual   |
+| Offline dev      | ❌         | ✅          |
+| Fast loading     | ⚠️ Network | ✅          |
+| Team sharing     | ✅         | ❌          |
+
+### Best Practices
+
+1. **Always save to both** - Run save functions that update both storages
+2. **Use MongoDB in production** - Load from MongoDB for deployed apps
+3. **Keep local as backup** - Useful for offline development and testing
+4. **Version with timestamps** - Metadata includes `training_date` for tracking
+5. **Test loading after saving** - All notebooks include load test cells
+
+---
+
 ## 📚 References
 
 ### Documentation Files
@@ -887,7 +1059,8 @@ File System
 
 - `updateModel.ipynb` - Expertise classifier training
 - `rl_vocab_agent.ipynb` - RL agent training
-- `train_from_mongo_full.ipynb` - Full training pipeline
+- `train_from_mongo_full.ipynb` - Scorer model training
+- `agent.ipynb` - Q-learning agent
 
 ### API Documentation
 
@@ -899,11 +1072,14 @@ File System
 
 ## 🎯 Summary
 
-This documentation covers three interconnected ML models:
+This documentation covers four interconnected ML models:
 
 1. **Expertise Classifier** (CatBoost): Automatically assesses user proficiency from placement tests
 2. **RL Vocabulary Recommender** (DQN): Intelligently recommends words to maximize learning
-3. **Full Training Pipeline**: Orchestrates training and deployment of both models
+3. **Vocab Scorer** (PyTorch): Scores word-user combinations for optimal selection
+4. **Q-Learning Agent**: Table-based reinforcement learning for quiz recommendations
+
+**All models save to MongoDB for production use and local files for backup.**
 
 Together, these models create an adaptive learning system that:
 
