@@ -44,9 +44,9 @@ export const pullResultsFromMongoToJSON = async (
     // Convert MongoDB results to UserResultProp format
     const formattedResults: UserResultProp[] = results.map((result) => ({
       id: result.id,
-      userID: result.userID,
+      userID: result.userID.toString(),
       questionID: result.questionID,
-      wordID: result.wordID,
+      wordID: result.wordID.toString(),
       difficulty_lvl: parseInt(result.difficulty_lvl?.toString() || "0"),
       selected_answer: result.selected_answer,
       attempts: result.attempts,
