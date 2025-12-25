@@ -1,39 +1,267 @@
-@use "./variables" as *;
-@use "./mixins" as *;
-
 .dataPrintContainer {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  border: 2px solid red;
-  border-radius: $radius-lg;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  min-width: 500px;
-  .dataList {
-    border: 2px solid blue;
-    padding: 20px 30px;
-    width: 100%;
-    border-radius: $radius-md;
+  max-width: 1200px;
+  min-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+
+  // Header Section
+  .learn-header {
+    margin-bottom: 40px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+
+      .learn-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+      }
+    }
   }
 
-  .heading-word {
-    font-size: 60px;
-    font-weight: 800;
+  // Progress Section
+  .progress-section {
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .progress-text,
+      .progress-percentage {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8b0038;
+      }
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #ddd;
+      border-radius: 100px;
+      overflow: hidden;
+
+      .progress-fill {
+        height: 100%;
+        background: #8b0038;
+        border-radius: 100px;
+        transition: width 0.3s ease;
+      }
+    }
+  }
+
+  // Word Card
+  .word-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 32px;
+
+    .word-card-inner {
+      padding: 32px 24px;
+    }
+  }
+
+  // Main Word Display
+  .word-main {
     text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #eee;
+
+    .word-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: #eee;
+      color: #8b0038;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .newari-word {
+      font-size: 40px;
+      font-weight: 700;
+      color: #8b0038;
+      margin: 0;
+      line-height: 1.2;
+    }
   }
 
-  .title-word {
-    font-size: 20px;
-    font-weight: 700;
+  // Word Details
+  .word-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
   }
 
-  .section-word {
-    font-size: 20px;
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 12px;
+
+    .detail-icon {
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .detail-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #8b0038;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .detail-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111;
+
+        &.category-tag {
+          display: inline-block;
+          padding: 4px 12px;
+          background: #ccc;
+          color: #111;
+          border-radius: 8px;
+          font-size: 14px;
+          width: fit-content;
+        }
+      }
+    }
   }
 
-  .section {
-    margin: 10px 0;
+  // Navigation Buttons
+  .navigation-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+
+    .nav-button {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      background: #8b0038;
+      color: #fff;
+
+      &.back-button {
+        background: #eee;
+        color: #444;
+      }
+    }
+  }
+
+  // Word Progress Dots
+  .word-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 24px;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+
+      &.active {
+        width: 20px;
+        border-radius: 5px;
+        background: #8b0038;
+      }
+
+      &.completed {
+        background: #888;
+      }
+    }
+
+    .dots-more {
+      font-size: 12px;
+      color: #666;
+      margin-left: 4px;
+    }
+  }
+
+  // Empty State
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+
+    .empty-icon {
+      font-size: 60px;
+      margin-bottom: 24px;
+    }
+
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111;
+      margin: 0 0 12px 0;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin: 0 0 24px 0;
+    }
+
+    .button {
+      padding: 12px 24px;
+      background: #444;
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+
+    .word-main .newari-word {
+      font-size: 32px;
+    }
+
+    .navigation-buttons {
+      flex-direction: column;
+
+      .nav-button {
+        width: 100%;
+      }
+    }
   }
 }

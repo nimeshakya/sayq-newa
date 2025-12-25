@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { ResultModel, ExamModel } from "../models/result.model";
 import UserWordProgressModel from "../models/userWordProgress.model";
 import { calculateNextReview } from "../utils/reviewSchedule.util";
+import { predictAndUpdateExpertiseLevel } from "../utils/predictExpertiseLevel.util";
 
 export interface UserResultProp {
   userID?: string;
@@ -121,8 +122,14 @@ export const saveUserResultToMongoDB = async (
       createdDate: new Date(),
     };
 
-    await ExamModel.create(examData);
+    const savedExam = await ExamModel.create(examData);
     console.log(`Saved exam statistics for user ${userID}`);
+
+    // Predict and update user expertise level based on exam performance
+    const userObjectId = userID
+      ? new mongoose.Types.ObjectId(userID)
+      : new mongoose.Types.ObjectId();
+    await predictAndUpdateExpertiseLevel(userObjectId, savedExam);
 
     // Update user word progress for each answered word
     for (const r of data) {
