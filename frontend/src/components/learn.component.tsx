@@ -115,7 +115,8 @@ export default function DataPrint({
       setCurrentIndex((idx) => idx + 1);
     } else {
       alert("Done learning for the day");
-      navigate("/dashboard");
+      // navigate("/dashboard");
+      navigate("/");
     }
   };
 
