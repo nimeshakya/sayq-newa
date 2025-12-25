@@ -43,6 +43,9 @@ const Navigation = () => {
           <Link to="initialQuestionPage" className="nav-link">
             Quiz
           </Link>
+          <Link to="sessionPage" className="nav-link">
+            Session
+          </Link>
           {/* <a href="#learning" className="nav-link">
             Learning
           </a> */}
