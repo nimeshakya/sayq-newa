@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface UserWordProgressSchemaType extends Document {
   userId: mongoose.Types.ObjectId;
-  wordId: string;
+  wordId: mongoose.Types.ObjectId;
   boxLevel: number;
   mastery: number;
   attempts: number;
@@ -22,8 +22,9 @@ const UserWordProgressSchema = new Schema<UserWordProgressSchemaType>(
       ref: "User",
     },
     wordId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "Word",
     },
 
     boxLevel: {
