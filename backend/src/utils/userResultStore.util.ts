@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
 import { ResultModel, ExamModel } from "../models/result.model";
 import UserWordProgressModel from "../models/userWordProgress.model";
 import { calculateNextReview } from "../utils/reviewSchedule.util";
@@ -92,9 +93,11 @@ export const saveUserResultToMongoDB = async (
 
     // Save individual results
     const resultsToInsert = data.map((result) => ({
-      userID: result.userID || "unknown",
+      userID: result.userID
+        ? new mongoose.Types.ObjectId(result.userID)
+        : new mongoose.Types.ObjectId(),
       questionID: result.questionID,
-      wordID: result.wordID,
+      wordID: new mongoose.Types.ObjectId(result.wordID),
       difficulty_lvl: result.difficulty_lvl,
       selected_answer: result.selected_answer,
       attempts: result.attempts,
@@ -111,7 +114,9 @@ export const saveUserResultToMongoDB = async (
     // Calculate and save exam statistics
     const examStats = calculateExamStats(data);
     const examData = {
-      userID,
+      userID: userID
+        ? new mongoose.Types.ObjectId(userID)
+        : new mongoose.Types.ObjectId(),
       ...examStats,
       createdDate: new Date(),
     };
@@ -125,9 +130,12 @@ export const saveUserResultToMongoDB = async (
       const wid = r.wordID;
       if (!uid || !wid) continue;
 
+      const userObjectId = new mongoose.Types.ObjectId(uid);
+      const wordObjectId = new mongoose.Types.ObjectId(wid);
+
       const existing = await UserWordProgressModel.findOne({
-        userId: uid,
-        wordId: wid,
+        userId: userObjectId,
+        wordId: wordObjectId,
       });
       if (existing) {
         existing.attempts += 1;
@@ -150,8 +158,8 @@ export const saveUserResultToMongoDB = async (
         await existing.save();
       } else {
         await UserWordProgressModel.create({
-          userId: uid,
-          wordId: wid,
+          userId: userObjectId,
+          wordId: wordObjectId,
           boxLevel: r.isCorrect ? 1 : 1,
           mastery: r.isCorrect ? 100 : 0,
           attempts: 1,
