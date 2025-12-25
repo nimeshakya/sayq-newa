@@ -1,9 +1,10 @@
 import { Schema, Document } from "mongoose";
+import mongoose from "mongoose";
 
 export interface ResultProp extends Document {
-  userID: string;
+  userID: mongoose.Types.ObjectId;
   questionID: string;
-  wordID: string;
+  wordID: mongoose.Types.ObjectId;
   difficulty_lvl?: number | undefined;
   selected_answer: string;
   attempts: number;
@@ -12,7 +13,7 @@ export interface ResultProp extends Document {
   createdDate: Date;
 }
 export interface ExamProp extends Document {
-  userID: string;
+  userID: mongoose.Types.ObjectId;
   total_questions: number;
   correct_answers?: number;
   accuracy: number;
@@ -24,9 +25,9 @@ export interface ExamProp extends Document {
 }
 
 export const resultSchema = new Schema<ResultProp>({
-  userID: { type: String, required: true },
+  userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
   questionID: { type: String, required: true },
-  wordID: { type: String, required: true, ref: "Word" },
+  wordID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Word" },
   difficulty_lvl: { type: Number, required: true },
   selected_answer: { type: String, required: true },
   attempts: { type: Number, required: true },
@@ -36,7 +37,7 @@ export const resultSchema = new Schema<ResultProp>({
 });
 
 export const examSchema = new Schema<ExamProp>({
-  userID: { type: String, required: true },
+  userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
   total_questions: { type: Number, required: true },
   correct_answers: { type: Number, required: true },
   accuracy: { type: Number, required: true },
