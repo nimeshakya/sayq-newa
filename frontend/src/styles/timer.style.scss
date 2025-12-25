@@ -1,0 +1,17 @@
+.circular-timer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    transform: scale(1);
+    circle:first-child {
+      stroke: #eee;
+    }
+    circle:last-child {
+      transition: stroke-dashoffset 1s linear;
+    }
+    text {
+      font-family: Arial, sans-serif;
+    }
+  }
+}
