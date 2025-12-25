@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import UserWordProgressModel from "../models/userWordProgress.model";
 import { calculateNextReview } from "../utils/reviewSchedule.util";
 
@@ -25,8 +26,15 @@ export const saveProgress = async (
       });
     }
 
+    // Convert userId and wordId to ObjectId
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const wordObjectId = new mongoose.Types.ObjectId(wordId);
+
     // Find existing progress or create new
-    let progress = await UserWordProgressModel.findOne({ userId, wordId });
+    let progress = await UserWordProgressModel.findOne({
+      userId: userObjectId,
+      wordId: wordObjectId,
+    });
 
     if (progress) {
       // Update existing progress
@@ -55,15 +63,17 @@ export const saveProgress = async (
       await progress.save();
     } else {
       // Create new progress record
+      // For newly introduced words (isCorrect=false, responseTime=0), set immediate review
+      const isNewIntroduction = !isCorrect && responseTime === 0;
       progress = await UserWordProgressModel.create({
-        userId,
-        wordId,
+        userId: userObjectId,
+        wordId: wordObjectId,
         boxLevel: isCorrect ? 1 : 1,
         mastery: isCorrect ? 100 : 0,
-        attempts: 1,
+        attempts: isNewIntroduction ? 0 : 1,
         correct: isCorrect ? 1 : 0,
         avgResponseTime: responseTime,
-        nextReviewAt: calculateNextReview(1),
+        nextReviewAt: isNewIntroduction ? new Date() : calculateNextReview(1),
         lastReviewedAt: new Date(),
       });
     }
@@ -89,7 +99,14 @@ export const getWordProgress = async (
   try {
     const { userId, wordId } = req.params;
 
-    const progress = await UserWordProgressModel.findOne({ userId, wordId });
+    // Convert userId and wordId to ObjectId
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const wordObjectId = new mongoose.Types.ObjectId(wordId);
+
+    const progress = await UserWordProgressModel.findOne({
+      userId: userObjectId,
+      wordId: wordObjectId,
+    });
 
     if (!progress) {
       return res.status(404).json({
@@ -118,7 +135,10 @@ export const getUserProgress = async (
   try {
     const { userId } = req.params;
 
-    const progressList = await UserWordProgressModel.find({ userId });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const progressList = await UserWordProgressModel.find({
+      userId: userObjectId,
+    });
 
     res.status(200).json({
       message: "User progress retrieved successfully",
@@ -143,8 +163,9 @@ export const getWordsForReview = async (
     const { userId } = req.params;
     const now = new Date();
 
+    const userObjectId = new mongoose.Types.ObjectId(userId);
     const wordsForReview = await UserWordProgressModel.find({
-      userId,
+      userId: userObjectId,
       nextReviewAt: { $lte: now },
     }).sort({ nextReviewAt: 1 });
 
@@ -170,7 +191,10 @@ export const getUserStats = async (
   try {
     const { userId } = req.params;
 
-    const allProgress = await UserWordProgressModel.find({ userId });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const allProgress = await UserWordProgressModel.find({
+      userId: userObjectId,
+    });
 
     if (allProgress.length === 0) {
       return res.status(200).json({
@@ -238,7 +262,10 @@ export const deleteUserProgress = async (
   try {
     const { userId } = req.params;
 
-    const result = await UserWordProgressModel.deleteMany({ userId });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const result = await UserWordProgressModel.deleteMany({
+      userId: userObjectId,
+    });
 
     res.status(200).json({
       message: "User progress deleted successfully",
