@@ -279,3 +279,110 @@ export const deleteUserProgress = async (
     });
   }
 };
+
+// Mark word as introduced
+export const markIntroduced = async (req: Request, res: Response) => {
+  try {
+    const { userId, wordId } = req.body;
+
+    if (!userId || !wordId) {
+      return res.status(400).json({
+        message: "userId and wordId are required",
+      });
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const wordObjectId = new mongoose.Types.ObjectId(wordId);
+
+    let progress = await UserWordProgressModel.findOne({
+      userId: userObjectId,
+      wordId: wordObjectId,
+    });
+
+    if (!progress) {
+      // Create new progress entry with introduced status
+      progress = new UserWordProgressModel({
+        userId: userObjectId,
+        wordId: wordObjectId,
+        boxLevel: 1,
+        mastery: 20, // Mark as introduced (20% mastery)
+        attempts: 1,
+        correct: 0,
+        avgResponseTime: 0,
+        nextReviewAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Review tomorrow
+      });
+    } else {
+      // Update existing progress
+      progress.mastery = Math.max(progress.mastery, 20); // At least 20% if introduced
+      progress.attempts += 1;
+    }
+
+    progress.lastReviewedAt = new Date();
+    await progress.save();
+
+    res.status(200).json({
+      message: "Word marked as introduced",
+      data: progress,
+    });
+  } catch (error: any) {
+    console.error("Error marking word as introduced:", error);
+    res.status(500).json({
+      message: "Failed to mark word as introduced",
+      error: error.message,
+    });
+  }
+};
+
+// Mark word as learned
+export const markLearned = async (req: Request, res: Response) => {
+  try {
+    const { userId, wordId } = req.body;
+
+    if (!userId || !wordId) {
+      return res.status(400).json({
+        message: "userId and wordId are required",
+      });
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const wordObjectId = new mongoose.Types.ObjectId(wordId);
+
+    let progress = await UserWordProgressModel.findOne({
+      userId: userObjectId,
+      wordId: wordObjectId,
+    });
+
+    if (!progress) {
+      // Create new progress entry with learned status
+      progress = new UserWordProgressModel({
+        userId: userObjectId,
+        wordId: wordObjectId,
+        boxLevel: 5, // Highest level for learned
+        mastery: 60, // Set partial mastery when marked learned
+        attempts: 1,
+        correct: 1,
+        avgResponseTime: 0,
+        nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Review in a week
+      });
+    } else {
+      // Update existing progress
+      progress.mastery = 60; // Set partial mastery when marked learned
+      progress.boxLevel = 5; // Highest level
+      progress.correct = progress.attempts; // Mark all as correct
+    }
+
+    progress.lastReviewedAt = new Date();
+    await progress.save();
+
+    res.status(200).json({
+      message: "Word marked as learned",
+      data: progress,
+    });
+  } catch (error: any) {
+    console.error("Error marking word as learned:", error);
+    res.status(500).json({
+      message: "Failed to mark word as learned",
+      error: error.message,
+    });
+  }
+};
