@@ -85,6 +85,12 @@ const Navigation = () => {
           <Link to="learnPage" className="nav-link">
             Learning
           </Link>
+          <Link to="mlLearnPage" className="nav-link">
+            AI Learning
+          </Link>
+          <Link to="rlLearnPage" className="nav-link">
+            RL Agent
+          </Link>
           <Link to="initialQuestionPage" className="nav-link">
             Quiz
           </Link>

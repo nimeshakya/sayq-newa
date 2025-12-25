@@ -8,6 +8,8 @@ import userRouter from "./userResultStore.route";
 import questionRouter from "./question.router";
 import userWordProgressRouter from "./userWordProgress.router";
 import sessionRouter from "./session.router";
+import rlRouter from "./rl.router";
+import expertiseRouter from "./expertise.router";
 
 const router = express.Router();
 
@@ -22,6 +24,10 @@ export default (): express.Router => {
   userRouter(router);
   userWordProgressRouter(router);
   sessionRouter(router);
+  rlRouter(router);
+  
+  // ML-based expertise level routes
+  router.use("/api/expertise", expertiseRouter);
 
   questionRouter(router);
   return router;
