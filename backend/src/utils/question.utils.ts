@@ -13,7 +13,7 @@ export interface Question {
 
 export interface Word {
   _id: any; // MongoDB ObjectId
-  id?: string; // legacy/custom id if present
+  id?: string; // custom reference ID if present
   newari_word: string;
   nepali_meaning: string;
   category: string;
@@ -44,7 +44,7 @@ const pickRandomMeanings = (
   amount: number,
   category: string
 ): string[] => {
-  const getIdStr = (w: Word) => (w._id ? String(w._id) : String(w.id));
+  const getIdStr = (w: Word) => String(w._id);
 
   const primary = pool.filter(
     (word) => getIdStr(word) !== excludeId && word.category === category
@@ -82,7 +82,7 @@ export const createQuestion = async ({
   return selected.map((word, index) => {
     const distractors = pickRandomMeanings(
       questionPool,
-      String((word as Word)._id ?? (word as Word).id),
+      String((word as Word)._id),
       3,
       word.category
     );
@@ -90,7 +90,7 @@ export const createQuestion = async ({
 
     return {
       id: (index + 1).toString(),
-      wordId: String((word as Word)._id ?? (word as Word).id),
+      wordId: String((word as Word)._id),
       question: word.newari_word,
       sub_question: undefined,
       category: word.category,

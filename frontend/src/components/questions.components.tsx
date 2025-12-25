@@ -30,11 +30,18 @@ export default function Question({
   const navigate = useNavigate();
 
   useEffect(() => {
-    FetchQuestion({
-      category,
-      expertise_lvl,
-      count,
-    });
+    // Only fetch if session inputs are provided; otherwise assume preloaded questions
+    if (
+      category !== undefined ||
+      expertise_lvl !== undefined ||
+      count !== undefined
+    ) {
+      FetchQuestion({
+        category,
+        expertise_lvl,
+        count,
+      });
+    }
   }, [category, expertise_lvl, count]);
 
   useEffect(() => {

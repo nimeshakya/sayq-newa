@@ -7,6 +7,9 @@ import TimeTracker from "../components/timer.component";
 import "../styles/_shared.scss";
 import "../styles/learn.style.scss";
 
+import { API_BASE_URL } from "../constants";
+import { useUserContext } from "../context/user.context";
+
 interface DataPrintProps {
   category?: string; // e.g., "animals", "food"
   expertise_lvl?: number; // e.g., "beginner", "intermediate", "advanced"
@@ -21,30 +24,81 @@ export default function DataPrint({
   headingDisplay,
 }: DataPrintProps) {
   const navigate = useNavigate();
+  const { user } = useUserContext();
 
   const { words, fetchWords } = useWordContext();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [unlearnedWords, setUnlearnedWords] = useState<typeof words>([]);
 
   useEffect(() => {
-    fetchWords({
-      category,
-      expertise_lvl,
-      count,
-    });
+    const loadWords = async () => {
+      await fetchWords({
+        category,
+        expertise_lvl,
+        count: count * 3, // Fetch more to account for filtering
+      });
+    };
+    loadWords();
   }, [category, expertise_lvl, count]);
 
-  if (words.length === 0) {
-    return <div>No words found matching criteria</div>;
+  useEffect(() => {
+    const filterLearnedWords = async () => {
+      if (!user?.id || words.length === 0) {
+        setUnlearnedWords(words);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/word-progress/${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          const learnedIds = new Set(
+            (data.data || []).map((p: any) => String(p.wordId))
+          );
+          const filtered = words.filter((w) => !learnedIds.has(w.id));
+          setUnlearnedWords(filtered.slice(0, count));
+        } else {
+          setUnlearnedWords(words.slice(0, count));
+        }
+      } catch (e) {
+        console.error("Failed to fetch learned words", e);
+        setUnlearnedWords(words.slice(0, count));
+      }
+    };
+    filterLearnedWords();
+  }, [words, user?.id, count]);
+
+  if (unlearnedWords.length === 0) {
+    return <div>No new words to learn. Great job!</div>;
   }
 
-  //to display words for learning
+  const currentWord = unlearnedWords[currentIndex];
+  const isLastWord = currentIndex === unlearnedWords.length - 1;
 
-  const currentWord = words[currentIndex];
-  const isLastWord = currentIndex === words.length - 1;
+  const markIntroduced = async () => {
+    try {
+      if (!user?.id) return;
+      await fetch(`${API_BASE_URL}/word-progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          wordId: currentWord._id,
+          isCorrect: false,
+          responseTime: 0,
+        }),
+      });
+    } catch (e) {
+      console.error("Failed to mark word introduced", e);
+    }
+  };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Introduce current word into SRS
+    await markIntroduced();
+
     if (!isLastWord) {
-      setCurrentIndex(currentIndex + 1);
+      setCurrentIndex((idx) => idx + 1);
     } else {
       alert("Done learning for the day");
       navigate("/dashboard");
@@ -60,7 +114,7 @@ export default function DataPrint({
       <h2>{headingDisplay}</h2>
       <TimeTracker />
       <div>
-        {currentIndex + 1} of {words.length}
+        {currentIndex + 1} of {unlearnedWords.length}
       </div>
       <div className="dataList">
         <div className="dataItem">
