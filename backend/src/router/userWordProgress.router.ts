@@ -6,6 +6,8 @@ import {
   getWordsForReview,
   getUserStats,
   deleteUserProgress,
+  markIntroduced,
+  markLearned,
 } from "../controllers/userWordProgress.Controller";
 
 export default (router: express.Router): void => {
@@ -26,4 +28,16 @@ export default (router: express.Router): void => {
 
   // Delete user progress (for testing/reset)
   router.delete("/word-progress/:userId", deleteUserProgress);
+
+  // Mark word as introduced
+  router.post("/mark-introduced", markIntroduced);
+
+  // Alias with explicit resource prefix for frontend consistency
+  router.post("/userWordProgress/mark-introduced", markIntroduced);
+
+  // Mark word as learned
+  router.post("/mark-learned", markLearned);
+
+  // Alias with explicit resource prefix for frontend consistency
+  router.post("/userWordProgress/mark-learned", markLearned);
 };
