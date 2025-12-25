@@ -11,7 +11,7 @@ type QuestionProp = {
   correct_answer: string;
   options: string[];
 };
-type ResultProp = {
+export interface ResultProp {
   id: string;
   userID: string;
   questionID: string;
@@ -21,7 +21,8 @@ type ResultProp = {
   attempts: number;
   responseTime: number;
   isCorrect: boolean;
-};
+  createdAt: string;
+}
 
 type FetchQuestionProps = {
   category?: string;

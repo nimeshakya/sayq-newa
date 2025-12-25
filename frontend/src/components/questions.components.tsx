@@ -9,6 +9,7 @@ import { useQuestionContext } from "../context/question.context";
 import { API_BASE_URL } from "../constants";
 
 import { useUserContext } from "../context/user.context";
+import type { ResultProp } from "../context/question.context";
 
 interface QuestionProps {
   category?: string; // e.g., "animals", "food"
@@ -62,14 +63,43 @@ export default function Question({
     console.log("save request sent");
   };
 
+  // also save per-word progress to userWordProgress
+  const saveWordProgress = async (resultsToSave: any[]) => {
+    try {
+      const requests = resultsToSave.map((r) =>
+        fetch(`${API_BASE_URL}/word-progress`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: r.userID,
+            wordId: r.wordID,
+            isCorrect: r.isCorrect,
+            responseTime: r.responseTime,
+          }),
+        })
+      );
+      await Promise.all(requests);
+      console.log("word progress saved");
+    } catch (e) {
+      console.error("failed to save word progress", e);
+    }
+  };
+
   const handleAnswerSelect = (option: string) => {
     console.log(option);
     setSelectedAnswer(option);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (selectedAnswer === null) {
       alert("Please select an answer before proceeding");
+      return;
+    }
+
+    // Ensure we have a valid user id
+    const userId = user?.id;
+    if (!userId) {
+      alert("You are not signed in. Please sign in to continue.");
       return;
     }
 
@@ -80,17 +110,17 @@ export default function Question({
 
     // Store the answer in Results context
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
-    console.log(isCorrect);
-    const newResult = {
+
+    const newResult: ResultProp = {
       id: (Results.length + 1).toString(),
-      userID: user?._id, //change garna parxa user id sanga
+      userID: userId,
       questionID: String(currentQuestion.id),
       wordID: currentQuestion.wordId,
-      difficulty_lvl: currentQuestion.difficulty_lvl || 0,
+      difficulty_lvl: currentQuestion.difficulty_lvl ?? 0,
       selected_answer: selectedAnswer,
       attempts: 1,
       responseTime: response,
-      isCorrect: isCorrect,
+      isCorrect,
       createdAt: new Date().toISOString(),
     };
 
@@ -103,7 +133,9 @@ export default function Question({
       const finalResults = [...Results, newResult];
       alert("Quiz completed!");
       console.log("Final Results:", finalResults);
-      saveResult(finalResults); // Pass the updated array
+      // Save results and progress
+      await saveResult(finalResults);
+      await saveWordProgress(finalResults);
       navigate("/dashboard");
     }
   };
@@ -117,7 +149,7 @@ export default function Question({
       <div className="modelType">{headingDisplay}</div>
       <div className="questionProgress">
         <div>
-          USER ID: {user?._id}
+          USER ID: {user?.id}
           Name:{user?.given_name}
         </div>
         Question {currentIndex + 1} of {Questions.length}
