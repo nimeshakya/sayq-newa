@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Word as WordModel } from "../models/word.model";
 import UserWordProgressModel from "../models/userWordProgress.model";
+import UserModel from "../models/user.model";
 
 export interface SessionQuestion {
   id: string;
@@ -62,25 +63,50 @@ export const buildSessionQuestions = async ({
   count = 10,
 }: BuildParams): Promise<SessionQuestion[]> => {
   const effectiveCount = Math.max(count, 10);
-
-  // Build word filter
-  const filter: Record<string, any> = {};
-  if (category) filter.category = category;
-  if (expertise_lvl !== undefined) filter.expertise_lvl = expertise_lvl;
-
-  // Fetch a broader pool for mixing and distractors; fallback to all if empty
-  let wordsPool = (await WordModel.find(filter).lean()) as unknown as WordDoc[];
-  if (!wordsPool || wordsPool.length === 0) {
-    wordsPool = (await WordModel.find({}).lean()) as unknown as WordDoc[];
-  }
-  // Shuffle for randomness
-  wordsPool = shuffle(wordsPool);
-
-  // Fetch user progress
+  // Fetch user progress first
   const userObjectId = new mongoose.Types.ObjectId(userId);
   const progressList = await UserWordProgressModel.find({
     userId: userObjectId,
   }).lean();
+
+  // Fetch user's expertise level from User schema
+  let userExpertiseLevel: number | null = null;
+  const progressWordIds = progressList.map((p: any) => p.wordId);
+  const userDoc = await UserModel.findById(userObjectId).lean();
+  if (userDoc && typeof (userDoc as any).expertise_lvl === "number") {
+    userExpertiseLevel = (userDoc as any).expertise_lvl;
+  }
+
+  // Decide filter mode
+  const hasExplicitFilters = !!category || expertise_lvl !== undefined;
+
+  let wordsPool: WordDoc[] = [];
+  if (hasExplicitFilters) {
+    // Explicit filters: build pool from category/expertise
+    const filter: Record<string, any> = {};
+    if (category) filter.category = category;
+    if (expertise_lvl !== undefined) filter.expertise_lvl = expertise_lvl;
+    wordsPool = (await WordModel.find(filter).lean()) as unknown as WordDoc[];
+    // Require minimum pool size of 15
+    if (!wordsPool || wordsPool.length < 15) {
+      throw new Error("FILTERED_POOL_TOO_SMALL");
+    }
+  } else {
+    // No explicit filters: build pool strictly from user's progress
+    if (progressWordIds.length === 0) {
+      // No progress yet; send to learning page
+      throw new Error("INSUFFICIENT_PROGRESS_POOL");
+    }
+    wordsPool = (await WordModel.find({
+      _id: { $in: progressWordIds },
+    }).lean()) as unknown as WordDoc[];
+    if (!wordsPool || wordsPool.length < 15) {
+      // Not enough words reviewed/learned; send to learning page
+      throw new Error("INSUFFICIENT_PROGRESS_POOL");
+    }
+  }
+  // Shuffle for randomness
+  wordsPool = shuffle(wordsPool);
   const knownIds = new Set<string>(
     progressList.map((p: any) => String(p.wordId))
   );
@@ -105,7 +131,23 @@ export const buildSessionQuestions = async ({
   const srsReviewPool = wordsPool.filter((w) =>
     srsReviewIds.has(String(w._id))
   );
-  const newPool = wordsPool.filter((w) => !knownIds.has(String(w._id)));
+
+  // Build new word pool
+  let newPool: WordDoc[];
+  if (hasExplicitFilters) {
+    // Respect explicit filters: new words must match filter and be unknown
+    newPool = wordsPool.filter((w) => !knownIds.has(String(w._id)));
+  } else {
+    // No explicit filters: new words at or below user's level and unknown
+    const levelFilter: Record<string, any> = {};
+    if (userExpertiseLevel !== null) {
+      levelFilter.expertise_lvl = { $lte: userExpertiseLevel };
+    }
+    const potentialNew = (await WordModel.find(
+      levelFilter
+    ).lean()) as unknown as WordDoc[];
+    newPool = shuffle(potentialNew.filter((w) => !knownIds.has(String(w._id))));
+  }
 
   const hasSrsDue = srsReviewPool.length > 0;
   const hasLearnedNotReviewed = learnedNotReviewedPool.length > 0;
@@ -144,8 +186,8 @@ export const buildSessionQuestions = async ({
 
   let selected: WordDoc[] = [];
 
-  if (hasSrsDue) {
-    // Default distribution: 50% learned-not-reviewed, 30% SRS due, 20% new
+  if (hasSrsDue && hasLearnedNotReviewed) {
+    // Both present: 50% learned-not-reviewed, 30% SRS due, 20% new
     const learnedCap = Math.max(0, Math.floor(effectiveCount * 0.5));
     const srsCap = Math.max(0, Math.floor(effectiveCount * 0.3));
     const newCap = Math.max(0, effectiveCount - learnedCap - srsCap);
@@ -172,10 +214,21 @@ export const buildSessionQuestions = async ({
       learnedNotReviewedPool,
       newPool,
     ]);
+  } else if (hasSrsDue) {
+    // Only SRS due: 80% SRS, 20% new
+    const srsCap = Math.max(0, Math.floor(effectiveCount * 0.8));
+    const newCap = Math.max(0, effectiveCount - srsCap);
+    const srsWords = pickUniqueWords(srsReviewPool, srsCap);
+    const newWords = pickUniqueWords(newPool, newCap);
+    selected = [...srsWords, ...newWords];
+
+    selected = fillRemainder(effectiveCount, selected, [
+      srsReviewPool,
+      newPool,
+    ]);
   } else {
-    // Neither attempts==0 nor >0 present: new words only (min 10)
-    selected = pickUniqueWords(newPool, effectiveCount);
-    selected = fillRemainder(effectiveCount, selected, [newPool]);
+    // Neither learned nor SRS present: redirect to learning page
+    throw new Error("INSUFFICIENT_PROGRESS_POOL");
   }
 
   // Build question objects
