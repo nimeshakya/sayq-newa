@@ -1,8 +1,10 @@
 // src/components/landing/HeroSection.tsx
 import "../../styles/landing/hero.scss";
 import heroImage from "../../assets/landing/Landing.png";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="hero" id="home">
       <div className="hero__content">
@@ -12,14 +14,25 @@ const HeroSection = () => {
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
           <h3>ज्वजलपा</h3>
           <span className="arrow">↓</span>
-
-            <strong>Namaste</strong> <br />
-            <span>नमस्ते</span>
+          <strong>Namaste</strong> <br />
+          <span>नमस्ते</span>
           {/* <div className="hero__actions">
           </div> */}
           <div className="hero__actions">
-            <button className="btn primary">Get Started</button>
-            <button className="btn secondary">Explore Features</button>
+            <button
+              className="btn primary"
+              onClick={() => {
+                navigate("/learnPage");
+              }}
+            >
+              Get Started
+            </button>
+            <button
+              className="btn secondary"
+              onClick={() => navigate("/signinPage")}
+            >
+              Explore Features
+            </button>
           </div>
         </div>
 

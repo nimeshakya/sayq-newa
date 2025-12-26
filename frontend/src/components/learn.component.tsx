@@ -128,10 +128,9 @@ export default function DataPrint({
     <div className="dataPrintContainer">
       {/* Header Section */}
       <div className="learn-header">
-        <div className="header-content">
+        {/* <div className="header-content">
           <h2 className="learn-title">{headingDisplay}</h2>
-          <TimeTracker />
-        </div>
+        </div> */}
 
         {/* Progress Bar */}
         <div className="progress-section">
@@ -159,6 +158,7 @@ export default function DataPrint({
           <div className="word-main">
             <div className="word-badge">नेवारी शब्द</div>
             <h1 className="newari-word">{currentWord.newari_word}</h1>
+          <TimeTracker />
           </div>
 
           {/* Word Details */}
