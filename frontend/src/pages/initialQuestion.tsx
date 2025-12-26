@@ -4,7 +4,7 @@ import Question from "../components/questions.components";
 
 export default function InitialQuestion() {
   return (
-    <div className="main-centered-container">
+    <div className="main-centered-container" >
       <Question headingDisplay="Timer" />
     </div>
   );
