@@ -131,10 +131,9 @@ export default function RLLearnComponent({
     <div className="dataPrintContainer">
       {/* Header */}
       <div className="learn-header">
-        <div className="header-content">
+        {/* <div className="header-content">
           <h2 className="learn-title">{headingDisplay}</h2>
-          <TimeTracker />
-        </div>
+        </div> */}
 
         <div className="progress-section">
           <div className="progress-info">
@@ -162,9 +161,10 @@ export default function RLLearnComponent({
               className="word-badge"
               style={{ background: "#8b0038", color: "#fff" }}
             >
-               DQN RL Agent
+              DQN RL Agent
             </div>
             <h1 className="newari-word">{currentWord.newari_word}</h1>
+            <TimeTracker />
           </div>
 
           <div className="word-details">
