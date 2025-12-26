@@ -116,14 +116,14 @@ export default function RLLearnComponent({
     }
 
     if (isLastWord) {
-      navigate("/dashboard");
+      navigate("/");
     } else {
       setCurrentIndex((prev) => prev + 1);
     }
   };
 
   const skipWord = () => {
-    if (isLastWord) navigate("/dashboard");
+    if (isLastWord) navigate("/");
     else setCurrentIndex((prev) => prev + 1);
   };
 

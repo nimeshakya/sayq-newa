@@ -85,7 +85,7 @@ export default function MLLearnComponent({
     } catch (e) {
       console.error("Error marking word introduced:", e);
     }
-    if (isLastWord) navigate("/dashboard");
+    if (isLastWord) navigate("/");
     else setCurrentIndex((prev) => prev + 1);
   };
 
@@ -103,12 +103,12 @@ export default function MLLearnComponent({
     } catch (e) {
       console.error("Error marking word learned:", e);
     }
-    if (isLastWord) navigate("/dashboard");
+    if (isLastWord) navigate("/");
     else setCurrentIndex((prev) => prev + 1);
   };
 
   const markSkipped = () => {
-    if (isLastWord) navigate("/dashboard");
+    if (isLastWord) navigate("/");
     else setCurrentIndex((prev) => prev + 1);
   };
 
@@ -125,7 +125,7 @@ export default function MLLearnComponent({
         <p>{error}</p>
         <button
           className="button proceed"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/")}
         >
           Back to Dashboard
         </button>
@@ -152,10 +152,10 @@ export default function MLLearnComponent({
     <div className="dataPrintContainer">
       {/* Header */}
       <div className="learn-header">
-        <div className="header-content">
+        {/* <div className="header-content">
           <h2 className="learn-title">{headingDisplay}</h2>
           <TimeTracker />
-        </div>
+        </div> */}
         <div className="progress-section">
           <div className="progress-info">
             <span className="progress-text">
@@ -180,6 +180,7 @@ export default function MLLearnComponent({
           <div className="word-main">
             <div className="word-badge ai-badge">AI Recommended</div>
             <h1 className="newari-word">{currentWord.newari_word}</h1>
+            <TimeTracker />
           </div>
 
           <div className="word-details">
