@@ -10,11 +10,12 @@ import { API_BASE_URL } from "../constants";
 
 import { useUserContext } from "../context/user.context";
 import type { ResultProp } from "../context/question.context";
+import CircularTimer from "./timer.component";
 
 interface QuestionProps {
-  category?: string; // e.g., "animals", "food"
-  expertise_lvl?: number; // e.g., "beginner", "intermediate", "advanced"
-  count?: number; // e.g., 10
+  category?: string;
+  expertise_lvl?: number;
+  count?: number;
   headingDisplay?: string;
 }
 
@@ -30,7 +31,6 @@ export default function Question({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only fetch if session inputs are provided; otherwise assume preloaded questions
     if (
       category !== undefined ||
       expertise_lvl !== undefined ||
@@ -53,12 +53,11 @@ export default function Question({
 
   const currentQuestion = Questions[currentIndex];
   const isLastQuestion = currentIndex === Questions.length - 1;
+  const progressPercentage = ((currentIndex + 1) / Questions.length) * 100;
 
-  //for response time
   const [reset, setReset] = useState<boolean>(false);
   const [response, setResponse] = useState<number>(0);
 
-  //for saving user test result
   const saveResult = async (resultsToSave: any[]) => {
     await fetch(`${API_BASE_URL}/user-stat`, {
       method: "POST",
@@ -70,7 +69,6 @@ export default function Question({
     console.log("save request sent");
   };
 
-  // also save per-word progress to userWordProgress
   const saveWordProgress = async (resultsToSave: any[]) => {
     try {
       const requests = resultsToSave.map((r) =>
@@ -103,19 +101,15 @@ export default function Question({
       return;
     }
 
-    // Ensure we have a valid user id
     const userId = user?.id;
     if (!userId) {
       alert("You are not signed in. Please sign in to continue.");
       return;
     }
 
-    //for tracking response time
     setReset(true);
-    // turn reset off immediately
     setTimeout(() => setReset(false), 0);
 
-    // Store the answer in Results context
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
 
     const newResult: ResultProp = {
@@ -136,11 +130,9 @@ export default function Question({
       setCurrentIndex(currentIndex + 1);
       setSelectedAnswer(null);
     } else {
-      // Handle quiz completion - pass updated results directly
       const finalResults = [...Results, newResult];
       alert("Quiz completed!");
       console.log("Final Results:", finalResults);
-      // Save results and progress
       await saveResult(finalResults);
       await saveWordProgress(finalResults);
       navigate("/dashboard");
@@ -148,49 +140,218 @@ export default function Question({
   };
 
   if (Questions.length === 0) {
-    return <div className="questionContainer">No questions available</div>;
+    return (
+      <div className="questionContainer">
+        <div className="empty-state">
+          <div className="empty-icon">📝</div>
+          <h3>No Questions Available</h3>
+          <p>Please try again later or select different options.</p>
+          <button
+            className="button proceed"
+            onClick={() => navigate("/dashboard")}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="questionContainer">
-      <div className="modelType">{headingDisplay}</div>
-      <div className="questionProgress">
-        <div>
-          USER ID: {user?.id}
-          Name:{user?.given_name}
-        </div>
-        Question {currentIndex + 1} of {Questions.length}
-        <br /> Category:
-        {currentQuestion.category}
-        <br />
-        difficulty_lvl:{currentQuestion.difficulty_lvl}
-        <TimeTracker reset={reset} trackedTime={setResponse} />
-      </div>
-      {currentQuestion && (
-        <div className="questionGroup">
-          <div className="question">
-            {currentQuestion.id}. {currentQuestion.question}
+      {/* Header Section */}
+      <div className="quiz-header">
+        {/* <div className="header-content">
+          <h2 className="quiz-title">{headingDisplay}</h2>
+          <CircularTimer
+            reset={reset}
+            trackedTime={setResponse}
+            maxTime={300}
+          />
+        </div> */}
+
+        {/* Progress Bar */}
+        <div className="progress-section">
+          <div className="progress-info">
+            <span className="progress-text">
+              Question {currentIndex + 1} of {Questions.length}
+            </span>
+            <span className="progress-percentage">
+              {Math.round(progressPercentage)}%
+            </span>
           </div>
-          <div className="sub-question">{currentQuestion.sub_question}</div>
-          <div className="optionContainer">
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* User & Question Info */}
+        <div className="info-badges">
+          <div className="info-badge">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            {user?.given_name || "User"}
+          </div>
+          <div className="info-badge">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            {currentQuestion.category}
+          </div>
+          <div className="info-badge difficulty">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            Level {currentQuestion.difficulty_lvl}
+          </div>
+        </div>
+      </div>
+
+      {/* Question Card */}
+      <div className="question-card">
+        <div className="question-card-inner">
+          {/* Question Header */}
+          <div
+            className="question-main-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div className="question-number-text">
+              <div className="question-number">
+                Question {currentQuestion.id}
+              </div>
+              <h3 className="question-text">{currentQuestion.question}</h3>
+              {currentQuestion.sub_question && (
+                <p className="sub-question">{currentQuestion.sub_question}</p>
+              )}
+            </div>
+
+            {/* Timer in the right corner */}
+            <div className="question-timer">
+              <CircularTimer
+                reset={reset}
+                trackedTime={setResponse}
+                maxTime={300}
+              />
+            </div>
+          </div>
+
+          {/* Options */}
+          <div className="options-grid">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === option;
+              const optionLetter = String.fromCharCode(65 + index); // A, B, C, D
+
               return (
-                <div
-                  className={`option ${isSelected ? "selected" : ""}`}
+                <button
+                  className={`option-card ${isSelected ? "selected" : ""}`}
                   key={index}
                   onClick={() => handleAnswerSelect(option)}
                 >
-                  {option}
-                </div>
+                  <div className="option-letter">{optionLetter}</div>
+                  <div className="option-text">{option}</div>
+                  <div className="option-check">
+                    {isSelected && (
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
               );
             })}
           </div>
+
+          {/* Submit Button */}
+          <button
+            className={`submit-button ${!selectedAnswer ? "disabled" : ""}`}
+            onClick={handleNextQuestion}
+            disabled={!selectedAnswer}
+          >
+            {isLastQuestion ? (
+              <>
+                Submit Quiz
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </>
+            ) : (
+              <>
+                Next Question
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </>
+            )}
+          </button>
         </div>
-      )}
-      <button className="button" onClick={handleNextQuestion}>
-        {isLastQuestion ? "Submit" : "Next"}
-      </button>
+      </div>
+
+      {/* Question Dots */}
+      <div className="question-dots">
+        {Questions.slice(0, Math.min(15, Questions.length)).map((_, idx) => (
+          <div
+            key={idx}
+            className={`dot ${idx === currentIndex ? "active" : ""} ${
+              idx < currentIndex ? "completed" : ""
+            }`}
+          />
+        ))}
+        {Questions.length > 15 && (
+          <span className="dots-more">+{Questions.length - 15}</span>
+        )}
+      </div>
     </div>
   );
 }

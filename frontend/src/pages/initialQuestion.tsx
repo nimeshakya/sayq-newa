@@ -4,8 +4,8 @@ import Question from "../components/questions.components";
 
 export default function InitialQuestion() {
   return (
-    <div className="main-centered-container">
-      <Question headingDisplay="mcq" />
+    <div className="main-centered-container" >
+      <Question headingDisplay="MCQ Quiz" />
     </div>
   );
 }

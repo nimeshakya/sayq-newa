@@ -23,8 +23,8 @@ export default function Dashboard() {
     <div>
       <h2>Welcome, {user?.name}!</h2>
       <h1>This is your dashboard</h1>
-      <StopWatch />
-      <TimeTracker trackedTime={setTime} reset={reset} running={running} />
+      {/* <StopWatch /> */}
+      {/* <TimeTracker trackedTime={setTime} reset={reset} running={running} /> */}
       <button onClick={logTime}>Log Time</button>
       <button onClick={resetTime}>Reset Log Time</button>
     </div>
