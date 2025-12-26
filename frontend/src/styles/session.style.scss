@@ -1,0 +1,133 @@
+.sessionPage {
+  padding: 24px;
+}
+
+/* Header */
+.pageHeader {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #6b7280;
+  }
+}
+
+/* Form Card */
+.formCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  max-width: 900px;
+  margin: 0 auto 32px auto;
+}
+
+/* Grid Layout */
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Form Group */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #374151;
+  }
+
+  input {
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+  }
+}
+
+.sessionContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.formActions {
+  display: flex;
+  justify-content: center;
+
+  .start-session-btn {
+    margin-top: 24px;
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+
+    background: #8b0038;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:disabled {
+      background: #c7d2fe;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}
+
+.infoPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.infoItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b0038;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  span {
+    color: #6b7280;
+    font-size: 13px;
+  }
+
+  strong {
+    font-weight: 600;
+    color: #8b0038;
+  }
+}

@@ -5,6 +5,7 @@ import { API_BASE_URL } from "../constants";
 
 import "../styles/_shared.scss";
 import Question from "./questions.components";
+import { useNavigate } from "react-router-dom";
 
 type SessionProps = {
   count: number;
@@ -23,6 +24,7 @@ export default function SessionComponent({
   const { setQuestions, ResetQuestions } = useQuestionContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const run = async () => {
@@ -34,6 +36,7 @@ export default function SessionComponent({
         setErrorMsg(
           "You are not signed in. Please sign in to start a session."
         );
+        navigate("/");
         setIsLoading(false);
         return;
       }
