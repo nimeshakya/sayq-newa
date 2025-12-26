@@ -6,7 +6,8 @@ export const getSessionQuestions = async (req: Request, res: Response) => {
     const { userId, category, expertise_lvl, count } = req.query;
 
     if (!userId || typeof userId !== "string") {
-      return res.status(400).json({ message: "userId is required" });
+      // Signal auth requirement so client can redirect to login
+      return res.status(401).json({ message: "AUTH_REQUIRED" });
     }
 
     const questions = await buildSessionQuestions({
@@ -19,6 +20,13 @@ export const getSessionQuestions = async (req: Request, res: Response) => {
     return res.status(200).json(questions);
   } catch (error: any) {
     console.error("getSessionQuestions error:", error);
+    // Map specific errors to client-understood signals
+    if (error?.message === "INSUFFICIENT_PROGRESS_POOL") {
+      return res.status(409).json({ message: "LEARNING_REQUIRED" });
+    }
+    if (error?.message === "FILTERED_POOL_TOO_SMALL") {
+      return res.status(409).json({ message: "LEARNING_REQUIRED" });
+    }
     return res.status(500).json({ message: error.message });
   }
 };
