@@ -31,12 +31,19 @@ export default function SessionComponent({
       ResetQuestions();
       setErrorMsg(null);
       setIsLoading(true);
+      const loadStarted = Date.now();
+
+      const ensureMinDelay = async (started: number) => {
+        const elapsed = Date.now() - started;
+        const remaining = 2000 - elapsed; // 2 seconds minimum
+        if (remaining > 0) {
+          await new Promise((resolve) => setTimeout(resolve, remaining));
+        }
+      };
 
       if (!user?.id) {
-        setErrorMsg(
-          "You are not signed in. Please sign in to start a session."
-        );
-        navigate("/");
+        await ensureMinDelay(loadStarted);
+        navigate("/redirectPage", { state: { type: "auth" } });
         setIsLoading(false);
         return;
       }
@@ -50,17 +57,47 @@ export default function SessionComponent({
 
       try {
         const res = await fetch(
-          `${API_BASE_URL}/session-questions?${query.toString()}`
+          `${API_BASE_URL}/session-questions?${query.toString()}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
         );
+
+        // Handle auth redirect
+        if (res.status === 401) {
+          await ensureMinDelay(loadStarted);
+          navigate("/redirectPage", { state: { type: "auth" } });
+          setIsLoading(false);
+          return;
+        }
+
+        // Handle learning-required redirect
+        if (res.status === 409) {
+          try {
+            const body = await res.json();
+            if (body?.message === "LEARNING_REQUIRED") {
+              await ensureMinDelay(loadStarted);
+              navigate("/redirectPage", { state: { type: "learning" } });
+              setIsLoading(false);
+              return;
+            }
+          } catch (e) {
+            // proceed to generic error below
+          }
+        }
+
         if (!res.ok) {
           throw new Error("Failed to fetch session questions");
         }
+
         const data = await res.json();
         setQuestions(data);
       } catch (e) {
         console.error(e);
         setErrorMsg("Unable to prepare your session. Please try again.");
       } finally {
+        await ensureMinDelay(loadStarted);
         setIsLoading(false);
       }
     };
@@ -69,11 +106,13 @@ export default function SessionComponent({
   }, [user?.id, category, expertise_lvl, count]);
 
   if (isLoading) {
-    return <div className="questionContainer">Preparing your session...</div>;
+    return (
+      <div className="loadingText">Preparing your session. Please Wait ...</div>
+    );
   }
 
   if (errorMsg) {
-    return <div className="questionContainer">{errorMsg}</div>;
+    return <div className="loadingText">{errorMsg}</div>;
   }
 
   return <Question headingDisplay={headingDisplay ?? "Session"} />;
