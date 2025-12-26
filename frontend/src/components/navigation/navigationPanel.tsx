@@ -125,7 +125,7 @@ const Navigation = () => {
                     <p className="profile-email">{user.email}</p>
                   </div>
                   <div className="profile-divider"></div>
-                  <Link
+                  {/* <Link
                     to="/profile"
                     className="profile-menu-item"
                     onClick={() => setIsProfileOpen(false)}
@@ -142,7 +142,7 @@ const Navigation = () => {
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                     Profile
-                  </Link>
+                  </Link> */}
                   {/* <Link
                     to="/dashboard"
                     className="profile-menu-item"
