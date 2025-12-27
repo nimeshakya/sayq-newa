@@ -362,7 +362,7 @@ export const markLearned = async (req: Request, res: Response) => {
         attempts: 0,
         correct: 0,
         avgResponseTime: 0,
-        nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Review in a week
+        nextReviewAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Review in a 2 days
       });
     } else {
       // Update existing progress
