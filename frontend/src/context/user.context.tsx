@@ -194,7 +194,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setUserData(mapped);
         setUser(mapped);
         setIsLoggedin(true);
-        navigate("/initialPage");
+        navigate("/");
       } catch (error) {
         console.error("Login Error: ", error);
         removeAuthToken();
