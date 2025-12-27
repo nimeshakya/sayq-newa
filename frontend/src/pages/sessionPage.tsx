@@ -1,13 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../context/user.context";
 import SessionComponent from "../components/session.component";
 import "../styles/_shared.scss";
 import "../styles/session.style.scss";
 
 export default function SessionPage() {
+  const navigate = useNavigate();
+  const { isLoggedin, loading } = useUserContext();
   const [count, setCount] = useState<number>(10);
   const [category, setCategory] = useState<string>("");
   const [expertise, setExpertise] = useState<number>(0);
   const [start, setStart] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !isLoggedin) {
+      navigate("/redirectPage", { state: { type: "auth-required" } });
+    }
+  }, [isLoggedin, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="pageContainer">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isLoggedin) {
+    return null;
+  }
 
   return (
     <div className="pageContainer sessionPage">
