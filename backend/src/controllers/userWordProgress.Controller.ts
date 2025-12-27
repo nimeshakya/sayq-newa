@@ -309,7 +309,7 @@ export const markIntroduced = async (req: Request, res: Response) => {
         attempts: 0,
         correct: 0,
         avgResponseTime: 0,
-        nextReviewAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Review tomorrow
+        nextReviewAt: new Date(Date.now()), // Review today
       });
     } else {
       // Update existing progress
