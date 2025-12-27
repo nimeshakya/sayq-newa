@@ -1,6 +1,7 @@
 .venv   
 **/data.json
 **/myenv
+**/env
 data
 **/.env
 

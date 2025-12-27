@@ -162,7 +162,7 @@ export default function InitialPage() {
                 `seleceted start option: ${selectedStartOption?.value}`
             );
             setIsSelected(false);
-            navigate('/dashboard');
+            navigate('/');
         }
         AllocImage();
     };

@@ -135,7 +135,7 @@ export default function Question({
       console.log("Final Results:", finalResults);
       await saveResult(finalResults);
       await saveWordProgress(finalResults);
-      navigate("/dashboard");
+      navigate("/");
     }
   };
 
@@ -148,7 +148,7 @@ export default function Question({
           <p>Please try again later or select different options.</p>
           <button
             className="button proceed"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
           >
             Back to Dashboard
           </button>
