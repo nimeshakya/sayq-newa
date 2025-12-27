@@ -28,7 +28,7 @@
     align-items: center; // vertical center
     justify-content: center; // horizontal center
     gap: 60px; // space between text and image
-    flex-wrap: wrap; // responsive wrapping
+    flex-wrap: nowrap; // keep text/image on one row by default
 
     > div:first-child {
       // left text section
@@ -116,5 +116,6 @@
   .hero__content {
     flex-direction: column; // stack text and image on mobile
     gap: 40px;
+    flex-wrap: wrap; // allow wrap on small screens
   }
 }
