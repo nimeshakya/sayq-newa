@@ -91,9 +91,9 @@ const Navigation = () => {
           <Link to="rlLearnPage" className="nav-link">
             RL Agent
           </Link>
-          <Link to="initialQuestionPage" className="nav-link">
+          {/* <Link to="initialQuestionPage" className="nav-link">
             Quiz
-          </Link>
+          </Link> */}
           <Link to="sessionPage" className="nav-link">
             Session
           </Link>
