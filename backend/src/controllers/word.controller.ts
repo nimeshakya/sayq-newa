@@ -58,3 +58,17 @@ export const fetchDataWord = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Public endpoint: fetch all words without auth
+export const fetchAllWords = async (req: Request, res: Response) => {
+  try {
+    const { count } = req.query;
+    const result = await searchDataWord({
+      count: count ? Number(count) : undefined,
+    });
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};

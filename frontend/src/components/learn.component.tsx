@@ -26,47 +26,84 @@ export default function DataPrint({
   const navigate = useNavigate();
   const { user } = useUserContext();
 
-  const { words, fetchWords } = useWordContext();
+  const [unlearnedWords, setUnlearnedWords] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [unlearnedWords, setUnlearnedWords] = useState<typeof words>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const loadWords = async () => {
-      await fetchWords({
-        category,
-        expertise_lvl,
-        count: count * 3,
-      });
-    };
-    loadWords();
-  }, [category, expertise_lvl, count]);
-
-  useEffect(() => {
-    const filterLearnedWords = async () => {
-      if (!user?.id || words.length === 0) {
-        setUnlearnedWords(words);
+    const loadAndFilterWords = async () => {
+      // STEP 1: Get current user ID
+      if (!user?.id) {
+        console.log("No user ID found");
+        setLoading(false);
         return;
       }
 
+      console.log("STEP 1: Current user ID:", user.id);
+
       try {
-        const res = await fetch(`${API_BASE_URL}/word-progress/${user.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          const learnedIds = new Set(
-            (data.data || []).map((p: any) => String(p.wordId))
-          );
-          const filtered = words.filter((w) => !learnedIds.has(w.id));
-          setUnlearnedWords(filtered.slice(0, count));
-        } else {
-          setUnlearnedWords(words.slice(0, count));
-        }
-      } catch (e) {
-        console.error("Failed to fetch learned words", e);
-        setUnlearnedWords(words.slice(0, count));
+        // Get auth token if available (optional)
+        const token = localStorage.getItem("token");
+        const authHeaders = token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : undefined;
+
+        // STEP 2: Fetch progress words of current user only
+        console.log("STEP 2: Fetching user progress...");
+        const progressRes = await fetch(
+          `${API_BASE_URL}/word-progress/${user.id}`,
+          authHeaders ? { headers: authHeaders } : undefined
+        );
+        const progressData = await progressRes.json();
+        const learnedWordIds = new Set(
+          (progressData.data || []).map((p: any) => String(p.wordId))
+        );
+        console.log("   → User has learned", learnedWordIds.size, "words");
+
+        // STEP 3: Fetch whole word collection
+        console.log("STEP 3: Fetching all words...");
+        const wordsRes = await fetch(
+          `${API_BASE_URL}/words/all?${new URLSearchParams({
+            ...(category && { category }),
+            ...(expertise_lvl && { expertise_lvl: String(expertise_lvl) }),
+            count: String(count * 3),
+          })}`,
+          authHeaders ? { headers: authHeaders } : undefined
+        );
+        const fetchedWords = await wordsRes.json();
+        console.log("   → Fetched", fetchedWords.length, "total words");
+
+        // STEP 4: Remove the similar words (filter out learned ones)
+        console.log("STEP 4: Filtering out learned words...");
+        const unlearned = fetchedWords.filter(
+          (word: any) => !learnedWordIds.has(String(word._id))
+        );
+        console.log("   → Remaining unlearned:", unlearned.length);
+
+        // STEP 5: Show words from that pool
+        console.log("STEP 5: Displaying unlearned words (max:", count, ")");
+        setUnlearnedWords(unlearned.slice(0, count));
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading words:", error);
+        setLoading(false);
       }
     };
-    filterLearnedWords();
-  }, [words, user?.id, count]);
+
+    loadAndFilterWords();
+  }, [user?.id, category, expertise_lvl, count]);
+
+  if (loading) {
+    return (
+      <div className="dataPrintContainer">
+        <div className="empty-state">
+          <p>Loading words...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (unlearnedWords.length === 0) {
     return (
@@ -75,11 +112,8 @@ export default function DataPrint({
           <div className="empty-icon">🎉</div>
           <h3>No New Words to Learn</h3>
           <p>You've completed all available words. Great job!</p>
-          <button
-            className="button proceed"
-            onClick={() => navigate("/dashboard")}
-          >
-            Back to Dashboard
+          <button className="button proceed" onClick={() => navigate("/")}>
+            Back to main page
           </button>
         </div>
       </div>
@@ -93,14 +127,15 @@ export default function DataPrint({
   const markIntroduced = async () => {
     try {
       if (!user?.id) return;
-      await fetch(`${API_BASE_URL}/word-progress`, {
+      await fetch(`${API_BASE_URL}/userWordProgress/mark-introduced`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
         body: JSON.stringify({
           userId: user.id,
           wordId: currentWord._id,
-          isCorrect: false,
-          responseTime: 0,
         }),
       });
     } catch (e) {
@@ -158,7 +193,7 @@ export default function DataPrint({
           <div className="word-main">
             <div className="word-badge">नेवारी शब्द</div>
             <h1 className="newari-word">{currentWord.newari_word}</h1>
-          <TimeTracker />
+            <TimeTracker />
           </div>
 
           {/* Word Details */}
