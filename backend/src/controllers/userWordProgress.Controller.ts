@@ -306,10 +306,10 @@ export const markIntroduced = async (req: Request, res: Response) => {
         wordId: wordObjectId,
         boxLevel: 1,
         mastery: 20, // Mark as introduced (20% mastery)
-        attempts: 1,
+        attempts: 0,
         correct: 0,
         avgResponseTime: 0,
-        nextReviewAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Review tomorrow
+        nextReviewAt: new Date(Date.now()), // Review today
       });
     } else {
       // Update existing progress
@@ -359,10 +359,10 @@ export const markLearned = async (req: Request, res: Response) => {
         wordId: wordObjectId,
         boxLevel: 5, // Highest level for learned
         mastery: 60, // Set partial mastery when marked learned
-        attempts: 1,
-        correct: 1,
+        attempts: 0,
+        correct: 0,
         avgResponseTime: 0,
-        nextReviewAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Review in a week
+        nextReviewAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Review in a 2 days
       });
     } else {
       // Update existing progress

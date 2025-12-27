@@ -57,10 +57,13 @@ export default function DataPrint({
           authHeaders ? { headers: authHeaders } : undefined
         );
         const progressData = await progressRes.json();
-        const learnedWordIds = new Set(
-          (progressData.data || []).map((p: any) => String(p.wordId))
+        // Filter words with mastery > 45%
+        const highMasteryWordIds = new Set(
+          (progressData.data || [])
+            .filter((p: any) => p.mastery > 45)
+            .map((p: any) => String(p.wordId))
         );
-        console.log("   → User has learned", learnedWordIds.size, "words");
+        console.log("   → User has mastery > 45% for", highMasteryWordIds.size, "words");
 
         // STEP 3: Fetch whole word collection
         console.log("STEP 3: Fetching all words...");
@@ -75,10 +78,10 @@ export default function DataPrint({
         const fetchedWords = await wordsRes.json();
         console.log("   → Fetched", fetchedWords.length, "total words");
 
-        // STEP 4: Remove the similar words (filter out learned ones)
-        console.log("STEP 4: Filtering out learned words...");
+        // STEP 4: Remove the similar words (filter out high mastery words)
+        console.log("STEP 4: Filtering out words with mastery > 45%...");
         const unlearned = fetchedWords.filter(
-          (word: any) => !learnedWordIds.has(String(word._id))
+          (word: any) => !highMasteryWordIds.has(String(word._id))
         );
         console.log("   → Remaining unlearned:", unlearned.length);
 
