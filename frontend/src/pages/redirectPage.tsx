@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/_shared.scss";
 
-type RedirectType = "auth" | "learning";
+type RedirectType = "auth" | "learning" | "auth-required";
 
 export default function RedirectPage() {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export default function RedirectPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (redirectType === "auth") {
+      if (redirectType === "auth" || redirectType === "auth-required") {
         navigate("/signinPage");
       } else if (redirectType === "learning") {
         navigate("/learnPage");
@@ -24,8 +24,8 @@ export default function RedirectPage() {
   }, [redirectType, navigate]);
 
   const getMessage = () => {
-    if (redirectType === "auth") {
-      return "Please sign in to start a session.";
+    if (redirectType === "auth" || redirectType === "auth-required") {
+      return "Please sign in to access this page.";
     } else if (redirectType === "learning") {
       return "Please complete learning to prepare a session.";
     }

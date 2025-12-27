@@ -75,10 +75,7 @@ export default function RLLearnComponent({
     return (
       <div className="dataPrintContainer empty-state">
         <p>{error}</p>
-        <button
-          className="button proceed"
-          onClick={() => navigate("/dashboard")}
-        >
+        <button className="button proceed" onClick={() => navigate("/")}>
           Back to Dashboard
         </button>
       </div>
