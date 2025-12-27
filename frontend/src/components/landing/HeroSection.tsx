@@ -30,6 +30,7 @@ const HeroSection = () => {
             <button
               className="btn secondary"
               onClick={() => navigate("/signinPage")}
+              hidden={true}
             >
               Explore Features
             </button>
