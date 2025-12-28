@@ -1,45 +1,73 @@
 .hero {
   background: linear-gradient(135deg, #8b1e3f, #4a0f23);
   color: white;
-  padding: 6rem 2rem;
+  padding: calc(6rem + 80px) 2rem 6rem;
   text-align: center;
-
-  padding-top: 6rem; // original padding
-  padding-top: calc(6rem + 80px); // add navbar height
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
 
   h1 {
-    font-size: 3rem;
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
   }
 
-  p {
-    margin: 1rem 0 2rem;
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    opacity: 0.95;
   }
 
-  .btn {
-    margin: 0 0.5rem;
+  h3 {
+    font-size: 2.5rem;
+    margin: 2rem 0 0.5rem;
+    font-weight: 600;
+  }
+
+  strong {
+    font-size: 1.3rem;
+    display: block;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  > p {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    opacity: 0.9;
+  }
+
+  span:not(.arrow) {
+    font-size: 1.1rem;
+    opacity: 0.85;
+    display: block;
+    margin-top: 0.5rem;
   }
 
   .hero__content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
-    display: flex; // change from grid to flex
-    flex-direction: row; // horizontal layout
-    align-items: center; // vertical center
-    justify-content: center; // horizontal center
-    gap: 60px; // space between text and image
-    flex-wrap: nowrap; // keep text/image on one row by default
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    flex-wrap: nowrap;
 
     > div:first-child {
-      // left text section
-      flex: 1 1 400px; // flexible width with min 400px
+      flex: 1 1 50%;
       display: flex;
       flex-direction: column;
-      align-items: center; // center content horizontally
+      align-items: center;
+      text-align: center;
     }
 
     .hero__actions {
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
@@ -47,15 +75,16 @@
       align-items: center;
 
       .btn {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
         font-weight: 600;
-        border-radius: 6px;
+        border-radius: 8px;
         border: none;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
         &.primary {
           background: #ff3366;
@@ -63,59 +92,182 @@
 
           &:hover {
             background: #ff1a4d;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.4);
           }
         }
 
         &.secondary {
           background: transparent;
           color: white;
-          border: 1.5px solid rgba(255, 255, 255, 0.8);
+          border: 2px solid rgba(255, 255, 255, 0.8);
 
           &:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             border-color: white;
+            transform: translateY(-3px);
           }
         }
       }
     }
 
     .arrow {
-      font-size: 1.5rem;
+      font-size: 2rem;
       display: block;
-      margin-bottom: 6px;
-    }
-
-    p {
-      font-size: 1.1rem;
-      line-height: 1.4;
-
-      span {
-        font-size: 1rem;
-        color: #555;
-      }
+      margin: 1rem 0;
+      animation: bounce 2s infinite;
     }
   }
 
   &__image {
-    flex: 1 1 400px; // flexible width for image
+    flex: 1 1 50%;
     display: flex;
     justify-content: center;
-    align-items: center; // vertical center
+    align-items: center;
 
     img {
       width: 100%;
-      max-width: 500px;
+      max-width: 550px;
       height: auto;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+      animation: float 3s ease-in-out infinite;
     }
   }
 }
 
-// Optional: responsive adjustments
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .hero {
+    h1 {
+      font-size: 3rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 2rem;
+    }
+
+    .hero__content {
+      gap: 40px;
+    }
+
+    &__image img {
+      max-width: 450px;
+    }
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
-  .hero__content {
-    flex-direction: column; // stack text and image on mobile
-    gap: 40px;
-    flex-wrap: wrap; // allow wrap on small screens
+  .hero {
+    padding: calc(5rem + 60px) 1rem 3rem;
+    min-height: auto;
+
+    h1 {
+      font-size: 2.2rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      font-size: 1.8rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    strong {
+      font-size: 1.1rem;
+    }
+
+    > p {
+      font-size: 1rem;
+    }
+
+    span:not(.arrow) {
+      font-size: 0.95rem;
+    }
+
+    .hero__content {
+      flex-direction: column;
+      gap: 30px;
+      flex-wrap: wrap;
+
+      > div:first-child {
+        flex: 1 1 100%;
+      }
+
+      .hero__actions {
+        margin-top: 2rem;
+        flex-direction: column;
+        width: 100%;
+
+        .btn {
+          width: 100%;
+          max-width: 280px;
+          padding: 0.9rem 1.5rem;
+          font-size: 0.95rem;
+        }
+      }
+
+      .arrow {
+        font-size: 1.5rem;
+        margin: 0.75rem 0;
+      }
+    }
+
+    &__image {
+      flex: 1 1 100%;
+      
+      img {
+        max-width: 350px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: calc(4.5rem + 60px) 1rem 2rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      font-size: 1rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    &__image img {
+      max-width: 280px;
+    }
   }
 }
