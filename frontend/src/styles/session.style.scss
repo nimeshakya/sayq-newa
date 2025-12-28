@@ -131,3 +131,85 @@
     color: #8b0038;
   }
 }
+
+
+/* ============================= */
+/* Responsive Styles (Mobile)   */
+/* ============================= */
+
+@media (max-width: 1024px) {
+  .formRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sessionPage {
+    padding: 16px;
+  }
+
+  .pageHeader {
+    margin-bottom: 24px;
+
+    h2 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  .formCard {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .formGroup {
+    label {
+      font-size: 12px;
+    }
+
+    input {
+      height: 40px;
+      font-size: 13px;
+    }
+  }
+
+  .formActions {
+    .start-session-btn {
+      width: 100%;
+      height: 42px;
+      font-size: 13px;
+    }
+  }
+
+  .infoPanel {
+    gap: 8px;
+  }
+
+  .infoItem {
+    font-size: 12px;
+    padding: 6px 14px;
+
+    span {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader h2 {
+    font-size: 18px;
+  }
+
+  .infoItem {
+    width: 100%;
+    justify-content: center;
+  }
+}
