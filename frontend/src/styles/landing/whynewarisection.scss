@@ -1,272 +1,332 @@
 .section.why {
-          background: linear-gradient(180deg, #fff 0%, #fef5f8 100%);
-          padding: 100px 20px;
-          position: relative;
-          overflow: hidden;
-        }
+  background: linear-gradient(180deg, #fff 0%, #fef5f8 100%);
+  padding: 80px 20px;
+  position: relative;
+  overflow: hidden;
+}
 
-        .section.why::before {
-          content: "";
-          position: absolute;
-          top: -100px;
-          left: -100px;
-          width: 400px;
-          height: 400px;
-          background: radial-gradient(
-            circle,
-            rgba(139, 0, 56, 0.08) 0%,
-            transparent 70%
-          );
-          border-radius: 50%;
-          animation: float 20s ease-in-out infinite;
-        }
+.section.why::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(139, 0, 56, 0.05) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: float 20s ease-in-out infinite;
+}
 
-        .section.why::after {
-          content: "";
-          position: absolute;
-          bottom: -100px;
-          right: -100px;
-          width: 400px;
-          height: 400px;
-          background: radial-gradient(
-            circle,
-            rgba(196, 30, 58, 0.08) 0%,
-            transparent 70%
-          );
-          border-radius: 50%;
-          animation: float 25s ease-in-out infinite reverse;
-        }
+.section.why::after {
+  content: "";
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(196, 30, 58, 0.05) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: float 25s ease-in-out infinite reverse;
+}
 
-        @keyframes float {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(50px, 50px) scale(1.1);
-          }
-        }
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, 30px) scale(1.05);
+  }
+}
 
-        .why-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 1;
-        }
+.why-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
 
-        .why-header {
-          text-align: center;
-          margin-bottom: 70px;
-        }
+.why-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
 
-        .why-header h2 {
-          font-size: 3rem;
-          color: #8b0038;
-          font-weight: 700;
-          margin-bottom: 15px;
-          letter-spacing: -0.5px;
-        }
+.why-header h2 {
+  font-size: 2.5rem;
+  color: #8b0038;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
 
-        .subtitle {
-          font-size: 1.2rem;
-          color: #666;
-          font-weight: 400;
-          max-width: 600px;
-          margin: 0 auto;
-        }
+.subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
 
-        .card-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 30px;
-          margin-bottom: 70px;
-        }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
 
-        .card {
-          background: white;
-          border-radius: 24px;
-          padding: 40px 30px;
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          border: 2px solid transparent;
-        }
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(139, 0, 56, 0.08);
+}
 
-        .card::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 5px;
-          background: linear-gradient(90deg, #8b0038, #c41e3a);
-          transform: scaleX(0);
-          transform-origin: left;
-          transition: transform 0.4s ease;
-        }
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #8b0038, #c41e3a);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
 
-        .card:hover {
-          transform: translateY(-12px);
-          box-shadow: 0 20px 50px rgba(139, 0, 56, 0.2);
-          border-color: rgba(139, 0, 56, 0.2);
-        }
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(139, 0, 56, 0.12);
+  border-color: rgba(139, 0, 56, 0.15);
+}
 
-        .card:hover::before {
-          transform: scaleX(1);
-        }
+.card:hover::before {
+  transform: scaleX(1);
+}
 
-        .card-icon {
-          font-size: 4rem;
-          margin-bottom: 20px;
-          display: inline-block;
-          transition: transform 0.3s ease;
-          filter: grayscale(0.3);
-        }
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
 
-        .card:hover .card-icon {
-          transform: scale(1.15) rotate(-5deg);
-          filter: grayscale(0);
-        }
+.card:hover .card-icon {
+  transform: scale(1.1);
+}
 
-        .card-content h3 {
-          font-size: 1.5rem;
-          color: #8b0038;
-          margin-bottom: 15px;
-          font-weight: 600;
-        }
+.card-content h3 {
+  font-size: 1.4rem;
+  color: #8b0038;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
 
-        .card-content p {
-          color: #555;
-          line-height: 1.7;
-          font-size: 1rem;
-        }
+.card-content p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
 
-        .card-decoration {
-          position: absolute;
-          bottom: -20px;
-          right: -20px;
-          width: 100px;
-          height: 100px;
-          background: linear-gradient(
-            135deg,
-            rgba(139, 0, 56, 0.05),
-            rgba(196, 30, 58, 0.05)
-          );
-          border-radius: 50%;
-          transition: all 0.4s ease;
-        }
+.card-decoration {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 0, 56, 0.03),
+    rgba(196, 30, 58, 0.03)
+  );
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
 
-        .card:hover .card-decoration {
-          transform: scale(1.5);
-          opacity: 0.5;
-        }
+.card:hover .card-decoration {
+  transform: scale(1.3);
+  opacity: 0.5;
+}
 
-        .why-quote {
-          background: linear-gradient(135deg, #8b0038 0%, #c41e3a 100%);
-          padding: 20px 20px;
-          border-radius: 30px;
-          text-align: center;
-          position: relative;
-          box-shadow: 0 20px 50px rgba(139, 0, 56, 0.3);
-          overflow: hidden;
-        }
+.why-quote {
+  background: linear-gradient(135deg, #8b0038 0%, #c41e3a 100%);
+  padding: 32px 28px;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(139, 0, 56, 0.18);
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+}
 
-        .why-quote::before {
-          content: "";
-          position: absolute;
-          top: -50%;
-          right: -50%;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-            circle,
-            rgba(255, 255, 255, 0.1) 0%,
-            transparent 70%
-          );
-          border-radius: 50%;
-        }
+.why-quote::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+}
 
-        .quote-mark {
-          font-size: 6rem;
-          color: rgba(255, 255, 255, 0.2);
-          font-family: Georgia, serif;
-          line-height: 0;
-          margin-bottom: 20px;
-        }
+.quote-mark {
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: Georgia, serif;
+  line-height: 0;
+  margin-bottom: 16px;
+}
 
-        .why-quote p {
-          font-size: 1.5rem;
-          color: white;
-          font-style: italic;
-          font-weight: 300;
-          margin-bottom: 20px;
-          position: relative;
-          z-index: 1;
-          max-width: 800px;
-          margin-left: auto;
-          margin-right: auto;
-        }
+.why-quote p {
+  font-size: 1.15rem;
+  color: white;
+  font-style: italic;
+  font-weight: 300;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
 
-        .quote-author {
-          font-size: 1rem;
-          color: rgba(255, 255, 255, 0.9);
-          font-weight: 500;
-          letter-spacing: 1px;
-          position: relative;
-          z-index: 1;
-        }
+.quote-author {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+}
 
-        @media (max-width: 768px) {
-          .section.why {
-            padding: 60px 20px;
-          }
+/* Tablet */
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+}
 
-          .why-header h2 {
-            font-size: 2.2rem;
-          }
+/* Mobile */
+@media (max-width: 768px) {
+  .section.why {
+    padding: 60px 16px;
+  }
 
-          .subtitle {
-            font-size: 1rem;
-          }
+  .why-header {
+    margin-bottom: 40px;
+  }
 
-          .card-grid {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 50px;
-          }
+  .why-header h2 {
+    font-size: 2rem;
+  }
 
-          .card {
-            padding: 30px 25px;
-          }
+  .subtitle {
+    font-size: 1rem;
+    padding: 0 10px;
+  }
 
-          .card-icon {
-            font-size: 3rem;
-          }
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
 
-          .why-quote {
-            padding: 40px 25px;
-          }
+  .card {
+    padding: 28px 24px;
+  }
 
-          .why-quote p {
-            font-size: 1.2rem;
-          }
-        }
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
 
-        @media (max-width: 480px) {
-          .why-header h2 {
-            font-size: 1.8rem;
-          }
+  .card-content h3 {
+    font-size: 1.25rem;
+  }
 
-          .card-content h3 {
-            font-size: 1.3rem;
-          }
+  .card-content p {
+    font-size: 0.9rem;
+  }
 
-          .why-quote p {
-            font-size: 1.1rem;
-          }
+  .why-quote {
+    padding: 28px 20px;
+  }
 
-          .quote-mark {
-            font-size: 4rem;
-          }
-        }
+  .quote-mark {
+    font-size: 2.5rem;
+  }
+
+  .why-quote p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .quote-author {
+    font-size: 0.85rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .section.why {
+    padding: 50px 12px;
+  }
+
+  .why-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+
+  .card-icon {
+    font-size: 2.2rem;
+  }
+
+  .card-content h3 {
+    font-size: 1.15rem;
+  }
+
+  .card-content p {
+    font-size: 0.85rem;
+  }
+
+  .why-quote {
+    padding: 24px 18px;
+  }
+
+  .why-quote p {
+    font-size: 0.95rem;
+  }
+
+  .quote-mark {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+}
