@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+    ports:
+      - "6969:5000"
+    volumes:
+      - ./backend:/app:delegated
+    networks:
+      - app-net
+
+  ml:
+    build:
+      context: ./ml_agent
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml_agent:/app:delegated
+    networks:
+      - app-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - ml
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
