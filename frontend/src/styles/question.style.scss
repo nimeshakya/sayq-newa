@@ -356,3 +356,142 @@
     }
   }
 }
+
+/* ============================= */
+/* Mobile Responsive Overrides  */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .questionContainer {
+    min-width: unset;
+    max-width: 100%;
+    padding: 16px 12px;
+  }
+
+  /* Header */
+  .quiz-header {
+    margin-bottom: 24px;
+  }
+
+  .progress-section {
+    .progress-info {
+      font-size: 12px;
+    }
+
+    .progress-bar {
+      height: 6px;
+    }
+  }
+
+  /* Info badges wrap better */
+  .info-badges {
+    gap: 8px;
+
+    .info-badge {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+
+  /* Question Card */
+  .question-card {
+    border-radius: 16px;
+  }
+
+  .question-card-inner {
+    padding: 16px;
+  }
+
+  /* Question header + timer */
+  .question-main-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  .question-timer {
+    align-self: flex-end;
+    transform: scale(0.85);
+  }
+
+  .question-number {
+    font-size: 12px;
+    padding: 4px 12px;
+  }
+
+  .question-text {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .sub-question {
+    font-size: 14px;
+  }
+
+  /* Options */
+  .options-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .option-card {
+    padding: 14px;
+    border-radius: 14px;
+
+    &:hover {
+      transform: none;
+    }
+
+    .option-letter {
+      width: 34px;
+      height: 34px;
+      font-size: 14px;
+    }
+
+    .option-text {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+
+  /* Submit button */
+  .submit-button {
+    padding: 14px 24px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  /* Question dots */
+  .question-dots {
+    margin-top: 24px;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+
+      &.active {
+        width: 24px;
+      }
+    }
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+  .questionContainer {
+    padding: 12px 10px;
+  }
+
+  .question-text {
+    font-size: 15px;
+  }
+
+  .option-text {
+    font-size: 13px;
+  }
+
+  .submit-button {
+    font-size: 15px;
+  }
+}
+
