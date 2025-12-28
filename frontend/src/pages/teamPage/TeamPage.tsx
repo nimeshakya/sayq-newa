@@ -27,7 +27,7 @@ const teamMembers: TeamMember[] = [
   {
     id: 1,
     name: "Saurav Dhoju",
-    role: "Frontend Developer",
+    role: "780340",
     contact: "sauravdhoju12@gmail.com",
     // bio: "Passionate about building scalable applications and solving complex problems.",
     imageUrl: saurav
@@ -35,7 +35,7 @@ const teamMembers: TeamMember[] = [
   {
     id: 2,
     name: "Aashish Chakradhar",
-    role: "Full Stack Developer",
+    role: "780302",
     contact: "aashishchakradhar01@gmail.com",
     // bio: "Creating intuitive and beautiful user experiences is my top priority.",
     imageUrl: aashish
@@ -43,7 +43,7 @@ const teamMembers: TeamMember[] = [
   {
     id: 3,
     name: "Jeena Nakarmi",
-    role: "ML Engineer",
+    role: "780315",
     contact: "jeenakarmi@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
     // imageUrl: "/images/780303.jpg"
@@ -51,7 +51,7 @@ const teamMembers: TeamMember[] = [
   {
     id: 4,
     name: "Nimesh Shakya",
-    role: "Backend Developer",
+    role: "780324",
     contact: "nimeshakyabtw@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
   },
