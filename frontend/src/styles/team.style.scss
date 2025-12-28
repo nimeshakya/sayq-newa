@@ -2,7 +2,7 @@
 @use "mixins" as *;
 
 .team-page {
-  padding: 8rem 2rem 4rem;
+  padding: 8rem 0 0;
   min-height: 100vh;
   background-color: $background-color;
   color: $text-dark;
@@ -10,6 +10,7 @@
   .team-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding: 0 2rem;
 
     h1 {
       font-size: 2.5rem;
@@ -19,7 +20,7 @@
 
     p {
       font-size: 1.1rem;
-      color: $recede-color; // Using recede-color for secondary text
+      color: $recede-color;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -32,10 +33,11 @@
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    padding: 0 2rem;
   }
 
   .team-member-card {
-    background: rgba(255, 255, 255, 0.5); // increased opacity for visibility on light bg
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
@@ -86,50 +88,90 @@
         letter-spacing: 1px;
       }
 
+      .contact {
+        font-size: 0.85rem;
+        color: $recede-color;
+      }
+
       .bio {
         font-size: 0.9rem;
         color: $recede-color;
         line-height: 1.5;
-        // Make sure bio is visible
         color: darken($recede-color, 20%);
       }
     }
   }
 }
 
-@media (max-width: 768px) {
-  .team-page {
-    padding: 6rem 1rem 3rem;
+.supervisor-section {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 2rem;
 
-    .team-header {
-      h1 {
-        font-size: 2rem;
-      }
-    }
+  h2 {
+    margin-bottom: 2rem;
+    color: $primary;
+    font-size: 2rem;
+  }
+
+  .supervisor-card {
+    max-width: 300px;
+    margin: 0 auto;
+    border: 2px solid $primary;
+  }
+}
+
+.team-section {
+  margin-bottom: 4rem;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: $primary;
+    font-size: 2rem;
+  }
+}
+
+.team-member-card.clickable {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
   }
 }
 
 /* Tablet */
 @media (max-width: 1024px) {
-  .team-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .team-page {
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 }
 
 /* Mobile */
 @media (max-width: 600px) {
   .team-page {
-    padding: 6rem 0.5rem 3rem;
+    padding: 6rem 0 0;
 
     .team-header {
+      padding: 0 1rem;
+      margin-bottom: 1.5rem;
+
       h1 {
         font-size: 1.75rem;
       }
 
       p {
         font-size: 0.95rem;
-        padding: 0 0.5rem;
       }
+    }
+
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding: 0 0.75rem;
     }
 
     .team-member-card {
@@ -155,58 +197,31 @@
 
         .contact {
           font-size: 0.7rem;
-          word-break: break-all;
+          word-break: break-word;
         }
       }
     }
   }
 
-  .team-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.75rem;
-    padding: 0 0.5rem;
-    width: 100%;
-    max-width: 100%;
-  }
-
   .supervisor-section {
-    padding: 0 0.5rem;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
     
+    h2 {
+      font-size: 1.5rem;
+    }
+
     .supervisor-card {
-      max-width: 100%;
+      max-width: 50%;
+      margin: 0 auto;
     }
   }
-}
 
-.supervisor-section {
-  text-align: center;
-  margin-bottom: 2rem;
-
-  h2 {
+  .team-section {
     margin-bottom: 2rem;
-    color: $primary;
-  }
 
-  .supervisor-card {
-    max-width: 360px;
-    margin: 0 auto;
-    border: 2px solid $primary;
-  }
-}
-
-.team-section {
-  h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: $primary;
-  }
-}
-
-.team-member-card.clickable {
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+    h2 {
+      font-size: 1.5rem;
+    }
   }
 }
