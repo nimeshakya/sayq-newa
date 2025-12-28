@@ -8,7 +8,7 @@ export default function RedirectPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const redirectType = location.state?.type as RedirectType;
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     const countdownInterval = setInterval(() => {
