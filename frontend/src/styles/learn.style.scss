@@ -248,9 +248,11 @@
       font-weight: 600;
     }
   }
-
-  @media (max-width: 768px) {
+}
+@media (max-width: 768px) {
+  .dataPrintContainer {
     padding: 24px 16px;
+    min-width: 410px;
 
     .word-main .newari-word {
       font-size: 32px;
