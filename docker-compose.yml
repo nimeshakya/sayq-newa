@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   backend:
     build:
@@ -8,6 +6,13 @@ services:
     environment:
       - PORT=5000
       - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - JWT_SECRET=${JWT_SECRET}
+      - RL_SERVICE_URL=http://ml:8000
+      - DQN_SERVICE_URL=http://ml:8001
+    env_file:
+      - ./backend/.env
     ports:
       - "6969:5000"
     volumes:
