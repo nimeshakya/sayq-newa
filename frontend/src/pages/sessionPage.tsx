@@ -12,6 +12,7 @@ export default function SessionPage() {
   const [count, setCount] = useState<number>(10);
   const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
+  const [expertise_levels, setExpertise_levels] = useState<number[]>([]);
   const [expertise, setExpertise] = useState<number>(0);
   const [start, setStart] = useState(false);
 
@@ -28,6 +29,21 @@ export default function SessionPage() {
       }
     };
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchExpertiseLevel = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/words/expertise-level`);
+        if (res.ok) {
+          const data = await res.json();
+          setExpertise_levels(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch expertise level", error);
+      }
+    };
+    fetchExpertiseLevel();
   }, []);
 
   useEffect(() => {
@@ -92,7 +108,7 @@ export default function SessionPage() {
 
             <div className="formGroup">
               <label>Expertise Level</label>
-              <input
+              {/* <input
                 type="number"
                 min={0}
                 max={5}
@@ -100,7 +116,20 @@ export default function SessionPage() {
                 onChange={(e) =>
                   setExpertise(parseInt(e.target.value || "0", 10))
                 }
-              />
+              /> */}
+
+                            <select
+                value={expertise  }
+                onChange={(e) => setExpertise(parseInt(e.target.value || "0", 10))}
+                className="category-select"
+              >
+                <option value="">Any</option>
+                {expertise_levels.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -134,7 +163,7 @@ export default function SessionPage() {
 
             <div className="infoItem">
               <span>Expertise</span>
-              <strong>{expertise}</strong>
+              <strong>{expertise || 0}</strong>
             </div>
           </div>
 
