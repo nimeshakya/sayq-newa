@@ -1,6 +1,9 @@
 import "../../styles/team.style.scss";
 import saurav from "../../assets/780340.jpg";
 import aashish from "../../assets/780302.jpeg";
+import jina from "../../assets/jina.jpeg";
+import nim from "../../assets/nim.jpeg";
+import shree from "../../assets/shree.jpeg";
 
 interface TeamMember {
   id: number;
@@ -19,7 +22,7 @@ const supervisor: TeamMember = {
   role: "Project Supervisor",
   contact: "shreeramkhaitu@gmail.com",
   // bio: "Guiding the team with expertise, mentorship, and strategic direction.",
-  // imageUrl: "/images/supervisor.jpg" // optional
+  imageUrl: shree
 };
 
 /* Team Members */
@@ -46,7 +49,7 @@ const teamMembers: TeamMember[] = [
     role: "780315",
     contact: "jeenakarmi@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
-    // imageUrl: "/images/780303.jpg"
+    imageUrl: jina
   },
   {
     id: 4,
@@ -54,6 +57,7 @@ const teamMembers: TeamMember[] = [
     role: "780324",
     contact: "nimeshakyabtw@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
+    imageUrl: nim
   },
 ];
 
