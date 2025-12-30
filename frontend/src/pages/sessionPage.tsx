@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/user.context";
 import SessionComponent from "../components/session.component";
+import { API_BASE_URL } from "../constants";
 import "../styles/_shared.scss";
 import "../styles/session.style.scss";
 
@@ -9,9 +10,25 @@ export default function SessionPage() {
   const navigate = useNavigate();
   const { isLoggedin, loading } = useUserContext();
   const [count, setCount] = useState<number>(10);
+  const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [expertise, setExpertise] = useState<number>(0);
   const [start, setStart] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/words/categories`);
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (!loading && !isLoggedin) {
@@ -59,12 +76,18 @@ export default function SessionPage() {
 
             <div className="formGroup">
               <label>Category</label>
-              <input
-                type="text"
+              <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. basic"
-              />
+                className="category-select"
+              >
+                <option value="">Any</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="formGroup">
