@@ -4,5 +4,5 @@
 **/env
 data
 **/.env
-
+.vscode
 __pycache__
