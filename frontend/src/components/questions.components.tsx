@@ -59,6 +59,9 @@ export default function Question({
   const [reset, setReset] = useState<boolean>(false);
   const [response, setResponse] = useState<number>(0);
 
+  //for viewing result
+  const [score, setScore] = useState<number>(0);
+
   const saveResult = async (resultsToSave: any[]) => {
     await fetch(`${API_BASE_URL}/user-stat`, {
       method: "POST",
@@ -156,6 +159,10 @@ export default function Question({
     setTimeout(() => setReset(false), 0);
 
     const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+
+    if (isCorrect) {
+      setScore((prevScore) => prevScore + 1);
+    }
 
     const newResult: ResultProp = {
       id: (Results.length + 1).toString(),
@@ -400,6 +407,10 @@ export default function Question({
             <div className="confetti">🎉🎊✨</div>
             <h2>Congratulations, {user?.given_name || "User"}!</h2>
             <p>You have successfully completed the quiz.</p>
+            <p>
+              Your Score: {score}/{currentIndex + 1}
+            </p>
+
             <button className="button dashboard" onClick={() => navigate("/")}>
               Back to Dashboard
             </button>
