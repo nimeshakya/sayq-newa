@@ -132,3 +132,13 @@ export const fetchCategories = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const fetchExpertiseLevel = async (req: Request, res: Response) => {
+  try {
+    const expertise_levels = await Word.distinct("expertise_lvl");
+    res.status(200).json(expertise_levels);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
