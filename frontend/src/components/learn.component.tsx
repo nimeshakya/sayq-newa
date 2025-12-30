@@ -32,14 +32,14 @@ export default function DataPrint({
 
   useEffect(() => {
     const loadAndFilterWords = async () => {
-      // STEP 1: Get current user ID
+      // Get current user ID
       if (!user?.id) {
         console.log("No user ID found");
         setLoading(false);
         return;
       }
 
-      console.log("STEP 1: Current user ID:", user.id);
+      console.log("Fetching words for user:", user.id);
 
       try {
         // Get auth token if available (optional)
@@ -50,44 +50,24 @@ export default function DataPrint({
             }
           : undefined;
 
-        // STEP 2: Fetch progress words of current user only
-        console.log("STEP 2: Fetching user progress...");
-        const progressRes = await fetch(
-          `${API_BASE_URL}/word-progress/${user.id}`,
-          authHeaders ? { headers: authHeaders } : undefined
+        // Fetch filtered words from backend (backend handles mastery filtering)
+        console.log(
+          "Fetching filtered words for user expertise level:",
+          user.expertise_lvl
         );
-        const progressData = await progressRes.json();
-        // Filter words with mastery > 45%
-        const highMasteryWordIds = new Set(
-          (progressData.data || [])
-            .filter((p: any) => p.mastery > 45)
-            .map((p: any) => String(p.wordId))
-        );
-        console.log("   → User has mastery > 45% for", highMasteryWordIds.size, "words");
-
-        // STEP 3: Fetch whole word collection
-        console.log("STEP 3: Fetching all words...");
         const wordsRes = await fetch(
           `${API_BASE_URL}/words/all?${new URLSearchParams({
-            ...(category && { category }),
-            ...(expertise_lvl && { expertise_lvl: String(expertise_lvl) }),
-            count: String(count * 3),
+            userId: user.id,
+            userExpertiseLevel: String(user.expertise_lvl || 0),
+            count: String(count),
           })}`,
           authHeaders ? { headers: authHeaders } : undefined
         );
         const fetchedWords = await wordsRes.json();
-        console.log("   → Fetched", fetchedWords.length, "total words");
+        console.log("   → Received", fetchedWords.length, "unlearned words");
 
-        // STEP 4: Remove the similar words (filter out high mastery words)
-        console.log("STEP 4: Filtering out words with mastery > 45%...");
-        const unlearned = fetchedWords.filter(
-          (word: any) => !highMasteryWordIds.has(String(word._id))
-        );
-        console.log("   → Remaining unlearned:", unlearned.length);
-
-        // STEP 5: Show words from that pool
-        console.log("STEP 5: Displaying unlearned words (max:", count, ")");
-        setUnlearnedWords(unlearned.slice(0, count));
+        // Set the words directly (backend already filtered)
+        setUnlearnedWords(fetchedWords);
         setLoading(false);
       } catch (error) {
         console.error("Error loading words:", error);
