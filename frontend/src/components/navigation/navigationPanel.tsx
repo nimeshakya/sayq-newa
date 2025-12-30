@@ -97,6 +97,9 @@ const Navigation = () => {
           <Link to="sessionPage" className="nav-link">
             Session
           </Link>
+          <Link to="teamPage" className="nav-link">
+            Meet Our Team
+          </Link>
         </div>
 
         <div className={`nav-auth ${isMenuOpen ? "active" : ""}`}>

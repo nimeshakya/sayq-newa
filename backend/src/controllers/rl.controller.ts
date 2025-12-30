@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
-import fetch from "node-fetch";
 import mongoose from "mongoose";
 import { Word } from "../models/word.model";
 import UserWordProgressModel from "../models/userWordProgress.model";
+
+// Use native fetch (available in Node 18+) instead of node-fetch
+const fetch = globalThis.fetch;
 
 const RL_SERVICE_URL = process.env.RL_SERVICE_URL || "http://localhost:8000";
 const DQN_SERVICE_URL = process.env.DQN_SERVICE_URL || "http://localhost:8001";

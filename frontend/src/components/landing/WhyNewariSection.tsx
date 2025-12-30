@@ -5,7 +5,7 @@ const WhyNewariSection = () => {
     <section className="section why">
       <div className="why-container">
         <div className="why-header">
-          <h2>Why Learn Newari?</h2>
+          <h2>Why Learn Newa?</h2>
           <p className="subtitle">
             Discover the rich heritage and cultural significance of Nepal Bhasa
           </p>
@@ -52,10 +52,9 @@ const WhyNewariSection = () => {
         <div className="why-quote">
           <div className="quote-mark">"</div>
           <p>
-            Learning Newari is not just about words – it's about preserving a
-            living culture
+            Learning Newa is not just about words – it's about preserving culture.
           </p>
-          <div className="quote-author">— Preserving Our Heritage</div>
+          <div className="quote-author">Preserving Our Heritage</div>
         </div>
       </div>
     </section>

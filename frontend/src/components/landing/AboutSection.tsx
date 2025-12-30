@@ -15,7 +15,7 @@ const AboutSection = () => {
             <p className="about-intro">
               NewaSayQ is a <span className="highlight">digital platform</span>{" "}
               dedicated to teaching
-              <span className="highlight"> Newari (Nepal Bhasa)</span> using
+              <span className="highlight"> Newa (Nepal Bhasa)</span> using
               modern learning techniques.
             </p>
           </div>

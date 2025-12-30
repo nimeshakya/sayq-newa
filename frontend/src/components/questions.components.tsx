@@ -27,6 +27,7 @@ export default function Question({
 }: QuestionProps) {
   const { Questions, Results, setResults, ResetResult, FetchQuestion } =
     useQuestionContext();
+  const [quizCompleted, setQuizCompleted] = useState(false);
   const { user } = useUserContext();
   const navigate = useNavigate();
 
@@ -95,6 +96,50 @@ export default function Question({
     setSelectedAnswer(option);
   };
 
+  // const handleNextQuestion = async () => {
+  //   if (selectedAnswer === null) {
+  //     alert("Please select an answer before proceeding");
+  //     return;
+  //   }
+
+  //   const userId = user?.id;
+  //   if (!userId) {
+  //     alert("You are not signed in. Please sign in to continue.");
+  //     return;
+  //   }
+
+  //   setReset(true);
+  //   setTimeout(() => setReset(false), 0);
+
+  //   const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+
+  //   const newResult: ResultProp = {
+  //     id: (Results.length + 1).toString(),
+  //     userID: userId,
+  //     questionID: String(currentQuestion.id),
+  //     wordID: currentQuestion.wordId,
+  //     difficulty_lvl: currentQuestion.difficulty_lvl ?? 0,
+  //     selected_answer: selectedAnswer,
+  //     attempts: 1,
+  //     responseTime: response,
+  //     isCorrect,
+  //     createdAt: new Date().toISOString(),
+  //   };
+
+  //   if (!isLastQuestion) {
+  //     setResults([...Results, newResult]);
+  //     setCurrentIndex(currentIndex + 1);
+  //     setSelectedAnswer(null);
+  //   } else {
+  //     const finalResults = [...Results, newResult];
+  //     alert("Quiz completed!");
+  //     console.log("Final Results:", finalResults);
+  //     await saveResult(finalResults);
+  //     await saveWordProgress(finalResults);
+  //     navigate("/");
+  //   }
+  // };
+
   const handleNextQuestion = async () => {
     if (selectedAnswer === null) {
       alert("Please select an answer before proceeding");
@@ -131,11 +176,10 @@ export default function Question({
       setSelectedAnswer(null);
     } else {
       const finalResults = [...Results, newResult];
-      alert("Quiz completed!");
-      console.log("Final Results:", finalResults);
+      setResults(finalResults);
+      setQuizCompleted(true); // <-- show completion screen
       await saveResult(finalResults);
       await saveWordProgress(finalResults);
-      navigate("/");
     }
   };
 
@@ -146,10 +190,7 @@ export default function Question({
           <div className="empty-icon">📝</div>
           <h3>No Questions Available</h3>
           <p>Please try again later or select different options.</p>
-          <button
-            className="button proceed"
-            onClick={() => navigate("/")}
-          >
+          <button className="button proceed" onClick={() => navigate("/")}>
             Back to Dashboard
           </button>
         </div>
@@ -352,6 +393,19 @@ export default function Question({
           <span className="dots-more">+{Questions.length - 15}</span>
         )}
       </div>
+
+      {quizCompleted && (
+        <div className="quiz-completed-overlay">
+          <div className="completion-card">
+            <div className="confetti">🎉🎊✨</div>
+            <h2>Congratulations, {user?.given_name || "User"}!</h2>
+            <p>You have successfully completed the quiz.</p>
+            <button className="button dashboard" onClick={() => navigate("/")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

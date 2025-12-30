@@ -18,7 +18,7 @@ export default function SignInPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoginVisible(true);
-    }, 4000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [setLoginVisible]);
 

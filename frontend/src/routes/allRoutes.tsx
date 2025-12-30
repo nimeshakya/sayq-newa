@@ -11,6 +11,7 @@ import RLLearnPage from "../pages/rlLearnPage";
 import SessionPage from "../pages/sessionPage";
 import RedirectPage from "../pages/redirectPage";
 import LandingLayout from "../layouts/LandingLayout";
+import TeamPage from "../pages/teamPage/TeamPage";
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +27,7 @@ export const routes: RouteObject[] = [
       { path: "/mlLearnPage", element: <MLLearnPage /> },
       { path: "/rlLearnPage", element: <RLLearnPage /> },
       { path: "/sessionPage", element: <SessionPage /> },
+      { path: "/teamPage", element: <TeamPage /> },
       { path: "/redirectPage", element: <RedirectPage /> },
     ],
   },

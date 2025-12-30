@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="hero__content">
         <div>
           <h1>NewaSayQ</h1>
-          <h2>Learn Newari (Nepal Bhasa)</h2>
+          <h2>Learn Newa (Nepal Bhasa)</h2>
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
           <h3>ज्वजलपा</h3>
           <span className="arrow">↓</span>
@@ -38,7 +38,6 @@ const HeroSection = () => {
         </div>
 
         <div>
-          {" "}
           <div className="hero__image">
             <img src={heroImage} alt="Learn Newari illustration" />
           </div>
