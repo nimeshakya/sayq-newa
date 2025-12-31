@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/user.context";
 import SessionComponent from "../components/session.component";
+import { API_BASE_URL } from "../constants";
 import "../styles/_shared.scss";
 import "../styles/session.style.scss";
 
@@ -9,9 +10,41 @@ export default function SessionPage() {
   const navigate = useNavigate();
   const { isLoggedin, loading } = useUserContext();
   const [count, setCount] = useState<number>(10);
+  const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
+  const [expertise_levels, setExpertise_levels] = useState<number[]>([]);
   const [expertise, setExpertise] = useState<number>(0);
   const [start, setStart] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/words/categories`);
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchExpertiseLevel = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/words/expertise-level`);
+        if (res.ok) {
+          const data = await res.json();
+          setExpertise_levels(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch expertise level", error);
+      }
+    };
+    fetchExpertiseLevel();
+  }, []);
 
   useEffect(() => {
     if (!loading && !isLoggedin) {
@@ -59,17 +92,23 @@ export default function SessionPage() {
 
             <div className="formGroup">
               <label>Category</label>
-              <input
-                type="text"
+              <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. basic"
-              />
+                className="category-select"
+              >
+                <option value="">Any</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="formGroup">
               <label>Expertise Level</label>
-              <input
+              {/* <input
                 type="number"
                 min={0}
                 max={5}
@@ -77,7 +116,20 @@ export default function SessionPage() {
                 onChange={(e) =>
                   setExpertise(parseInt(e.target.value || "0", 10))
                 }
-              />
+              /> */}
+
+                            <select
+                value={expertise  }
+                onChange={(e) => setExpertise(parseInt(e.target.value || "0", 10))}
+                className="category-select"
+              >
+                <option value="">Any</option>
+                {expertise_levels.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -111,7 +163,7 @@ export default function SessionPage() {
 
             <div className="infoItem">
               <span>Expertise</span>
-              <strong>{expertise}</strong>
+              <strong>{expertise || 0}</strong>
             </div>
           </div>
 
