@@ -1,9 +1,8 @@
+@use "./variables" as *;
 .dataPrintContainer {
-  max-width: 1200px;
-  min-width: 800px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  min-height: 100vh;
+  margin: auto;
+  width: 40%;
+  font-family: "Segoe UI", "Poppins", "Helvetica Neue", Arial, sans-serif;
 
   // Header Section
   .learn-header {
@@ -23,17 +22,21 @@
       }
     }
   }
-
-  // Progress Section
+  // Progress Section - moved inside .learn-header
   .progress-section {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; // Center horizontally
+
     .progress-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-
+      width: 70%;
       .progress-text,
       .progress-percentage {
+        margin: auto;
         font-size: 14px;
         font-weight: 600;
         color: #8b0038;
@@ -41,6 +44,8 @@
     }
 
     .progress-bar {
+      width: 90%;
+      align-items: center;
       height: 8px;
       background: #ddd;
       border-radius: 100px;
@@ -61,37 +66,48 @@
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     overflow: hidden;
-    margin-bottom: 32px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-    .word-card-inner {
-      padding: 32px 24px;
+    .word-main {
     }
-  }
+    // Main Word Display
+    .word-main {
+      width: 100%;
+      text-align: center;
 
-  // Main Word Display
-  .word-main {
-    text-align: center;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #eee;
-
-    .word-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background: #8b0038;
-      color: #fff;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 20px;
+      .word-badge {
+        display: inline-block;
+        background: #8b0038;
+        color: #fff;
+        border-radius: 0 20px 20px 0;
+        font-size: 13px;
+        font-weight: 600;
+      }
     }
-
     .newari-word {
+      display: flex;
+      justify-content: center;
+      width: 90%;
       font-size: 40px;
       font-weight: 700;
       color: #8b0038;
+      background: #f5f5f5;
+      border-radius: 8px;
+      line-height: 2;
       margin: 0;
-      line-height: 1.2;
+    }
+    .word-card-inner {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 24px 28px;
+      box-sizing: border-box;
     }
   }
 
@@ -99,159 +115,252 @@
   .word-details {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     margin-bottom: 32px;
+    width: 100%;
+    gap: 16px;
   }
 
   .detail-item {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 16px;
-    background: #f5f5f5;
-    border-radius: 12px;
+    padding: 14px 16px;
+    background: #fbf5f7;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(139, 0, 56, 0.08);
 
     .detail-icon {
-      width: 40px;
-      height: 40px;
-      background: #fff;
-      border-radius: 8px;
+      width: 44px;
+      height: 44px;
+      background: #8b1538;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #444;
+      color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 14px rgba(139, 0, 56, 0.18);
     }
 
     .detail-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-
-      .detail-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #8b0038;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .detail-value {
-        font-size: 16px;
-        font-weight: 600;
-        color: #111;
-
-        &.category-tag {
-          display: inline-block;
-          padding: 4px 12px;
-          background: #ccc;
-          color: #111;
-          border-radius: 8px;
-          font-size: 14px;
-          width: fit-content;
-        }
-      }
-    }
-  }
-
-  // Navigation Buttons
-  .navigation-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 24px;
-
-    .nav-button {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      background: #8b0038;
-      color: #fff;
-
-      &.back-button {
-        background: #eee;
-        color: #444;
-      }
-    }
-  }
-
-  // Word Progress Dots
-  .word-dots {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 24px;
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #ccc;
-
-      &.active {
-        width: 20px;
-        border-radius: 5px;
-        background: #8b0038;
-      }
-
-      &.completed {
-        background: #888;
-      }
-    }
-
-    .dots-more {
-      font-size: 12px;
-      color: #666;
-      margin-left: 4px;
-    }
-  }
-
-  // Empty State
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-
-    .empty-icon {
-      font-size: 60px;
-      margin-bottom: 24px;
-    }
-
-    h3 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #111;
-      margin: 0 0 12px 0;
-    }
-
-    p {
-      font-size: 16px;
-      color: #666;
-      margin: 0 0 24px 0;
-    }
-
-    .button {
-      padding: 12px 24px;
-      background: #444;
-      color: #fff;
-      border-radius: 8px;
-      font-weight: 600;
+      gap: 6px;
     }
   }
 }
+
+.word-card .word-details .detail-item .detail-icon {
+  background: #8b1538;
+  color: #fff;
+}
+
+.word-card .word-details .detail-item .detail-content .detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b6f7a;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.word-card .word-details .detail-item .detail-content .detail-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2b2b2b;
+}
+
+.word-card
+  .word-details
+  .detail-item
+  .detail-content
+  .detail-value.category-tag {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #e6e7ec;
+  color: #4a4f57;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.word-card
+  .word-details
+  .detail-item
+  .detail-content
+  .detail-value.difficulty-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.word-card .word-details .detail-item .detail-content .difficulty-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: #ffe9e1;
+  color: #c04a1a;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.word-card .word-details .detail-item .detail-content .difficulty-bars {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.word-card .word-details .detail-item .detail-content .difficulty-bar {
+  width: 26px;
+  height: 8px;
+  border-radius: 999px;
+  background: #f0d7df;
+}
+
+.word-card .word-details .detail-item .detail-content .difficulty-bar.active {
+  background: #8b1538;
+}
+
+// Navigation Buttons
+.navigation-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+  width: 100%;
+  .nav-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    background: linear-gradient(135deg, #7c0a32 0%, #8b1538 100%);
+    color: #fff;
+    box-shadow: 0 12px 22px rgba(139, 0, 56, 0.18);
+    min-height: 48px;
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #6a092c 0%, #7a1232 100%);
+      box-shadow: 0 14px 26px rgba(139, 0, 56, 0.22);
+      transform: translateY(-1px);
+    }
+
+    &.back-button {
+      background: #908f8f;
+      background-image: none;
+      color: #fff;
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.12);
+
+      &:hover {
+        background: #7a7a7a;
+        box-shadow: 0 14px 26px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
+
+.dataPrintContainer.dummy-learn .navigation-buttons .nav-button.back-button {
+  background: #908f8f;
+  background-image: none;
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.12);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dataPrintContainer.dummy-learn
+  .navigation-buttons
+  .nav-button.back-button:hover {
+  background: #7a7a7a;
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+// Word Progress Dots
+.word-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-left: auto; // Center horizontally
+  margin-right: auto;
+  width: 80%; // Take full width
+
+  .dot {
+    flex: 1; // Equal width for each dot
+    height: 0.6rem;
+    background: #ccc;
+    border-radius: 14%;
+
+    &.active {
+      background: #8b0038;
+    }
+
+    &.completed {
+      background: #888;
+    }
+  }
+
+  .dots-more {
+    font-size: 12px;
+    color: #666;
+    margin-left: 4px;
+    flex-shrink: 0; // Don't shrink the "more" text
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+
+  .empty-icon {
+    font-size: 60px;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 12px 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 24px 0;
+  }
+
+  .button {
+    padding: 12px 24px;
+    background: #444;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+}
+
 @media (max-width: 768px) {
   .dataPrintContainer {
-    padding: 24px 16px;
+    padding: 20px 16px 40px 16px;
     min-width: 410px;
 
     .word-main .newari-word {
