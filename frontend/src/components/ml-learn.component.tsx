@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import TimeTracker from "../components/timer.component";
+import TimeTracker from "./timer.component";
 
 import "../styles/_shared.scss";
 import "../styles/learn.style.scss";
@@ -37,12 +37,12 @@ export default function MLLearnComponent({
       try {
         setLoading(true);
         const res = await fetch(
-          `${API_BASE_URL}/rl/recommend?userId=${user.id}&k=${count}`
+          `${API_BASE_URL}/rl/recommend?userId=${user.id}&k=${count}`,
         );
 
         if (!res.ok) {
           throw new Error(
-            `HTTP ${res.status}: Failed to fetch recommendations`
+            `HTTP ${res.status}: Failed to fetch recommendations`,
           );
         }
 
@@ -123,10 +123,7 @@ export default function MLLearnComponent({
     return (
       <div className="dataPrintContainer empty-state">
         <p>{error}</p>
-        <button
-          className="button proceed"
-          onClick={() => navigate("/")}
-        >
+        <button className="button proceed" onClick={() => navigate("/")}>
           Back to Dashboard
         </button>
       </div>
@@ -178,7 +175,7 @@ export default function MLLearnComponent({
       <div className="word-card">
         <div className="word-card-inner">
           <div className="word-main">
-            <div className="word-badge ai-badge">AI Recommended</div>
+            <div className="word-badge ai-badge">{headingDisplay}</div>
             <h1 className="newari-word">{currentWord.newari_word}</h1>
             <TimeTracker />
           </div>
