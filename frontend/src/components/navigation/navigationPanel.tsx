@@ -85,11 +85,11 @@ const Navigation = () => {
           <Link to="learnPage" className="nav-link">
             Learning
           </Link>
-          <Link to="mlLearnPage" className="nav-link">
+          <Link to="learn/neural" className="nav-link">
             AI Learning
           </Link>
-          <Link to="rlLearnPage" className="nav-link">
-            RL Agent
+          <Link to="learn/dqn" className="nav-link">
+            DQN Learning
           </Link>
           {/* <Link to="initialQuestionPage" className="nav-link">
             Quiz
