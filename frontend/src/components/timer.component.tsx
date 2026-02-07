@@ -53,7 +53,7 @@ export default function CircularTimer({
   };
 
   // Circle calculations
-  const radius = 30;
+  const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const progress = (seconds % maxTime) / maxTime; // For circular progress
   const offset = circumference - progress * circumference;
@@ -83,7 +83,7 @@ export default function CircularTimer({
         />
         <text
           x="50%"
-          y="50%"
+          y="90%"
           dominantBaseline="middle"
           textAnchor="middle"
           fontSize="18"
