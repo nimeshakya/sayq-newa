@@ -37,10 +37,8 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div>
-          <div className="hero__image">
-            <img src={heroImage} alt="Learn Newari illustration" />
-          </div>
+        <div className="hero__image">
+          <img src={heroImage} alt="Learn Newari illustration" />
         </div>
       </div>
     </section>
