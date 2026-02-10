@@ -79,36 +79,50 @@ const Navigation = () => {
         </Link>
 
         <div className={`nav-links ${isMenuOpen ? "active" : ""}`}>
-          <Link to="/" className="nav-link active">
+          <Link to="/" className="nav-link active" onClick={() => setIsMenuOpen(false)}>
             Home
           </Link>
 
-          <button
-            className="nav-link search-button"
-            onClick={() => setIsSearchOpen(true)}
-          >
-            Search
-          </button>
-
-          <Link to="learnPage" className="nav-link">
+          <Link to="learnPage" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Learning
           </Link>
-          <Link to="learn/neural" className="nav-link">
+          <Link to="learn/neural" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             AI Learning
           </Link>
-          <Link to="learn/dqn" className="nav-link">
+          <Link to="learn/dqn" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             DQN Learning
           </Link>
           {/* <Link to="initialQuestionPage" className="nav-link">
             Quiz
           </Link> */}
-          <Link to="sessionPage" className="nav-link">
+          <Link to="sessionPage" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Session
           </Link>
-          <Link to="teamPage" className="nav-link">
+          <Link to="teamPage" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Meet Our Team
           </Link>
         </div>
+
+        <button
+          className="search-icon-btn"
+          onClick={() => {
+            setIsSearchOpen(true);
+            setIsMenuOpen(false);
+          }}
+          aria-label="Search"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+        </button>
 
         <div className={`nav-auth ${isMenuOpen ? "active" : ""}`}>
           {isLoggedin && user ? (
@@ -197,7 +211,7 @@ const Navigation = () => {
               )}
             </div>
           ) : (
-            <Link to="/signinPage" className="btn-login">
+            <Link to="/signinPage" className="btn-login" onClick={() => setIsMenuOpen(false)}>
               Login
             </Link>
           )}
