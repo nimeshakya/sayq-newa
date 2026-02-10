@@ -50,7 +50,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
         `${API_BASE_URL}/words/search?query=${encodeURIComponent(query)}`,
         {
           signal: abortControllerRef.current.signal,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -95,10 +95,12 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
@@ -111,42 +113,64 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
       {/* Modal */}
       <div className="search-modal">
-        {/* Header */}
+        {/* Header with Search Input */}
         <div className="search-modal-header">
-          <h2>Search Words</h2>
-          <button
-            className="search-modal-close"
-            onClick={onClose}
-            aria-label="Close search"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Search Input */}
-        <div className="search-modal-input-container">
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="search-modal-input"
-            placeholder="Search by word, meaning, category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            autoComplete="off"
-          />
-          {isLoading && (
-            <div className="search-spinner">
-              <div className="spinner"></div>
+          <div className="search-header-content">
+            <div className="search-title-row">
+              <h2>Search Dictionary</h2>
+              <button
+                className="search-modal-close"
+                onClick={onClose}
+                aria-label="Close search"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
-          )}
+
+            {/* Search Input */}
+            <div className="search-input-wrapper">
+              <svg
+                className="search-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="search-modal-input"
+                placeholder="Search for Newari words..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoComplete="off"
+              />
+              {isLoading && (
+                <div className="search-spinner">
+                  <div className="spinner"></div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Results Section */}
         <div className="search-modal-results">
-          {error && !selectedResult && (
-            <div className="search-no-results">{error}</div>
-          )}
-
           {selectedResult ? (
             // Detail View
             <div className="search-detail-view">
@@ -154,102 +178,162 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                 className="back-button"
                 onClick={() => setSelectedResult(null)}
               >
-                ← Back to Results
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Back to Results
               </button>
 
               <div className="detail-card">
-                <div className="detail-row">
-                  <span className="label">Newari Word:</span>
-                  <span className="value newari-text">
+                <div className="detail-header">
+                  <div className="detail-word">
                     {selectedResult.newari_word}
+                  </div>
+                  <div className="detail-badges">
+                    <span className="badge badge-expertise">
+                      Level {selectedResult.expertise_lvl}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="detail-meaning">
+                  <span className="meaning-label">Nepali Meaning</span>
+                  <span className="meaning-value">
+                    {selectedResult.nepali_meaning}
                   </span>
                 </div>
 
-                <div className="detail-row">
-                  <span className="label">Nepali Meaning:</span>
-                  <span className="value">{selectedResult.nepali_meaning}</span>
-                </div>
+                <div className="detail-meta-grid">
+                  <div className="meta-item">
+                    <span className="meta-label">Category</span>
+                    <span className="meta-value badge-category">
+                      {selectedResult.category}
+                    </span>
+                  </div>
 
-                <div className="detail-row">
-                  <span className="label">ID:</span>
-                  <span className="value code">{selectedResult.id}</span>
-                </div>
+                  <div className="meta-item">
+                    <span className="meta-label">Type</span>
+                    <span className="meta-value badge-type">
+                      {selectedResult.type}
+                    </span>
+                  </div>
 
-                <div className="detail-row">
-                  <span className="label">Category:</span>
-                  <span className="value category-badge">
-                    {selectedResult.category}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="label">Expertise Level:</span>
-                  <span className="value expertise-badge">
-                    Level {selectedResult.expertise_lvl}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="label">Type:</span>
-                  <span className="value type-badge">{selectedResult.type}</span>
+                  <div className="meta-item">
+                    <span className="meta-label">Word ID</span>
+                    <span className="meta-value meta-id">
+                      {selectedResult.id}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
             // List View
             <div className="search-results-list">
-              {results.length > 0 ? (
+              {error && !results.length ? (
+                <div className="search-empty-state">
+                  <svg
+                    width="56"
+                    height="56"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  <p className="empty-title">No words found</p>
+                  <p className="empty-hint">
+                    Try searching with different keywords
+                  </p>
+                </div>
+              ) : results.length > 0 ? (
                 <>
-                  <div className="results-count">
-                    Found {results.length} result
-                    {results.length !== 1 ? "s" : ""}
+                  <div className="results-header">
+                    <span className="results-count">
+                      {results.length}{" "}
+                      {results.length === 1 ? "result" : "results"} found
+                    </span>
                   </div>
-                  {results.map((word) => (
-                    <div
-                      key={word._id}
-                      className="search-result-item"
-                      onClick={() => setSelectedResult(word)}
-                    >
-                      <div className="result-main">
-                        <div className="result-word">
-                          <span className="newari-text">
-                            {word.newari_word}
-                          </span>
+                  <div className="results-grid">
+                    {results.map((word) => (
+                      <div
+                        key={word._id}
+                        className="search-result-card"
+                        onClick={() => setSelectedResult(word)}
+                      >
+                        <div className="card-content">
+                          <div className="card-word">{word.newari_word}</div>
+                          <div className="card-meaning">
+                            {word.nepali_meaning}
+                          </div>
+                          <div className="card-footer">
+                            <span className="card-badge badge-category">
+                              {word.category}
+                            </span>
+                            <span className="card-badge badge-level">
+                              Lv. {word.expertise_lvl}
+                            </span>
+                          </div>
                         </div>
-                        <div className="result-meaning">
-                          {word.nepali_meaning}
+                        <div className="card-arrow">
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                          </svg>
                         </div>
                       </div>
-
-                      <div className="result-meta">
-                        <span className="meta-badge category">
-                          {word.category}
-                        </span>
-                        <span className="meta-badge expertise">
-                          Lv. {word.expertise_lvl}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </>
+              ) : searchQuery ? (
+                <div className="search-empty-state">
+                  <svg
+                    width="56"
+                    height="56"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  <p className="empty-title">No words found</p>
+                  <p className="empty-hint">
+                    Try searching with different keywords
+                  </p>
+                </div>
               ) : (
-                searchQuery && (
-                  <div className="search-empty-state">
-                    <svg
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                    <p>No words found</p>
-                    <p className="hint">Try different search terms</p>
-                  </div>
-                )
+                <div className="search-empty-state">
+                  <svg
+                    width="56"
+                    height="56"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  <p className="empty-title">Start searching</p>
+                  <p className="empty-hint">Type to search for Newari words</p>
+                </div>
               )}
             </div>
           )}
