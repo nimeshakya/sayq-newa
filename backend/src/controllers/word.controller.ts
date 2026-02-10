@@ -181,3 +181,29 @@ export const fetchExpertiseLevel = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const searchWords = async (req: Request, res: Response) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== "string") {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Search by newari_word or nepali_meaning (case-insensitive)
+    const searchRegex = new RegExp(query, "i");
+    const results = await Word.find({
+      $or: [
+        { newari_word: searchRegex },
+        { nepali_meaning: searchRegex },
+        { id: searchRegex },
+        { category: searchRegex },
+      ],
+    }).limit(20);
+
+    res.status(200).json(results);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};

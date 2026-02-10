@@ -5,6 +5,7 @@ import {
   fetchCategories,
   fetchDataWord,
   fetchExpertiseLevel,
+  searchWords,
 } from "../controllers/word.controller";
 import { hasAuthenticationToken } from "../middlewares/authentication.middleware";
 
@@ -18,4 +19,6 @@ export default (router: Router) => {
     fetchExpertiseLevel,
   );
   router.get("/words", hasAuthenticationToken, fetchDataWord);
+
+  router.get("/words/search", searchWords);
 };
