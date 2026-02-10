@@ -1,10 +1,69 @@
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/user.context";
+import { useBackendAPIContext } from "../context/backendAPI.context";
+import { useEffect, useState } from "react";
 import "../styles/loggedInHome.scss";
+
+interface UserStats {
+  totalWords: number;
+  averageMastery: number;
+  correctAnswers: number;
+  accuracy: number;
+  boxDistribution: {
+    box1: number;
+    box2: number;
+    box3: number;
+    box4: number;
+    box5: number;
+  };
+}
 
 export default function LoggedInHomePage() {
   const { user } = useUserContext();
+  const { client } = useBackendAPIContext();
   const navigate = useNavigate();
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user?.id) {
+        console.log("No user ID available");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log("Fetching stats for user:", user.id);
+        const response = await client.get(`/word-progress/${user.id}/stats`);
+        console.log("Stats response:", response.data);
+        if (response.data?.data) {
+          setStats(response.data.data);
+        }
+      } catch (error: any) {
+        console.error("Error fetching stats:", error);
+        console.error("Error response:", error.response?.data);
+        // Set default stats on error
+        setStats({
+          totalWords: 0,
+          averageMastery: 0,
+          correctAnswers: 0,
+          accuracy: 0,
+          boxDistribution: {
+            box1: 0,
+            box2: 0,
+            box3: 0,
+            box4: 0,
+            box5: 0,
+          },
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [user?.id, client]);
 
   const features = [
     {
@@ -165,16 +224,28 @@ export default function LoggedInHomePage() {
           {/* Quick Stats */}
           <div className="stats-grid">
             <div className="stat-item">
-              <div className="stat-value">0</div>
-              <div className="stat-label">Words Learned <br /> सीका कागु</div>
+              <div className="stat-value">
+                {loading ? "..." : stats?.totalWords || 0}
+              </div>
+              <div className="stat-label">
+                Words Learned <br /> सीका कागु
+              </div>
             </div>
             <div className="stat-item">
-              <div className="stat-value">0</div>
-              <div className="stat-label">Day Streak <br /> न्हिच्छिया</div>
+              <div className="stat-value">
+                {loading ? "..." : stats?.accuracy || 0}%
+              </div>
+              <div className="stat-label">
+                Accuracy <br /> सुद्धता
+              </div>
             </div>
             <div className="stat-item">
-              <div className="stat-value">0</div>
-              <div className="stat-label">Hours Practiced <br /> अभ्यास घण्टा</div>
+              <div className="stat-value">
+                {loading ? "..." : stats?.correctAnswers || 0}
+              </div>
+              <div className="stat-label">
+                Correct Answers <br /> सही उत्तर
+              </div>
             </div>
           </div>
         </section>
