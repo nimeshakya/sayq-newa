@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/user.context";
+import SearchModal from "../search/SearchModal";
 import "../../styles/navigation/nagigation.scss";
 import profile from "../../assets/ProfileLogo/profile.png";
 
@@ -8,6 +9,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   const { isLoggedin, user, logout } = useUserContext();
@@ -69,7 +71,8 @@ const Navigation = () => {
   };
 
   return (
-    <nav className={`navigation ${isScrolled ? "scrolled" : ""}`}>
+    <>
+      <nav className={`navigation ${isScrolled ? "scrolled" : ""}`}>
       <div className="nav-container">
         <Link to="/" className="nav-logo">
           <span className="logo-text">NewaSayQ</span>
@@ -79,9 +82,14 @@ const Navigation = () => {
           <Link to="/" className="nav-link active">
             Home
           </Link>
-          <a href="/#about" className="nav-link">
-            About
-          </a>
+
+          <button
+            className="nav-link search-button"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            Search
+          </button>
+
           <Link to="learnPage" className="nav-link">
             Learning
           </Link>
@@ -206,6 +214,9 @@ const Navigation = () => {
         </button>
       </div>
     </nav>
+    
+    <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </>
   );
 };
 
