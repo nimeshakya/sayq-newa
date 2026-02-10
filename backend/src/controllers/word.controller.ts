@@ -3,7 +3,21 @@ import mongoose from "mongoose";
 import { Word } from "../models/word.model";
 import { searchDataWord } from "../utils/wordSearch.util";
 import UserWordProgressModel from "../models/userWordProgress.model";
+import UserModel from "../models/user.model";
 
+interface AuthenticatedRequest extends Request {
+  user?: { sub?: string } | string;
+}
+
+const getUserFromRequest = async (req: AuthenticatedRequest) => {
+  // Resolve the authenticated user record using JWT subject (googleId).
+  const payload = req.user;
+  const subject = typeof payload === "string" ? payload : payload?.sub;
+  if (!subject) return null;
+  return UserModel.findOne({ googleId: subject }).lean();
+};
+
+// Create a new word entry after validating required fields.
 export const addWord = async (req: Request, res: Response) => {
   console.log("Received body:", req.body);
   try {
@@ -44,13 +58,24 @@ export const addWord = async (req: Request, res: Response) => {
   }
 };
 
-export const fetchDataWord = async (req: Request, res: Response) => {
+// Fetch words matching optional category/count, limited by user's expertise level.
+export const fetchDataWord = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
-    const { category, expertise_lvl, count } = req.query;
+    const user = await getUserFromRequest(req);
+    if (!user || !user._id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { category, count } = req.query;
+    const userExpertiseLevel =
+      typeof user.expertise_lvl === "number" ? user.expertise_lvl : undefined;
 
     const result = await searchDataWord({
       category: category as string | undefined,
-      expertise_lvl: expertise_lvl ? Number(expertise_lvl) : undefined,
+      expertise_lvl: userExpertiseLevel,
       count: count ? Number(count) : undefined,
     });
 
@@ -61,32 +86,37 @@ export const fetchDataWord = async (req: Request, res: Response) => {
   }
 };
 
-// Fetch words filtered by user mastery
-export const fetchAllWords = async (req: Request, res: Response) => {
+// Fetch words the user has not yet mastered, within their expertise level.
+export const fetchLearningWords = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
-    const { count, userId, userExpertiseLevel } = req.query;
-    const requestedCount = count ? Number(count) : 10;
-    const expertiseLevel = userExpertiseLevel ? Number(userExpertiseLevel) : 5;
+    const user = await getUserFromRequest(req);
+    if (!user || !user._id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-    // If no userId provided, return random sample (backward compatibility)
-    if (!userId || typeof userId !== "string") {
-      const result = await searchDataWord({
-        count: requestedCount,
-      });
-      return res.status(200).json(result);
+    const { count } = req.query;
+    const requestedCount = count ? Number(count) : 10;
+
+    const expertiseLevel =
+      typeof user.expertise_lvl === "number" ? user.expertise_lvl : undefined;
+
+    const wordFilter: Record<string, any> = {};
+    if (typeof expertiseLevel === "number") {
+      wordFilter.expertise_lvl = { $lte: expertiseLevel };
     }
 
     // Fetch ALL words from database with expertise level filter
-    const allWords = await Word.find({
-      expertise_lvl: { $lte: expertiseLevel }
-    }).lean();
+    const allWords = await Word.find(wordFilter).lean();
 
     if (!allWords || allWords.length === 0) {
       return res.status(404).json({ message: "No words found" });
     }
 
     // Fetch user's progress
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const userObjectId = new mongoose.Types.ObjectId(String(user._id));
     const progressList = await UserWordProgressModel.find({
       userId: userObjectId,
     }).lean();
@@ -95,17 +125,21 @@ export const fetchAllWords = async (req: Request, res: Response) => {
     const highMasteryWordIds = new Set(
       progressList
         .filter((p: any) => p.mastery > 45)
-        .map((p: any) => String(p.wordId))
+        .map((p: any) => String(p.wordId)),
     );
 
-    console.log(`[fetchAllWords] User expertise: ${expertiseLevel}, Total words (expertise <= ${expertiseLevel}): ${allWords.length}, High mastery: ${highMasteryWordIds.size}`);
+    console.log(
+      `[fetchAllWords] User expertise: ${expertiseLevel ?? "unknown"}, Total words: ${allWords.length}, High mastery: ${highMasteryWordIds.size}`,
+    );
 
     // Remove words with mastery > 45%
     const unlearnedWords = allWords.filter(
-      (word: any) => !highMasteryWordIds.has(String(word._id))
+      (word: any) => !highMasteryWordIds.has(String(word._id)),
     );
 
-    console.log(`[fetchAllWords] Unlearned words: ${unlearnedWords.length}, Requested: ${requestedCount}`);
+    console.log(
+      `[fetchAllWords] Unlearned words: ${unlearnedWords.length}, Requested: ${requestedCount}`,
+    );
 
     // If no unlearned words, return empty array
     if (unlearnedWords.length === 0) {
@@ -114,7 +148,10 @@ export const fetchAllWords = async (req: Request, res: Response) => {
 
     // Randomly sample the requested count from remaining pool
     const shuffled = [...unlearnedWords].sort(() => Math.random() - 0.5);
-    const selectedWords = shuffled.slice(0, Math.min(requestedCount, shuffled.length));
+    const selectedWords = shuffled.slice(
+      0,
+      Math.min(requestedCount, shuffled.length),
+    );
 
     res.status(200).json(selectedWords);
   } catch (error: any) {
@@ -123,6 +160,7 @@ export const fetchAllWords = async (req: Request, res: Response) => {
   }
 };
 
+// Return the list of unique word categories.
 export const fetchCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Word.distinct("category");
@@ -133,6 +171,7 @@ export const fetchCategories = async (req: Request, res: Response) => {
   }
 };
 
+// Return the list of unique expertise levels found in the word set.
 export const fetchExpertiseLevel = async (req: Request, res: Response) => {
   try {
     const expertise_levels = await Word.distinct("expertise_lvl");
