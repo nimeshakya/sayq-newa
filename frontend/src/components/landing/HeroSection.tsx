@@ -14,7 +14,7 @@ const HeroSection = () => {
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
           <h3>ज्वजलपा</h3>
           <span className="arrow">↓</span>
-          <strong>Namaste</strong> <br />
+          <strong>Namaste</strong>
           <span>नमस्ते</span>
           {/* <div className="hero__actions">
           </div> */}
@@ -37,10 +37,8 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div>
-          <div className="hero__image">
-            <img src={heroImage} alt="Learn Newari illustration" />
-          </div>
+        <div className="hero__image">
+          <img src={heroImage} alt="Learn Newari illustration" />
         </div>
       </div>
     </section>
