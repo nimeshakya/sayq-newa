@@ -7,7 +7,7 @@ import LandingPage from "../pages/LandingPage/LandingPage";
 import InitialPage from "../pages/initialPage";
 import SignInPage from "../pages/signinPage";
 // import InitialQuestion from "../pages/initialQuestion";
-import LearnPage from "../pages/learnPage";
+// import LearnPage from "../pages/learnPage";
 // import MLLearnPage from "../pages/mlLearnPage";
 // import RLLearnPage from "../pages/rlLearnPage";
 import SessionPage from "../pages/sessionPage";
@@ -16,6 +16,8 @@ import LandingLayout from "../layouts/LandingLayout";
 import TeamPage from "../pages/teamPage/TeamPage";
 import LearnAgentPage from "../pages/learnPage/learningAgent.page";
 import { useUserContext } from "../context/user.context";
+
+import LearnRandomPage from "../pages/learnPage/LearnRandom.page";
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isLoggedin, loading } = useUserContext();
@@ -48,7 +50,8 @@ export const routes: RouteObject[] = [
         path: "/learnPage",
         element: (
           <ProtectedRoute>
-            <LearnPage />
+            <LearnRandomPage />
+            {/* <LearnPage /> */}
           </ProtectedRoute>
         ),
       },

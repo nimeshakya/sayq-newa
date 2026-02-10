@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   addWord,
-  fetchAllWords,
+  fetchLearningWords,
   fetchCategories,
   fetchDataWord,
   fetchExpertiseLevel,
@@ -9,9 +9,13 @@ import {
 import { hasAuthenticationToken } from "../middlewares/authentication.middleware";
 
 export default (router: Router) => {
-  router.post("/words", addWord);
-  router.get("/words/all", fetchAllWords);
-  router.get("/words/categories", fetchCategories);
-  router.get("/words/expertise-level", fetchExpertiseLevel);
+  router.post("/words", hasAuthenticationToken, addWord);
+  router.get("/words/learn", hasAuthenticationToken, fetchLearningWords);
+  router.get("/words/categories", hasAuthenticationToken, fetchCategories);
+  router.get(
+    "/words/expertise-level",
+    hasAuthenticationToken,
+    fetchExpertiseLevel,
+  );
   router.get("/words", hasAuthenticationToken, fetchDataWord);
 };
