@@ -1,60 +1,93 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { useUserContext } from "../../context/user.context";
-import SearchModal from "../search/SearchModal";
-import "../../styles/navigation/nagigation.scss";
-import profile from "../../assets/ProfileLogo/profile.png";
-import logoSvg from "../../assets/logo.svg";
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { useUserContext } from '../../context/user.context';
+import SearchModal from '../search/SearchModal';
+import '../../styles/navigation/nagigation.scss';
+import profile from '../../assets/ProfileLogo/profile.png';
+import logoSvg from '../../assets/logo.svg';
 
 const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const profileRef = useRef<HTMLDivElement>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const profileRef = useRef<HTMLDivElement>(null);
 
-  const { isLoggedin, user, logout } = useUserContext();
+    const { isLoggedin, user, logout } = useUserContext();
 
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    // Close profile dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                profileRef.current &&
+                !profileRef.current.contains(event.target as Node)
+            ) {
+                setIsProfileOpen(false);
+            }
+        };
+
+        if (isProfileOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isProfileOpen]);
+
+    const toggleMenu = () => {
+        setIsMenuOpen((prev) => !prev);
     };
 
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
+    const toggleProfile = () => {
+        setIsProfileOpen((prev) => !prev);
     };
-  }, []);
 
-  // Close profile dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target as Node)
-      ) {
+    const handleLogout = () => {
+        logout();
         setIsProfileOpen(false);
-      }
     };
 
-    if (isProfileOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+    // Get initials from user name for avatar
+    const getInitials = (name: string) => {
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
     };
-  }, [isProfileOpen]);
 
-  const toggleMenu = () => {
-    setIsMenuOpen((prev) => !prev);
-  };
+    return (
+        <>
+            <nav className={`navigation ${isScrolled ? 'scrolled' : ''}`}>
+                <div className='nav-container'>
+                    <Link to='/' className='nav-logo'>
+                        <img src={logoSvg} className='logo-icon' width={40} />
+                        <span className='logo-text'>NewaSayQ</span>
+                    </Link>
 
-  const toggleProfile = () => {
-    setIsProfileOpen((prev) => !prev);
-  };
+                    <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
+                        <Link
+                            to='/'
+                            className='nav-link active'
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Home
+                        </Link>
 
   const handleLogout = () => {
     logout();
@@ -210,24 +243,12 @@ const Navigation = () => {
             </div>
           </div>
 
-          <button
-            className={`menu-toggle ${isMenuOpen ? "active" : ""}`}
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        </div>
-      </nav>
-
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
-    </>
-  );
+            <SearchModal
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+            />
+        </>
+    );
 };
 
 export default Navigation;

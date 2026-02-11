@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
+    "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^6.16.0",
-    "sass": "^1.93.3"
+    "sass": "^1.93.3",
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
