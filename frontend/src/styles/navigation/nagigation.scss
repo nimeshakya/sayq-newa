@@ -95,6 +95,59 @@
   width: 100%;
 }
 
+.search-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #8b0038, #c41e3a);
+    transition: width 0.3s ease;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+/* Search Icon Button */
+.search-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #333;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    stroke: #8b0038;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+
+    svg {
+      stroke-width: 2.5;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
 /* Auth Buttons */
 .nav-auth {
   display: flex;

@@ -14,17 +14,17 @@ export default (router: express.Router): void => {
   // Save or update word progress
   router.post("/word-progress", saveProgress);
 
+  // Get user statistics (must come before the general :userId route)
+  router.get("/word-progress/:userId/stats", getUserStats);
+
+  // Get words due for review (must come before the general :userId route)
+  router.get("/word-progress/:userId/review", getWordsForReview);
+
   // Get progress for a specific word
   router.get("/word-progress/:userId/:wordId", getWordProgress);
 
-  // Get all progress for a user
+  // Get all progress for a user (general - must come last)
   router.get("/word-progress/:userId", getUserProgress);
-
-  // Get words due for review
-  router.get("/word-progress/:userId/review", getWordsForReview);
-
-  // Get user statistics
-  router.get("/word-progress/:userId/stats", getUserStats);
 
   // Delete user progress (for testing/reset)
   router.delete("/word-progress/:userId", deleteUserProgress);

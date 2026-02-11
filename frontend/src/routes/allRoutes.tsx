@@ -2,7 +2,7 @@ import React from "react";
 import type { RouteObject } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
-import LandingPage from "../pages/LandingPage/LandingPage";
+import HomePage from "../pages/HomePage";
 // import Dashboard from "../pages/dashboard";
 import InitialPage from "../pages/initialPage";
 import SignInPage from "../pages/signinPage";
@@ -36,7 +36,7 @@ export const routes: RouteObject[] = [
   {
     element: <LandingLayout />,
     children: [
-      { path: "/", element: <LandingPage /> },
+      { path: "/", element: <HomePage /> },
       {
         path: "/initialPage",
         element: (
