@@ -85,7 +85,7 @@ export default function Question({
             isCorrect: r.isCorrect,
             responseTime: r.responseTime,
           }),
-        })
+        }),
       );
       await Promise.all(requests);
       console.log("word progress saved");
@@ -219,7 +219,7 @@ export default function Question({
         </div> */}
 
         {/* Progress Bar */}
-        <div className="progress-section">
+        {/* <div className="progress-section">
           <div className="progress-info">
             <span className="progress-text">
               Question {currentIndex + 1} of {Questions.length}
@@ -234,11 +234,11 @@ export default function Question({
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* User & Question Info */}
         <div className="info-badges">
-          <div className="info-badge">
+          {/* <div className="info-badge">
             <svg
               width="16"
               height="16"
@@ -251,7 +251,8 @@ export default function Question({
               <circle cx="12" cy="7" r="4" />
             </svg>
             {user?.given_name || "User"}
-          </div>
+          </div> */}
+
           <div className="info-badge">
             <svg
               width="16"
@@ -266,6 +267,7 @@ export default function Question({
             </svg>
             {currentQuestion.category}
           </div>
+
           <div className="info-badge difficulty">
             <svg
               width="16"
