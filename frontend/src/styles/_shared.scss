@@ -1,18 +1,5 @@
 @use "./variables" as *;
 
-.main-centered-container {
-}
-
-.dual-button-group {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
-  gap: 10px;
-  padding: 10px;
-  gap: 16px;
-}
-
 .button {
   margin: auto;
   background-color: black;
@@ -32,21 +19,6 @@
   background-color: $proceed-color;
   border: 2px solid $base-color;
 }
-.recede {
-  background-color: $recede-color;
-  border: 2px solid black;
-  color: black;
-}
-
-.highlightText {
-  color: $highlight-color;
-}
-
-.loadingText {
-  text-align: center;
-  font-weight: 700;
-  font-size: 20px;
-}
 
 .divider {
   display: flex;
@@ -56,15 +28,59 @@
   width: 100%;
   margin: 0;
   padding: 0;
-
-  .divide-left {
-    margin-right: auto;
-  }
-  .divide-middle {
-    flex: 1;
-    margin: auto;
-  }
   .divide-right {
     margin-left: auto;
+  }
+}
+
+.loadingText {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 16px;
+  color: #6b7280;
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+    font-size: 15px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .button.proceed {
+    padding: 0.875rem 2rem;
+    background: #8b0038;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    &:hover {
+      background: #6d002c;
+    }
   }
 }
