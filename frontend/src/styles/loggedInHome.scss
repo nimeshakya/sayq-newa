@@ -18,7 +18,7 @@
 
 /* Welcome Section */
 .welcome-section {
-  background: linear-gradient(135deg, #8B1E3F 0%, #A52A4A 100%);
+  background: linear-gradient(135deg, #8b1e3f 0%, #a52a4a 100%);
   border-radius: 20px;
   padding: 40px;
   margin-bottom: 32px;
@@ -27,13 +27,17 @@
   box-shadow: 0 4px 20px rgba(139, 30, 63, 0.15);
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -50%;
     right: -10%;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 70%
+    );
     border-radius: 50%;
     pointer-events: none;
   }
@@ -230,7 +234,7 @@
   }
 
   @media (max-width: 480px) {
-    // grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 }
@@ -249,7 +253,7 @@
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: var(--gradient);
@@ -415,7 +419,7 @@
     box-shadow: 0 8px 24px rgba(139, 30, 63, 0.12);
 
     .culture-icon {
-      background: linear-gradient(135deg, #8B1E3F 0%, #A52A4A 100%);
+      background: linear-gradient(135deg, #8b1e3f 0%, #a52a4a 100%);
       color: white;
     }
   }

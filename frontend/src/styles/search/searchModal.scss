@@ -343,7 +343,7 @@
   }
 }
 
-.card-content {
+.search-result-card .search-card-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -355,7 +355,7 @@
   }
 }
 
-.card-word {
+.search-result-card .card-word {
   font-size: 19px;
   font-weight: 700;
   color: $primary;
@@ -371,7 +371,7 @@
   }
 }
 
-.card-meaning {
+.search-result-card .card-meaning {
   font-size: 14px;
   color: $text-dark;
   opacity: 0.85;
@@ -382,7 +382,7 @@
   }
 }
 
-.card-footer {
+.search-result-card .card-footer {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -394,7 +394,7 @@
   }
 }
 
-.card-badge {
+.search-result-card .card-badge {
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 6px;

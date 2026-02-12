@@ -69,7 +69,7 @@ export default function LearnAgentPage({
   //   api loading
   if (loading)
     return (
-      <div className="dataPrintContainer empty-state">
+      <div className="dataPrintContainer learn-container empty-state">
         <p>Loading AI-recommended words...</p>
       </div>
     );
@@ -77,7 +77,7 @@ export default function LearnAgentPage({
   //   api returns error
   if (error)
     return (
-      <div className="dataPrintContainer empty-state">
+      <div className="dataPrintContainer learn-container empty-state">
         <p>{error}</p>
         <button className="button proceed" onClick={() => navigate("/")}>
           Back to Dashboard
