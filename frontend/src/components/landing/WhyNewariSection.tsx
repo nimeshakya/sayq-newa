@@ -14,7 +14,7 @@ const WhyNewariSection = () => {
         <div className="card-grid">
           <div className="card cultural">
             <div className="card-icon">🎭</div>
-            <div className="card-content">
+            <div className="why-card-content">
               <h3>Cultural Identity</h3>
               <p>
                 Connect with your roots and embrace the rich Newar heritage
@@ -26,7 +26,7 @@ const WhyNewariSection = () => {
 
           <div className="card preservation">
             <div className="card-icon">🛡️</div>
-            <div className="card-content">
+            <div className="why-card-content">
               <h3>Language Preservation</h3>
               <p>
                 Be part of the movement to keep this ancient language alive for
@@ -38,7 +38,7 @@ const WhyNewariSection = () => {
 
           <div className="card historical">
             <div className="card-icon">📜</div>
-            <div className="card-content">
+            <div className="why-card-content">
               <h3>Historical Importance</h3>
               <p>
                 Unlock centuries of literature, art, and wisdom preserved in
@@ -52,7 +52,8 @@ const WhyNewariSection = () => {
         <div className="why-quote">
           <div className="quote-mark">"</div>
           <p>
-            Learning Newa is not just about words – it's about preserving culture.
+            Learning Newa is not just about words – it's about preserving
+            culture.
           </p>
           <div className="quote-author">Preserving Our Heritage</div>
         </div>

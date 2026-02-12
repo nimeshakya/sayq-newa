@@ -270,7 +270,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                         className="search-result-card"
                         onClick={() => setSelectedResult(word)}
                       >
-                        <div className="card-content">
+                        <div className="search-card-content">
                           <div className="card-word">{word.newari_word}</div>
                           <div className="card-meaning">
                             {word.nepali_meaning}

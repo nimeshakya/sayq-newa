@@ -78,7 +78,7 @@ export default function LearnAgentComponent({
 
   if (!currentWord) {
     return (
-      <div className="dataPrintContainer empty-state">
+      <div className="dataPrintContainer learn-container empty-state">
         <p>No recommended words at this time.</p>
         <button
           className="button proceed"
@@ -91,13 +91,13 @@ export default function LearnAgentComponent({
   }
 
   return (
-    <div className="dataPrintContainer dummy-learn">
+    <div className="dataPrintContainer learn-container">
       {/* Word Card */}
       <div className="word-card">
         {/* top */}
         <div className="word-main">
           <div className="divider">
-            <div className="word-badge ai-badge">{headingDisplay}</div>
+            <div className="word-badge">{headingDisplay}</div>
 
             <div className="divide-right">
               <TimeTracker />
@@ -196,7 +196,7 @@ export default function LearnAgentComponent({
 
           {/* Navigation Buttons */}
           <div className="navigation-buttons">
-            <button className="nav-button back-button" onClick={markSkipped}>
+            <button className="nav-button skip-button" onClick={markSkipped}>
               <svg
                 width="18"
                 height="18"
