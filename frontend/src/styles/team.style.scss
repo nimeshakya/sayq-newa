@@ -135,15 +135,6 @@
   }
 }
 
-.team-member-card.clickable {
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
-  }
-}
-
 /* Tablet */
 @media (max-width: 1024px) {
   .team-page {
