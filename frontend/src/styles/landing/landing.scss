@@ -48,55 +48,6 @@ html {
     z-index: 0;
   }
 
-  // Additional floating elements for more depth
-  .floating-decoration {
-    position: absolute;
-    pointer-events: none;
-    z-index: 0;
-
-    &.circle-1 {
-      top: 40%;
-      left: 10%;
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(
-        circle,
-        rgba(139, 0, 56, 0.05) 0%,
-        transparent 70%
-      );
-      border-radius: 50%;
-      animation: float 30s ease-in-out infinite;
-    }
-
-    &.circle-2 {
-      top: 60%;
-      right: 5%;
-      width: 250px;
-      height: 250px;
-      background: radial-gradient(
-        circle,
-        rgba(196, 30, 58, 0.06) 0%,
-        transparent 70%
-      );
-      border-radius: 50%;
-      animation: float 22s ease-in-out infinite reverse;
-    }
-
-    &.circle-3 {
-      bottom: 20%;
-      left: 15%;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(
-        circle,
-        rgba(139, 0, 56, 0.04) 0%,
-        transparent 70%
-      );
-      border-radius: 50%;
-      animation: float 28s ease-in-out infinite;
-    }
-  }
-
   // Ensure content is above decorations
   > * {
     position: relative;
@@ -123,15 +74,6 @@ html {
       width: 300px;
       height: 300px;
     }
-
-    .floating-decoration {
-      &.circle-1,
-      &.circle-2,
-      &.circle-3 {
-        width: 150px;
-        height: 150px;
-      }
-    }
   }
 }
 
@@ -141,10 +83,6 @@ html {
     &::after {
       width: 200px;
       height: 200px;
-    }
-
-    .floating-decoration {
-      display: none; // Hide extra decorations on very small screens
     }
   }
 }
