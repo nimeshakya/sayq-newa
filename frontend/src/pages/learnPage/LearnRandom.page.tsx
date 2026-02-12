@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/question.style.scss";
+import "../../styles/learn.style.scss";
 import "../../styles/_shared.scss";
 import LearnAgentComponent from "../../components/learningComponent/learningAgent.component";
 import axios from "axios";
@@ -43,7 +43,7 @@ export default function LearnRandomPage() {
   //   api loading
   if (loading)
     return (
-      <div className="dataPrintContainer empty-state">
+      <div className="dataPrintContainer learn-container empty-state">
         <p>Loading learning words...</p>
       </div>
     );
@@ -51,7 +51,7 @@ export default function LearnRandomPage() {
   //   api returns error
   if (error)
     return (
-      <div className="dataPrintContainer empty-state">
+      <div className="dataPrintContainer learn-container empty-state">
         <p>{error}</p>
         <button className="button proceed" onClick={() => navigate("/")}>
           Back to Dashboard
