@@ -283,7 +283,6 @@ export default function Question({
           </div>
         </div>
       </div>
-
       {/* Question Card */}
       <div className="question-card">
         <div className="question-card-inner">
@@ -387,7 +386,6 @@ export default function Question({
           </button>
         </div>
       </div>
-
       {/* Question Dots */}
       <div className="question-dots">
         {Questions.slice(0, Math.min(15, Questions.length)).map((_, idx) => (
@@ -402,8 +400,7 @@ export default function Question({
           <span className="dots-more">+{Questions.length - 15}</span>
         )}
       </div>
-
-      {quizCompleted && (
+      {/* {quizCompleted && (
         <div className="quiz-completed-overlay">
           <div className="completion-card">
             <div className="confetti">🎉🎊✨</div>
@@ -412,6 +409,47 @@ export default function Question({
             <p>
               Your Score: {score}/{currentIndex + 1}
             </p>
+
+            <button className="button dashboard" onClick={() => navigate("/")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      )} */}
+      {quizCompleted && (
+        <div className="quiz-completed-overlay">
+          <div className="completion-card">
+            <div className="success-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M8 12.5l2.5 2.5 5.5-5.5"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            <h2>Quiz Completed!</h2>
+
+            <div className="score-display">
+              <div className="score-number">
+                {score}/{currentIndex + 1}
+              </div>
+              <div className="score-label">Correct Answers</div>
+            </div>
+
+            <div className="score-percentage">
+              {Math.round((score / (currentIndex + 1)) * 100)}% Accuracy
+            </div>
 
             <button className="button dashboard" onClick={() => navigate("/")}>
               Back to Dashboard
