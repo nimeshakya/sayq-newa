@@ -66,49 +66,51 @@ export default function SessionPage() {
 
   return (
     <div className="pageContainer sessionPage">
-      {/* Header */}
-      <div className="pageHeader">
-        <h2>Configure Session</h2>
-        <p>Set parameters before starting your question session</p>
-      </div>
-
       {/* =====================
           CONFIG FORM (ONLY BEFORE START)
       ====================== */}
       {!start && (
-        <div className="formCard">
-          <div className="formRow">
-            <div className="formGroup">
-              <label>Question Count</label>
-              <input
-                type="number"
-                min={1}
-                value={count}
-                onChange={(e) =>
-                  setCount(parseInt(e.target.value || "0", 10))
-                }
-              />
-            </div>
+        <>
+          {/* Header */}
+          <div className="pageHeader">
+            <h2>Configure Session</h2>
+            <p>Set parameters before starting your question session</p>
+          </div>
 
-            <div className="formGroup">
-              <label>Category</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="category-select"
-              >
-                <option value="">Any</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* session cutomizer */}
+          <div className="formCard">
+            <div className="formRow">
+              <div className="formGroup">
+                <label>Question Count</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={count}
+                  onChange={(e) =>
+                    setCount(parseInt(e.target.value || "0", 10))
+                  }
+                />
+              </div>
 
-            <div className="formGroup">
-              <label>Expertise Level</label>
-              {/* <input
+              <div className="formGroup">
+                <label>Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="category-select"
+                >
+                  <option value="">Any</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="formGroup">
+                <label>Expertise Level</label>
+                {/* <input
                 type="number"
                 min={0}
                 max={5}
@@ -118,30 +120,33 @@ export default function SessionPage() {
                 }
               /> */}
 
-                            <select
-                value={expertise  }
-                onChange={(e) => setExpertise(parseInt(e.target.value || "0", 10))}
-                className="category-select"
+                <select
+                  value={expertise}
+                  onChange={(e) =>
+                    setExpertise(parseInt(e.target.value || "0", 10))
+                  }
+                  className="category-select"
+                >
+                  <option value="">Any</option>
+                  {expertise_levels.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="formActions">
+              <button
+                className="start-session-btn"
+                onClick={() => setStart(true)}
               >
-                <option value="">Any</option>
-                {expertise_levels.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+                Start Session
+              </button>
             </div>
           </div>
-
-          <div className="formActions">
-            <button
-              className="start-session-btn"
-              onClick={() => setStart(true)}
-            >
-              Start Session
-            </button>
-          </div>
-        </div>
+        </>
       )}
 
       {/* =====================
@@ -149,32 +154,12 @@ export default function SessionPage() {
       ====================== */}
       {start && (
         <>
-          {/* Info Panel (Read-only) */}
-          <div className="infoPanel">
-            <div className="infoItem">
-              <span>Questions</span>
-              <strong>{count}</strong>
-            </div>
-
-            <div className="infoItem">
-              <span>Category</span>
-              <strong>{category || "Any"}</strong>
-            </div>
-
-            <div className="infoItem">
-              <span>Expertise</span>
-              <strong>{expertise || 0}</strong>
-            </div>
-          </div>
-
           {/* Session Content */}
           <div className="sessionContent">
             <SessionComponent
               count={count}
               category={category || undefined}
-              expertise_lvl={
-                Number.isFinite(expertise) ? expertise : undefined
-              }
+              expertise_lvl={Number.isFinite(expertise) ? expertise : undefined}
               headingDisplay="Review + New"
             />
           </div>
