@@ -4,8 +4,16 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --silent
 COPY . .
+
+# Accept build arguments for environment variables
+ARG VITE_GOOGLE_CLIENT_ID
+ARG VITE_API_BASE_URL
+
+# Set as environment variables for Vite build
+ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 # Use the production build script which runs `vite build` only
-# (skips `tsc -b` to avoid TypeScript build-time errors during docker image builds)
 RUN npm run build:prod
 
 FROM nginx:stable-alpine
