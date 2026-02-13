@@ -17,6 +17,10 @@ export const googleSignIn = async (
     if (!credential) {
       return res.status(400).json({ message: "Credential is required!" }).end();
     }
+    
+    if (!GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ message: "GOOGLE_CLIENT_ID is not configured!" }).end();
+    }
 
     // Verify the token with Google
     const ticket = await client.verifyIdToken({

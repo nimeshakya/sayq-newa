@@ -13,7 +13,7 @@ export const updateUserExpertiseLevel = async (
   res: Response
 ) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.params as { userId: string };
 
     // Validate userId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -76,7 +76,7 @@ export const updateUserExpertiseLevel = async (
  */
 export const getUserExpertiseInfo = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.params as { userId: string };
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
