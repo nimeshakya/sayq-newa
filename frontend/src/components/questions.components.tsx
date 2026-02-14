@@ -3,7 +3,6 @@ import "../styles/question.style.scss";
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import TimeTracker from "./timer.component";
 import { useQuestionContext } from "../context/question.context";
 
 import { API_BASE_URL } from "../constants";
@@ -11,6 +10,8 @@ import { API_BASE_URL } from "../constants";
 import { useUserContext } from "../context/user.context";
 import type { ResultProp } from "../context/question.context";
 import CircularTimer from "./timer.component";
+import Toast from "./common/Toast";
+import type { ToastType } from "./common/Toast";
 
 interface QuestionProps {
   category?: string;
@@ -23,13 +24,14 @@ export default function Question({
   category,
   expertise_lvl,
   count,
-  headingDisplay,
 }: QuestionProps) {
   const { Questions, Results, setResults, ResetResult, FetchQuestion } =
     useQuestionContext();
   const [quizCompleted, setQuizCompleted] = useState(false);
   const { user } = useUserContext();
   const navigate = useNavigate();
+
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
   useEffect(() => {
     if (
@@ -54,7 +56,6 @@ export default function Question({
 
   const currentQuestion = Questions[currentIndex];
   const isLastQuestion = currentIndex === Questions.length - 1;
-  const progressPercentage = ((currentIndex + 1) / Questions.length) * 100;
 
   const [reset, setReset] = useState<boolean>(false);
   const [response, setResponse] = useState<number>(0);
@@ -63,14 +64,18 @@ export default function Question({
   const [score, setScore] = useState<number>(0);
 
   const saveResult = async (resultsToSave: any[]) => {
-    await fetch(`${API_BASE_URL}/user-stat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(resultsToSave),
-    });
-    console.log("save request sent");
+    try {
+      const res = await fetch(`${API_BASE_URL}/user-stat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(resultsToSave),
+      });
+      if (res.ok) console.log("save request sent");
+    } catch (e) {
+      console.error("Error saving result:", e);
+    }
   };
 
   const saveWordProgress = async (resultsToSave: any[]) => {
@@ -95,63 +100,18 @@ export default function Question({
   };
 
   const handleAnswerSelect = (option: string) => {
-    console.log(option);
     setSelectedAnswer(option);
   };
 
-  // const handleNextQuestion = async () => {
-  //   if (selectedAnswer === null) {
-  //     alert("Please select an answer before proceeding");
-  //     return;
-  //   }
-
-  //   const userId = user?.id;
-  //   if (!userId) {
-  //     alert("You are not signed in. Please sign in to continue.");
-  //     return;
-  //   }
-
-  //   setReset(true);
-  //   setTimeout(() => setReset(false), 0);
-
-  //   const isCorrect = selectedAnswer === currentQuestion.correct_answer;
-
-  //   const newResult: ResultProp = {
-  //     id: (Results.length + 1).toString(),
-  //     userID: userId,
-  //     questionID: String(currentQuestion.id),
-  //     wordID: currentQuestion.wordId,
-  //     difficulty_lvl: currentQuestion.difficulty_lvl ?? 0,
-  //     selected_answer: selectedAnswer,
-  //     attempts: 1,
-  //     responseTime: response,
-  //     isCorrect,
-  //     createdAt: new Date().toISOString(),
-  //   };
-
-  //   if (!isLastQuestion) {
-  //     setResults([...Results, newResult]);
-  //     setCurrentIndex(currentIndex + 1);
-  //     setSelectedAnswer(null);
-  //   } else {
-  //     const finalResults = [...Results, newResult];
-  //     alert("Quiz completed!");
-  //     console.log("Final Results:", finalResults);
-  //     await saveResult(finalResults);
-  //     await saveWordProgress(finalResults);
-  //     navigate("/");
-  //   }
-  // };
-
   const handleNextQuestion = async () => {
     if (selectedAnswer === null) {
-      alert("Please select an answer before proceeding");
+      setToast({ message: "Please select an answer before proceeding", type: "warning" });
       return;
     }
 
     const userId = user?.id;
     if (!userId) {
-      alert("You are not signed in. Please sign in to continue.");
+      setToast({ message: "You are not signed in. Please sign in to continue.", type: "error" });
       return;
     }
 
@@ -207,6 +167,13 @@ export default function Question({
 
   return (
     <div className="questionContainer">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       {/* Header Section */}
       <div className="quiz-header">
         {/* <div className="header-content">
