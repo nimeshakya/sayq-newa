@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useUserContext } from '../../context/user.context';
 import SearchModal from '../search/SearchModal';
 import '../../styles/navigation/nagigation.scss';
-import profile from '../../assets/ProfileLogo/profile.png';
 import logoSvg from '../../assets/logo.svg';
 
 const Navigation = () => {
@@ -161,17 +160,9 @@ const Navigation = () => {
                                         onClick={toggleProfile}
                                         aria-label='User menu'
                                     >
-                                        {user.imageUrl ? (
-                                            <img
-                                                src={profile}
-                                                alt={user.name}
-                                                className='profile-image'
-                                            />
-                                        ) : (
-                                            <div className='profile-avatar'>
-                                                {getInitials(user.name)}
-                                            </div>
-                                        )}
+                                        <div className='profile-avatar'>
+                                            {getInitials(user.name)}
+                                        </div>
                                     </button>
 
                                     {isProfileOpen && (
