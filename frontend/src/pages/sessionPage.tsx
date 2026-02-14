@@ -73,8 +73,14 @@ export default function SessionPage() {
         <>
           {/* Header */}
           <div className="pageHeader">
+            <div className="header-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8b0038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </div>
             <h2>Configure Session</h2>
-            <p>Set parameters before starting your question session</p>
+            <p>Tailor your practice session to your current learning needs</p>
           </div>
 
           {/* session cutomizer */}
@@ -82,14 +88,16 @@ export default function SessionPage() {
             <div className="formRow">
               <div className="formGroup">
                 <label>Question Count</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={count}
-                  onChange={(e) =>
-                    setCount(parseInt(e.target.value || "0", 10))
-                  }
-                />
+                <div className="input-with-icon">
+                  <input
+                    type="number"
+                    min={1}
+                    value={count}
+                    onChange={(e) =>
+                      setCount(parseInt(e.target.value || "0", 10))
+                    }
+                  />
+                </div>
               </div>
 
               <div className="formGroup">
@@ -99,7 +107,7 @@ export default function SessionPage() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="category-select"
                 >
-                  <option value="">Any</option>
+                  <option value="">All Categories</option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
@@ -110,16 +118,6 @@ export default function SessionPage() {
 
               <div className="formGroup">
                 <label>Expertise Level</label>
-                {/* <input
-                type="number"
-                min={0}
-                max={5}
-                value={expertise}
-                onChange={(e) =>
-                  setExpertise(parseInt(e.target.value || "0", 10))
-                }
-              /> */}
-
                 <select
                   value={expertise}
                   onChange={(e) =>
@@ -127,10 +125,10 @@ export default function SessionPage() {
                   }
                   className="category-select"
                 >
-                  <option value="">Any</option>
+                  <option value="">Any Level</option>
                   {expertise_levels.map((cat) => (
                     <option key={cat} value={cat}>
-                      {cat}
+                      Level {cat}
                     </option>
                   ))}
                 </select>
@@ -142,7 +140,10 @@ export default function SessionPage() {
                 className="start-session-btn"
                 onClick={() => setStart(true)}
               >
-                Start Session
+                Start Practice Session
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px' }}>
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
               </button>
             </div>
           </div>
