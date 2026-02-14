@@ -176,14 +176,17 @@ const Navigation = () => {
 
                                     {isProfileOpen && (
                                         <div className='profile-dropdown'>
-                                            <div className='profile-info'>
+                                            <Link
+                                                to={'/my-profile'}
+                                                className='profile-info inline-block p-20 hover:bg-gray-100 w-full'
+                                            >
                                                 <p className='profile-name'>
                                                     {user.name}
                                                 </p>
                                                 <p className='profile-email'>
                                                     {user.email}
                                                 </p>
-                                            </div>
+                                            </Link>
                                             <div className='profile-divider'></div>
                                             <div className='profile-divider'></div>
                                             <button
