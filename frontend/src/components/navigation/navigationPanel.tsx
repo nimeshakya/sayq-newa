@@ -170,6 +170,7 @@ const Navigation = () => {
                                             <Link
                                                 to={'/my-profile'}
                                                 className='profile-info inline-block p-20 hover:bg-gray-100 w-full'
+                                                onClick={() => toggleProfile()}
                                             >
                                                 <p className='profile-name'>
                                                     {user.name}
