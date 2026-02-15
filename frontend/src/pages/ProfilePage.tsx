@@ -13,8 +13,8 @@ const ProfilePage = () => {
     ];
 
     return (
-        <div className='w-full min-h-screen p-10 bg-gray-100'>
-            <div className='max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden'>
+        <div className='w-full flex-1 pt-20 bg-gray-100 flex items-center justify-center'>
+            <div className='max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden min-w-1/2'>
                 <div className='px-8 py-8 border-b-2 border-red-700'>
                     <h1 className='m-0 text-gray-800 text-3xl font-bold'>
                         Profile
