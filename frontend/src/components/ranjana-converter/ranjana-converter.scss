@@ -1,0 +1,362 @@
+@import '../../styles/_variables.scss';
+
+.ranjana-converter {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.converter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.converter-card {
+  border: 1px solid rgba($primary, 0.2);
+  border-radius: $radius-md;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 15px rgba($primary, 0.08);
+  overflow: hidden;
+  transition: all $transition-medium;
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba($primary, 0.12);
+    border-color: rgba($primary, 0.3);
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid rgba($primary, 0.1);
+  background: linear-gradient(135deg, rgba($base-color, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-dark;
+  margin: 0;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba($primary, 0.05);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba($primary, 0.1);
+}
+
+.tab-btn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    color: $primary;
+  }
+
+  &.active {
+    background: white;
+    color: $primary;
+    box-shadow: 0 2px 6px rgba($primary, 0.1);
+  }
+}
+
+.card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Input Section Styles */
+.input-textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 16px;
+  border: 1px solid rgba($primary, 0.15);
+  border-radius: 12px;
+  background: rgba($base-color, 0.2);
+  font-size: 16px;
+  color: $text-dark;
+  font-family: inherit;
+  resize: none;
+  transition: all $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.example-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.example-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba($primary, 0.25);
+  background: white;
+  color: $primary;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba($primary, 0.05);
+    border-color: $primary;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.clear-btn {
+  padding: 6px 16px;
+  border: 1px solid rgba($primary, 0.25);
+  background: white;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(#f0f0f0, 0.8);
+    border-color: #999;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+.input-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.badge-text {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.badge-label {
+  color: #999;
+}
+
+/* Output Section Styles */
+.output-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.copy-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba($primary, 0.25);
+  background: white;
+  color: $primary;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba($primary, 0.05);
+    border-color: $primary;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.output-display {
+  min-height: 180px;
+  border: 1px solid rgba($primary, 0.15);
+  border-radius: 12px;
+  background: rgba($base-color, 0.15);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &.loading {
+    opacity: 0.6;
+  }
+}
+
+.horizontal-output {
+  font-size: 40px;
+  line-height: 1.4;
+  text-align: center;
+  margin: 0;
+  color: $text-dark;
+  word-break: break-word;
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 28px;
+  }
+}
+
+.vertical-output {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba($primary, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba($primary, 0.3);
+    }
+  }
+}
+
+.vertical-unit {
+  font-size: 36px;
+  line-height: 1;
+  text-align: center;
+  color: $text-dark;
+}
+
+.placeholder-text {
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+  text-align: center;
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba($primary, 0.2);
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.unicode-output {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba($primary, 0.05);
+  border: 1px solid rgba($primary, 0.1);
+  border-radius: 10px;
+}
+
+.unicode-label {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.unicode-code {
+  display: block;
+  font-size: 12px;
+  color: $text-dark;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba($primary, 0.1);
+  word-break: break-all;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary, 0.2);
+    border-radius: 2px;
+  }
+}
