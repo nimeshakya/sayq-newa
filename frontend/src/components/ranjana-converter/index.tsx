@@ -29,7 +29,7 @@ export function RanjanaConverter() {
     setIsLoading(true);
     try {
       const data = convertToRanjana(text);
-      setResult(data);
+      setResult(data as ConversionResult);
     } catch (error) {
       console.error("Conversion error:", error);
     } finally {
