@@ -1,4 +1,3 @@
-import React from 'react';
 import { RanjanaConverter } from '../components/ranjana-converter';
 import { CharacterMap } from '../components/ranjana-converter/character-map';
 import '../styles/ranjana/ranjana.style.scss';
