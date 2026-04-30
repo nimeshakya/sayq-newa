@@ -12,17 +12,17 @@ const characterSets = {
       { dev: "ख", roman: "kha", group: "कवर्ग" },
       { dev: "ग", roman: "ga", group: "कवर्ग" },
       { dev: "घ", roman: "gha", group: "कवर्ग" },
-      { dev: "ङ", roman: "ng", group: "कवर्ग" },
+      { dev: "ङ", roman: "ṅa", group: "कवर्ग" },
       { dev: "च", roman: "cha", group: "चवर्ग" },
       { dev: "छ", roman: "chha", group: "चवर्ग" },
       { dev: "ज", roman: "ja", group: "चवर्ग" },
       { dev: "झ", roman: "jha", group: "चवर्ग" },
-      { dev: "ञ", roman: "nj'a", group: "चवर्ग" },
-      { dev: "ट", roman: "t'a", group: "टवर्ग" },
-      { dev: "ठ", roman: "t'ha", group: "टवर्ग" },
-      { dev: "ड", roman: "d'a", group: "टवर्ग" },
-      { dev: "ढ", roman: "d'ha", group: "टवर्ग" },
-      { dev: "ण", roman: "n'a", group: "टवर्ग" },
+      { dev: "ञ", roman: "ña", group: "चवर्ग" },
+      { dev: "ट", roman: "ṭa", group: "टवर्ग" },
+      { dev: "ठ", roman: "ṭha", group: "टवर्ग" },
+      { dev: "ड", roman: "ḍa", group: "टवर्ग" },
+      { dev: "ढ", roman: "ḍha", group: "टवर्ग" },
+      { dev: "ण", roman: "ṇa", group: "टवर्ग" },
       { dev: "त", roman: "ta", group: "तवर्ग" },
       { dev: "थ", roman: "tha", group: "तवर्ग" },
       { dev: "द", roman: "da", group: "तवर्ग" },
@@ -36,9 +36,9 @@ const characterSets = {
       { dev: "य", roman: "ya", group: "अन्तःस्थ" },
       { dev: "र", roman: "ra", group: "अन्तःस्थ" },
       { dev: "ल", roman: "la", group: "अन्तःस्थ" },
-      { dev: "व", roman: "wa", group: "अन्तःस्थ" },
-      { dev: "श", roman: "sha", group: "ऊष्म" },
-      { dev: "ष", roman: "shha", group: "ऊष्म" },
+      { dev: "व", roman: "va/wa", group: "अन्तःस्थ" },
+      { dev: "श", roman: "śa", group: "ऊष्म" },
+      { dev: "ष", roman: "ṣa", group: "ऊष्म" },
       { dev: "स", roman: "sa", group: "ऊष्म" },
       { dev: "ह", roman: "ha", group: "ऊष्म" },
     ],
@@ -48,18 +48,18 @@ const characterSets = {
     description: "13 vowels with independent and matra forms",
     characters: [
       { dev: "अ", matra: "", roman: "a" },
-      { dev: "आ", matra: "ा", roman: "aa" },
+      { dev: "आ", matra: "ा", roman: "ā" },
       { dev: "इ", matra: "ि", roman: "i" },
-      { dev: "ई", matra: "ी", roman: "ii" },
+      { dev: "ई", matra: "ी", roman: "ī" },
       { dev: "उ", matra: "ु", roman: "u" },
-      { dev: "ऊ", matra: "ू", roman: "uu" },
-      { dev: "ऋ", matra: "ृ", roman: "ri" },
+      { dev: "ऊ", matra: "ू", roman: "ū" },
+      { dev: "ऋ", matra: "ृ", roman: "ṛ" },
       { dev: "ए", matra: "े", roman: "e" },
       { dev: "ऐ", matra: "ै", roman: "ai" },
       { dev: "ओ", matra: "ो", roman: "o" },
-      { dev: "औ", matra: "ौ", roman: "ao" },
-      { dev: "अं", matra: "ं", roman: "am" },
-      { dev: "अः", matra: "ः", roman: "a:" },
+      { dev: "औ", matra: "ौ", roman: "au" },
+      { dev: "अं", matra: "ं", roman: "aṃ" },
+      { dev: "अः", matra: "ः", roman: "aḥ" },
     ],
   },
   numbers: {
@@ -84,7 +84,7 @@ const characterSets = {
     characters: [
       { dev: "क्ष", roman: "kṣa", meaning: "ksha" },
       { dev: "त्र", roman: "tra", meaning: "tra" },
-      { dev: "ज्ञ", roman: "jña", meaning: "gya" },
+      { dev: "ज्ञ", roman: "jña", meaning: "gya/jnya" },
       { dev: "श्र", roman: "śra", meaning: "shra" },
       { dev: "द्व", roman: "dva", meaning: "dwa" },
       { dev: "द्य", roman: "dya", meaning: "dya" },
@@ -102,8 +102,7 @@ export function CharacterMap() {
   const [selectedTab, setSelectedTab] = useState("consonants");
   const [selectedChar, setSelectedChar] = useState<string | null>(null);
 
-  const currentSet =
-    characterSets[selectedTab as keyof typeof characterSets];
+  const currentSet = characterSets[selectedTab as keyof typeof characterSets];
 
   return (
     <div className="character-map">
@@ -138,19 +137,17 @@ export function CharacterMap() {
             >
               <span className="character-main">{char.dev}</span>
               <div className="character-info">
-                {(char as any).roman && (
-                  <span className="info-text">{(char as any).roman}</span>
+                {"roman" in char && char.roman && (
+                  <span className="info-text">{char.roman}</span>
                 )}
-                {(char as any).meaning && (
-                  <span className="info-text">{(char as any).meaning}</span>
+                {"meaning" in char && char.meaning && (
+                  <span className="info-text">{char.meaning}</span>
                 )}
-                {(char as any).arabic && (
-                  <span className="info-text">{(char as any).arabic}</span>
+                {"arabic" in char && char.arabic && (
+                  <span className="info-text">{char.arabic}</span>
                 )}
-                {(char as any).matra && (
-                  <span className="info-badge">
-                    {(char as any).matra || "—"}
-                  </span>
+                {"matra" in char && char.matra && (
+                  <span className="info-badge">{char.matra || "—"}</span>
                 )}
               </div>
             </button>
