@@ -17,7 +17,7 @@ export function RanjanaConverter() {
   const [copied, setCopied] = useState(false);
   const [inputMode, setInputMode] = useState<"nepali" | "roman">("nepali");
   const [outputMode, setOutputMode] = useState<"horizontal" | "vertical">(
-    "horizontal"
+    "horizontal",
   );
 
   const convertText = useCallback(async (text: string) => {
@@ -124,7 +124,9 @@ export function RanjanaConverter() {
             {result && (
               <div className="input-badge">
                 <span className="badge-text">
-                  {result.inputType === "devanagari" ? "Devanagari" : "Romanized"}
+                  {result.inputType === "devanagari"
+                    ? "Devanagari"
+                    : "Romanized"}
                 </span>
                 <span className="badge-label">detected</span>
               </div>
