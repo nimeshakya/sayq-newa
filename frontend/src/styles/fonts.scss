@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'Nithya Ranjana';
+  src: url('/src/fonts/NithyaRanjanaDU-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-ranjana {
+  font-family: 'Nithya Ranjana', sans-serif;
+}
+
+/* Ensure proper rendering of Ranjana script */
+.ranjana-text {
+  font-family: 'Nithya Ranjana', sans-serif;
+  word-spacing: normal;
+  letter-spacing: normal;
+  text-rendering: optimizeLegibility;
+}
