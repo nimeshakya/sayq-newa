@@ -79,13 +79,19 @@ export function RanjanaConverter() {
             <div className="mode-tabs">
               <button
                 className={`tab-btn ${inputMode === "nepali" ? "active" : ""}`}
-                onClick={() => setInputMode("nepali")}
+                onClick={() => {
+                  setInputMode("nepali");
+                  handleClear();
+                }}
               >
                 Nepali
               </button>
               <button
                 className={`tab-btn ${inputMode === "roman" ? "active" : ""}`}
-                onClick={() => setInputMode("roman")}
+                onClick={() => {
+                  setInputMode("roman");
+                  handleClear();
+                }}
               >
                 Roman
               </button>
