@@ -16,6 +16,7 @@ import LandingLayout from '../layouts/LandingLayout';
 import TeamPage from '../pages/teamPage/TeamPage';
 import LearnAgentPage from '../pages/learnPage/learningAgent.page';
 import ProfilePage from '../pages/ProfilePage';
+import RanjanaPage from '../pages/RanjanaPage';
 import { useUserContext } from '../context/user.context';
 
 import LearnRandomPage from '../pages/learnPage/LearnRandom.page';
@@ -95,6 +96,14 @@ export const routes: RouteObject[] = [
                 element: (
                     <ProtectedRoute>
                         <TeamPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: '/ranjanaPage',
+                element: (
+                    <ProtectedRoute>
+                        <RanjanaPage />
                     </ProtectedRoute>
                 ),
             },
