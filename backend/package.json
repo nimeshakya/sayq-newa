@@ -21,6 +21,7 @@
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "mongodb": "^7.1.0",
     "mongoose": "^8.18.1",
     "stream-json": "^1.9.1"
   },
