@@ -190,12 +190,73 @@ const Navigation = () => {
                           stroke="currentColor"
                           strokeWidth="2"
                         >
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                          <polyline points="16 17 21 12 16 7" />
-                          <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        Logout
-                      </button>
+                            {isLoggedin && user ? (
+                                <div
+                                    className='profile-container'
+                                    ref={profileRef}
+                                >
+                                    <button
+                                        className='profile-button'
+                                        onClick={toggleProfile}
+                                        aria-label='User menu'
+                                    >
+                                        <div className='profile-avatar'>
+                                            {getInitials(user.name)}
+                                        </div>
+                                    </button>
+
+                                    {isProfileOpen && (
+                                        <div className='profile-dropdown'>
+                                            <Link
+                                                to={'/my-profile'}
+                                                className='profile-info inline-block p-20 hover:bg-gray-100 w-full'
+                                                onClick={() => toggleProfile()}
+                                            >
+                                                <p className='profile-name'>
+                                                    {user.name}
+                                                </p>
+                                                <p className='profile-email'>
+                                                    {user.email}
+                                                </p>
+                                            </Link>
+                                            <div className='profile-divider'></div>
+                                            <div className='profile-divider'></div>
+                                            <button
+                                                className='profile-menu-item logout'
+                                                onClick={handleLogout}
+                                            >
+                                                <svg
+                                                    width='18'
+                                                    height='18'
+                                                    viewBox='0 0 24 24'
+                                                    fill='none'
+                                                    stroke='currentColor'
+                                                    strokeWidth='2'
+                                                >
+                                                    <path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' />
+                                                    <polyline points='16 17 21 12 16 7' />
+                                                    <line
+                                                        x1='21'
+                                                        y1='12'
+                                                        x2='9'
+                                                        y2='12'
+                                                    />
+                                                </svg>
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <Link
+                                    to='/signinPage'
+                                    className='btn-login'
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Login
+                                </Link>
+                            )}
+                        </div>
                     </div>
                   )}
                 </div>
