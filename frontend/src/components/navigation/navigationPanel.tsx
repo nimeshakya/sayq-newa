@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useUserContext } from "../../context/user.context";
 import SearchModal from "../search/SearchModal";
 import "../../styles/navigation/nagigation.scss";
@@ -79,57 +79,78 @@ const Navigation = () => {
             <span className="logo-text">NewaSayQ</span>
           </Link>
 
-          <div className={`nav-links ${isMenuOpen ? "active" : ""}`}>
-            <Link
+          <div className={`nav-links`}>
+            <NavLink
               to="/"
-              className="nav-link active"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               Home
-            </Link>
+            </NavLink>
 
-            <Link
-              to="learnPage"
-              className="nav-link"
-              onClick={() => setIsMenuOpen(false)}
+            <NavLink
+              to="/learnPage"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+              onClick={() => setIsMenuOpen(true)}
             >
               Learning
-            </Link>
-            <Link
-              to="learn/neural"
-              className="nav-link"
+            </NavLink>
+            <NavLink
+              to="/learn/neural"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               AI Learning
-            </Link>
-            <Link
-              to="learn/dqn"
-              className="nav-link"
+            </NavLink>
+            <NavLink
+              to="/learn/dqn"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               DQN Learning
-            </Link>
-            <Link
-              to="sessionPage"
-              className="nav-link"
+            </NavLink>
+            <NavLink
+              to="/sessionPage"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               Session
-            </Link>
-            <Link
-              to="ranjanaPage"
-              className="nav-link"
+            </NavLink>
+            <NavLink
+              to="/ranjanaPage"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               Ranjana
-            </Link>
-            <Link
-              to="teamPage"
-              className="nav-link"
+            </NavLink>
+            <NavLink
+              to="/teamPage"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
               onClick={() => setIsMenuOpen(false)}
             >
               Meet Our Team
-            </Link>
+            </NavLink>
           </div>
 
           <div className="button-container">
