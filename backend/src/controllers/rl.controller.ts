@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Word } from "../models/word.model";
+import { enrichWordsWithHomonymStatus } from "../utils/homonymChecker.util";
 import UserWordProgressModel from "../models/userWordProgress.model";
 
 // Use native fetch (available in Node 18+) instead of node-fetch
@@ -41,11 +42,11 @@ export const recommendWords = async (req: Request, res: Response) => {
     const learnedWordIds = new Set(
       progressList
         .filter((p: any) => p.mastery >= 90)
-        .map((p: any) => String(p.wordId))
+        .map((p: any) => String(p.wordId)),
     );
 
     const unlearnedWords = words.filter(
-      (w: any) => !learnedWordIds.has(String(w._id))
+      (w: any) => !learnedWordIds.has(String(w._id)),
     );
 
     if (unlearnedWords.length === 0) {
@@ -60,16 +61,16 @@ export const recommendWords = async (req: Request, res: Response) => {
     const avgMastery = inProgressList.length
       ? inProgressList.reduce(
           (sum: number, p: any) => sum + (p.mastery ?? 0),
-          0
+          0,
         ) / inProgressList.length
       : 0;
     const totalAttempts = progressList.reduce(
       (sum: number, p: any) => sum + (p.attempts ?? 0),
-      0
+      0,
     );
     const totalCorrect = progressList.reduce(
       (sum: number, p: any) => sum + (p.correct ?? 0),
-      0
+      0,
     );
     const recentAccuracy =
       totalAttempts > 0 ? totalCorrect / totalAttempts : 0.6;
@@ -78,8 +79,8 @@ export const recommendWords = async (req: Request, res: Response) => {
 
     console.log(
       `[ML Recommend] userLevel: ${userLevel}, avgMastery: ${avgMastery.toFixed(
-        1
-      )}, unlearnedWords: ${unlearnedWords.length}/${words.length}`
+        1,
+      )}, unlearnedWords: ${unlearnedWords.length}/${words.length}`,
     );
 
     const payload = {
@@ -110,7 +111,7 @@ export const recommendWords = async (req: Request, res: Response) => {
       recommendations?: Array<{ wordId: string; score: number }>;
     };
 
-    // Enrich recommendations with full word data
+    // Enrich recommendations with full word data and homonym status
     const enrichedRecommendations = (data.recommendations ?? []).map((rec) => {
       const word = words.find((w: any) => String(w._id) === rec.wordId);
       return {
@@ -119,11 +120,16 @@ export const recommendWords = async (req: Request, res: Response) => {
       };
     });
 
+    const recommendationWords = enrichedRecommendations
+      .map((r) => ({ ...r.word, score: r.score }))
+      .filter((w) => w !== null);
+
+    // Enrich with homonym status
+    const enrichedWithHomonyms =
+      await enrichWordsWithHomonymStatus(recommendationWords);
+
     return res.status(200).json({
-      recommendations: enrichedRecommendations.map((r) => ({
-        ...r.word,
-        score: r.score,
-      })),
+      recommendations: enrichedWithHomonyms,
     });
   } catch (error: any) {
     console.error("recommendWords error:", error);
@@ -163,11 +169,11 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
     const learnedWordIds = new Set(
       progressList
         .filter((p: any) => p.mastery >= 90)
-        .map((p: any) => String(p.wordId))
+        .map((p: any) => String(p.wordId)),
     );
 
     const unlearnedWords = words.filter(
-      (w: any) => !learnedWordIds.has(String(w._id))
+      (w: any) => !learnedWordIds.has(String(w._id)),
     );
 
     if (unlearnedWords.length === 0) {
@@ -182,16 +188,16 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
     const avgMastery = inProgressList.length
       ? inProgressList.reduce(
           (sum: number, p: any) => sum + (p.mastery ?? 0),
-          0
+          0,
         ) / inProgressList.length
       : 0;
     const totalAttempts = progressList.reduce(
       (sum: number, p: any) => sum + (p.attempts ?? 0),
-      0
+      0,
     );
     const totalCorrect = progressList.reduce(
       (sum: number, p: any) => sum + (p.correct ?? 0),
-      0
+      0,
     );
     const recentAccuracy =
       totalAttempts > 0 ? totalCorrect / totalAttempts : 0.6;
@@ -200,8 +206,8 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
 
     console.log(
       `[DQN Recommend] userLevel: ${userLevel}, avgMastery: ${avgMastery.toFixed(
-        1
-      )}, unlearnedWords: ${unlearnedWords.length}/${words.length}`
+        1,
+      )}, unlearnedWords: ${unlearnedWords.length}/${words.length}`,
     );
 
     const payload = {
@@ -231,7 +237,7 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
     } catch (dqnError) {
       console.warn(
         "DQN service unavailable, falling back to Scorer service:",
-        dqnError
+        dqnError,
       );
       serviceName = "Scorer (fallback)";
       resp = await fetch(`${RL_SERVICE_URL}/recommend`, {
@@ -253,10 +259,10 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
       recommendations?: Array<{ wordId: string; score: number }>;
     };
 
-    // Enrich recommendations with full word data
+    // Enrich recommendations with full word data and homonym status
     const enrichedRecommendations = (data.recommendations ?? []).map((rec) => {
       const word = unlearnedWords.find(
-        (w: any) => String(w._id) === rec.wordId
+        (w: any) => String(w._id) === rec.wordId,
       );
       return {
         ...rec,
@@ -264,11 +270,16 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
       };
     });
 
+    const recommendationWords = enrichedRecommendations
+      .map((r) => ({ ...r.word, score: r.score }))
+      .filter((w) => w !== null);
+
+    // Enrich with homonym status
+    const enrichedWithHomonyms =
+      await enrichWordsWithHomonymStatus(recommendationWords);
+
     return res.status(200).json({
-      recommendations: enrichedRecommendations.map((r) => ({
-        ...r.word,
-        score: r.score,
-      })),
+      recommendations: enrichedWithHomonyms,
       service: serviceName,
     });
   } catch (error: any) {
