@@ -4,6 +4,7 @@ import demoRouter from "./demo.router";
 import authenticationRouter from "./authentication.router";
 import sessioncheckRouter from "./sessioncheck.router";
 import wordRouter from "./word.router";
+import homonymsRouter from "./homonyms.router";
 import userRouter from "./userResultStore.route";
 import questionRouter from "./question.router";
 import userWordProgressRouter from "./userWordProgress.router";
@@ -20,6 +21,7 @@ export default (): express.Router => {
 
   demoRouter(router);
   wordRouter(router);
+  homonymsRouter(router);
 
   userRouter(router);
   userWordProgressRouter(router);

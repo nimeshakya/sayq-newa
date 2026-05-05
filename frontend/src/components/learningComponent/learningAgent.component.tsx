@@ -25,7 +25,10 @@ export default function LearnAgentComponent({
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [recommendedWords, setRecommendedWords] = useState<any[]>([]);
-  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+  } | null>(null);
 
   useEffect(() => {
     setRecommendedWords(questionaries ?? []);
@@ -38,17 +41,44 @@ export default function LearnAgentComponent({
     Math.min(5, Number(currentWord?.expertise_lvl) || 1),
   );
 
+  // Get all meanings and categories (for homonyms)
+  const getMeanings = () => {
+    if (currentWord?.isHomonym && currentWord?.homonymData?.meanings) {
+      return currentWord.homonymData.meanings;
+    }
+    return [currentWord?.nepali_meaning];
+  };
+
+  const getCategories = () => {
+    if (currentWord?.isHomonym && currentWord?.homonymData?.wordDetails) {
+      // Extract unique categories from all word details
+      const categories = new Set(
+        currentWord.homonymData.wordDetails
+          .map((word: any) => word.category)
+          .filter(Boolean),
+      );
+      return Array.from(categories);
+    }
+    return currentWord?.category ? [currentWord.category] : [];
+  };
+
+  const meanings = getMeanings();
+  const categories = getCategories();
+
   const markIntroduced = async () => {
     if (!user?.id || !currentWord) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/userWordProgress/mark-introduced`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          wordId: currentWord._id,
-        }),
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/userWordProgress/mark-introduced`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            wordId: currentWord._id,
+          }),
+        },
+      );
       if (!res.ok) throw new Error();
     } catch (e) {
       setToast({ message: "Failed to mark word as introduced", type: "error" });
@@ -110,7 +140,12 @@ export default function LearnAgentComponent({
       <div className="word-card">
         {/* Header */}
         <div className="word-header">
-          <div className="word-badge">{headingDisplay}</div>
+          <div className="flex gap-3 flex-col">
+            <div className="word-badge">{headingDisplay}</div>
+            {currentWord?.isHomonym && (
+              <div className="word-badge homonym-badge">Homonym</div>
+            )}
+          </div>
           <div className="header-right">
             <TimeTracker />
           </div>
@@ -141,14 +176,23 @@ export default function LearnAgentComponent({
                 </svg>
               </div>
               <div className="detail-content">
-                <span className="detail-label">Meaning</span>
+                <span className="detail-label">
+                  {currentWord?.isHomonym ? "Meanings" : "Meaning"}
+                </span>
                 <span className="detail-value">
-                  {currentWord.nepali_meaning}
+                  {meanings.map((meaning: string) => (
+                    <div key={`${currentWord._id}-${meaning}`}>
+                      {meaning}
+                      {meaning !== meanings[meanings.length - 1] && (
+                        <hr className="my-2" />
+                      )}
+                    </div>
+                  ))}
                 </span>
               </div>
             </div>
 
-            {currentWord.category && (
+            {categories.length > 0 && (
               <div className="detail-item category-item">
                 <div className="detail-icon">
                   <svg
@@ -165,9 +209,18 @@ export default function LearnAgentComponent({
                   </svg>
                 </div>
                 <div className="detail-content">
-                  <span className="detail-label">Category</span>
+                  <span className="detail-label">
+                    {currentWord?.isHomonym ? "Categories" : "Category"}
+                  </span>
                   <span className="detail-value">
-                    <span className="category-tag">{currentWord.category}</span>
+                    {categories.map((category: string) => (
+                      <div key={`${currentWord._id}-${category}`}>
+                        <span className="category-tag">{category}</span>
+                        {category !== categories[categories.length - 1] && (
+                          <hr className="my-2" />
+                        )}
+                      </div>
+                    ))}
                   </span>
                 </div>
               </div>
@@ -229,7 +282,10 @@ export default function LearnAgentComponent({
               </svg>
               Skip
             </button>
-            <button className="nav-button introduced-button" onClick={markIntroduced}>
+            <button
+              className="nav-button introduced-button"
+              onClick={markIntroduced}
+            >
               <svg
                 width="18"
                 height="18"

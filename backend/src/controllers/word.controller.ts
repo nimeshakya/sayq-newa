@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Word } from "../models/word.model";
 import { searchDataWord } from "../utils/wordSearch.util";
+import { enrichWordsWithHomonymStatus } from "../utils/homonymChecker.util";
 import UserWordProgressModel from "../models/userWordProgress.model";
 import UserModel from "../models/user.model";
 
@@ -79,7 +80,10 @@ export const fetchDataWord = async (
       count: count ? Number(count) : undefined,
     });
 
-    res.status(200).json(result);
+    // Enrich words with homonym status
+    const enrichedResult = await enrichWordsWithHomonymStatus(result);
+
+    res.status(200).json(enrichedResult);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -153,7 +157,10 @@ export const fetchLearningWords = async (
       Math.min(requestedCount, shuffled.length),
     );
 
-    res.status(200).json(selectedWords);
+    // Enrich words with homonym status
+    const enrichedWords = await enrichWordsWithHomonymStatus(selectedWords);
+
+    res.status(200).json(enrichedWords);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -201,7 +208,10 @@ export const searchWords = async (req: Request, res: Response) => {
       ],
     }).limit(20);
 
-    res.status(200).json(results);
+    // Enrich search results with homonym status
+    const enrichedResults = await enrichWordsWithHomonymStatus(results);
+
+    res.status(200).json(enrichedResults);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: error.message });
