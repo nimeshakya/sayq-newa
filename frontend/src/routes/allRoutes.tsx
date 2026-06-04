@@ -21,6 +21,8 @@ import { useUserContext } from "../context/user.context";
 
 import LearnRandomPage from "../pages/learnPage/LearnRandom.page";
 import KutaksharPage from "@/pages/kutaksharPage/kutakshar";
+import GlyphAdminPage from "@/pages/kutaksharPage/glyphadmin";
+import LigatureAdminPage from "@/pages/kutaksharPage/ligatureadmin";
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isLoggedin, loading } = useUserContext();
@@ -50,6 +52,8 @@ export const routes: RouteObject[] = [
       },
       { path: "/signinPage", element: <SignInPage /> },
       { path: "/monogram", element: <KutaksharPage /> },
+      { path: "/adminglyph", element: <GlyphAdminPage /> },
+      { path: "/adminligature", element: <LigatureAdminPage /> },
       {
         path: "/learnPage",
         element: (
