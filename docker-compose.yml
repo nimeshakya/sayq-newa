@@ -29,14 +29,21 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - RL_SERVICE_URL=http://ml:8000
       - DQN_SERVICE_URL=http://ml:8001
+      - KUTAKSAR_SERVICE_URL=http://kutaksar:8002
     env_file:
       - ./backend/.env
     ports:
       - "6969:5000"
     volumes:
       - ./backend:/app:delegated
+      - /app/node_modules
     networks:
       - app-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   ml:
     build:
@@ -51,6 +58,19 @@ services:
     networks:
       - app-net
 
+  kutaksar:
+    build:
+      context: ./kutaksar
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./kutaksar:/app:delegated
+      - ./kutaksar/glyph_configs.json:/app/glyph_configs.json
+      - ./kutaksar/ligature_configs.json:/app/ligature_configs.json
+    networks:
+      - app-net
+
   frontend:
     build:
       context: ./frontend
@@ -58,11 +78,13 @@ services:
       args:
         - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
         - VITE_API_BASE_URL=https://sayq-newa.sauravdhoju.com.np
+        - VITE_MONOGRAM_API_BASE=/kutaksar
     ports:
       - "8080:80"
     depends_on:
       - backend
       - ml
+      - kutaksar
     networks:
       - app-net
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Settings2, Search, Save } from 'lucide-react';
+import { KUTAKSAR_API_BASE } from '@/constants';
 
 interface GlyphConfig {
   scale: number;
@@ -33,7 +34,7 @@ const DEVA_MAP: Record<string, string> = {
   '.': '।', ',': ',', '(': '(', ')': ')', '-': '-', '?': '?'
 };
 
-const API_BASE = 'http://127.0.0.1:8002'; // ← Your FastAPI backend
+const API_BASE = KUTAKSAR_API_BASE;
 
 export default function GlyphComponent() {
   const [selectedChar, setSelectedChar] = useState('क');

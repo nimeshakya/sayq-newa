@@ -53,6 +53,10 @@ app.use(bodyParser.json());
 /**
  * Routes
  */
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ ok: true, service: "backend" });
+});
+
 app.use("/api", router());
 
 /**

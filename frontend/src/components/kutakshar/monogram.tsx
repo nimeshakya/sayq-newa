@@ -6,9 +6,9 @@ import {
   type ChangeEvent,
   type ReactElement,
 } from "react";
+import { KUTAKSAR_API_BASE } from "@/constants";
 
-const MONOGRAM_API_BASE =
-  import.meta.env.VITE_MONOGRAM_API_BASE ?? "http://127.0.0.1:8002";
+const MONOGRAM_API_BASE = KUTAKSAR_API_BASE;
 
 export type MonogramShowProps = {
   className?: string;
