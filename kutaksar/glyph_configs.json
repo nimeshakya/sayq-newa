@@ -1593,5 +1593,19 @@
       "crop_left": 0,
       "crop_right": 0
     }
+  },
+  "इ": {
+    "full": {
+      "scale": 1.05,
+      "x_offset": 0,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 20
+    }
   }
 }
