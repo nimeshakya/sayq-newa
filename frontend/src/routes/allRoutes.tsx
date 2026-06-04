@@ -20,6 +20,7 @@ import RanjanaPage from "../pages/RanjanaPage";
 import { useUserContext } from "../context/user.context";
 
 import LearnRandomPage from "../pages/learnPage/LearnRandom.page";
+import KutaksharPage from "@/pages/kutaksharPage/kutakshar";
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isLoggedin, loading } = useUserContext();
@@ -48,6 +49,7 @@ export const routes: RouteObject[] = [
         ),
       },
       { path: "/signinPage", element: <SignInPage /> },
+      { path: "/monogram", element: <KutaksharPage /> },
       {
         path: "/learnPage",
         element: (
