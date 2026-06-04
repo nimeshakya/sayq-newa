@@ -151,6 +151,16 @@ const Navigation = () => {
             >
               Meet Our Team
             </NavLink>
+            <NavLink
+              to="/monogram"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Monogram
+            </NavLink>
           </div>
 
           <div className="button-container">
