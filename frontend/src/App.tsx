@@ -1,11 +1,9 @@
 import "./App.scss";
-import { useRoutes } from "react-router-dom";
-import { routes } from "./routes/allRoutes";
+import { RouterProvider } from "react-router-dom";
+import mainRouter from "./routes/mainRoutes";
 
 const App = () => {
-  const element = useRoutes(routes);
-
-  return <div className="app">{element}</div>;
+  return <RouterProvider router={mainRouter} />;
 };
 
 export default App;
