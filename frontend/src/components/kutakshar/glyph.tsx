@@ -128,13 +128,13 @@ export default function GlyphComponent() {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 
-  const fetchPreview = async () => {
+  const fetchPreview = async (configToUse?: GlyphConfig) => {
     setIsLoading(true);
     try {
       const payload = {
         char: selectedChar,
         type: editingMode,
-        ...config,
+        ...(configToUse || config),
       };
 
       const res = await fetch(`${API_BASE}/glyphs/preview`, {
@@ -143,7 +143,11 @@ export default function GlyphComponent() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`Preview error: HTTP ${res.status}`, errorText);
+        throw new Error(`HTTP ${res.status}`);
+      }
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -152,16 +156,17 @@ export default function GlyphComponent() {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(url);
     } catch (error) {
-      console.error('Preview error:', error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error('Preview fetch error:', errorMsg);
       setPreviewUrl('');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Debounced preview update
+  // Shorter debounce for snappier feedback (150ms for crop, 100ms for others)
   useEffect(() => {
-    const timeoutId = setTimeout(fetchPreview, 350);
+    const timeoutId = setTimeout(fetchPreview, 100);
     return () => clearTimeout(timeoutId);
   }, [selectedChar, editingMode, config]);
 
@@ -181,12 +186,18 @@ export default function GlyphComponent() {
       });
 
       if (res.ok) {
+        const data = await res.json();
         setStatus('✓ Configuration saved successfully!');
+        console.log('Saved:', data);
       } else {
-        setStatus('✗ Failed to save configuration');
+        const errorText = await res.text();
+        console.error('Save failed:', res.status, errorText);
+        setStatus(`✗ Failed to save (HTTP ${res.status})`);
       }
     } catch (e) {
-      setStatus('✗ Error connecting to server');
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      console.error('Save error:', errorMsg);
+      setStatus(`✗ Connection error: ${errorMsg}`);
     }
 
     setTimeout(() => setStatus(''), 2500);
@@ -259,7 +270,11 @@ export default function GlyphComponent() {
                   step={step}
                   value={config[key]}
                   onChange={(e) => updateConfig(key, parseFloat(e.target.value))}
-                  className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8b1e3f]"
+                  className="w-full h-2 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg appearance-none cursor-pointer accent-[#8b1e3f] slider-thumb transition-shadow hover:shadow-[0_0_12px_rgba(139,30,63,0.3)] active:shadow-[0_0_16px_rgba(139,30,63,0.5)]"
+                  style={{
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
+                  } as React.CSSProperties}
                 />
               </div>
             ))}
@@ -283,7 +298,7 @@ export default function GlyphComponent() {
           <h3 className="text-xl font-bold text-[#222]">Glyph Preview</h3>
         </div>
         
-        <div className="flex-1 bg-white border-2 border-dashed border-gray-100 rounded-[32px] flex items-center justify-center relative overflow-hidden min-h-[420px]">
+        <div className="flex-1 bg-white border-2 border-dashed border-gray-100 rounded-[32px] flex items-center justify-center relative overflow-hidden min-h-[420px] group">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-3xl z-10">
               <div className="text-white text-sm">Generating preview...</div>
@@ -291,7 +306,30 @@ export default function GlyphComponent() {
           )}
 
           {previewUrl ? (
-            <img src={previewUrl} alt="Glyph Preview" className="max-h-[85%] drop-shadow-2xl" />
+            <div className="relative">
+              <img 
+                src={previewUrl} 
+                alt="Glyph Preview" 
+                className="max-h-[85%] drop-shadow-2xl transition-opacity duration-200" 
+              />
+              
+              {/* Crop boundary visualization - shows in real-time */}
+              {(config.crop_top > 0 || config.crop_bottom > 0 || config.crop_left > 0 || config.crop_right > 0) && (
+                <div 
+                  className="absolute inset-0 pointer-events-none border-2 border-orange-400/60 rounded-sm transition-all duration-75"
+                  style={{
+                    top: `${(config.crop_top / 200) * 100}%`,
+                    bottom: `${(config.crop_bottom / 200) * 100}%`,
+                    left: `${(config.crop_left / 200) * 100}%`,
+                    right: `${(config.crop_right / 200) * 100}%`,
+                  }}
+                >
+                  <div className="absolute -top-6 left-0 text-xs text-orange-600 font-bold whitespace-nowrap bg-orange-50 px-2 py-1 rounded">
+                    Crop: {config.crop_top}|{config.crop_bottom}|{config.crop_left}|{config.crop_right}
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="text-gray-400 text-center space-y-4">
               <div className="text-7xl opacity-20">🪷</div>
@@ -301,7 +339,7 @@ export default function GlyphComponent() {
         </div>
 
         <p className="text-sm text-gray-500 text-center mt-6 italic">
-          This preview shows how the character will appear in the stack.
+          This preview shows how the character will appear in the stack. Adjust crop values for precise cropping.
         </p>
       </div>
     </div>
