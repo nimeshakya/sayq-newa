@@ -6,8 +6,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageChops
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Depends, HTTPException, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import FileResponse, StreamingResponse, Response
 from pydantic import BaseModel
 from typing import Optional
 import json
@@ -27,23 +26,45 @@ DEVANAGARI_MAP = {**data_gen.CONSONANTS, **data_gen.VOWELS, **data_gen.NUMBERS, 
 
 def load_glyph_configs():
     if os.path.exists(GLYPH_CONFIG_PATH):
-        with open(GLYPH_CONFIG_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(GLYPH_CONFIG_PATH, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if not content:  # File is empty
+                    return {}
+                return json.loads(content)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Failed to load glyph configs: {e}. Returning empty dict.")
+            return {}
     return {}
 
 def save_glyph_configs(configs):
-    with open(GLYPH_CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(configs, f, ensure_ascii=False, indent=2)
+    try:
+        with open(GLYPH_CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(configs, f, ensure_ascii=False, indent=2)
+    except IOError as e:
+        print(f"Error saving glyph configs: {e}")
+        raise
 
 def load_ligature_configs():
     if os.path.exists(LIGATURE_CONFIG_PATH):
-        with open(LIGATURE_CONFIG_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(LIGATURE_CONFIG_PATH, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if not content:  # File is empty
+                    return {}
+                return json.loads(content)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Failed to load ligature configs: {e}. Returning empty dict.")
+            return {}
     return {}
 
 def save_ligature_configs(configs):
-    with open(LIGATURE_CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(configs, f, ensure_ascii=False, indent=2)
+    try:
+        with open(LIGATURE_CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(configs, f, ensure_ascii=False, indent=2)
+    except IOError as e:
+        print(f"Error saving ligature configs: {e}")
+        raise
 
 # Regex for Devanagari grapheme clusters:
 # Consonant follow by any number of (Virama + Consonant) and optional (Vowel Sign or other modifiers)
@@ -54,7 +75,6 @@ def save_ligature_configs(configs):
 # Virama: \u094D
 CLUSTER_REGEX = r'[\u0915-\u0939\u0958-\u095F][\u094D]?[\u093E-\u094C\u0901-\u0903\u0951-\u0957\u0962-\u0963]?|[\u0905-\u0914]'
 
-security = HTTPBearer()
 ADMIN_CONFIG_PATH = "admin_config.json"
 DEFAULT_PASSWORD = "leoshreeram7777"
 
@@ -74,27 +94,27 @@ def save_admin_password_hash(pwd_hash):
     with open(ADMIN_CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump({"password_hash": pwd_hash}, f, indent=2)
 
-def verify_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-    stored_hash = get_admin_password_hash()
-    sent_hash = hashlib.sha256(token.encode()).hexdigest()
-    if sent_hash != stored_hash:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid admin credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return token
-
 app = FastAPI(title="Calligraphic-Python API")
 
 # Enable CORS for frontend integration
+# Get allowed origins from environment or use defaults
+import os
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",") if os.getenv("ALLOWED_ORIGINS") else [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://sayq-newa.sauravdhoju.com.np"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origin_regex="http://localhost.*|http://127\\.0\\.0\\.1.*",
+    expose_headers=["*"],
 )
 
 class LoginRequest(BaseModel):
@@ -114,7 +134,7 @@ async def login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
 @app.post("/change-password")
-async def change_password(req: ChangePasswordRequest, admin_pass: str = Depends(verify_admin)):
+async def change_password(req: ChangePasswordRequest):
     stored_hash = get_admin_password_hash()
     old_hash = hashlib.sha256(req.old_password.encode()).hexdigest()
     if old_hash != stored_hash:
@@ -198,7 +218,7 @@ def run_train():
         job_state["train"]["message"] = str(e)
 
 @app.post("/generate")
-async def generate_data(background_tasks: BackgroundTasks, admin_pass: str = Depends(verify_admin)):
+async def generate_data(background_tasks: BackgroundTasks):
     if job_state["generate"]["status"] == "running":
         return {"message": "Generation already running"}
     job_state["generate"]["status"] = "idle"
@@ -206,7 +226,7 @@ async def generate_data(background_tasks: BackgroundTasks, admin_pass: str = Dep
     return {"message": "Data generation started"}
 
 @app.post("/train")
-async def train_model(background_tasks: BackgroundTasks, admin_pass: str = Depends(verify_admin)):
+async def train_model(background_tasks: BackgroundTasks):
     if job_state["train"]["status"] == "running":
         return {"message": "Training already running"}
     job_state["train"]["status"] = "idle"
@@ -214,7 +234,7 @@ async def train_model(background_tasks: BackgroundTasks, admin_pass: str = Depen
     return {"message": "Training started"}
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...), admin_pass: str = Depends(verify_admin)):
+async def predict(file: UploadFile = File(...)):
     if not os.path.exists(MODEL_PATH) or not os.path.exists(CLASSES_PATH):
         return {"error": "Model not trained yet"}
 
@@ -297,106 +317,130 @@ async def get_glyphs():
     return load_glyph_configs()
 
 @app.post("/glyphs/save")
-async def save_glyph(req: GlyphSaveRequest, admin_pass: str = Depends(verify_admin)):
-    configs = load_glyph_configs()
-    if req.char not in configs:
-        configs[req.char] = {}
-    configs[req.char][req.type] = {
-        "scale": req.scale,
-        "x_offset": req.x_offset,
-        "y_offset": req.y_offset,
-        "rotation": req.rotation,
-        "skew_x": req.skew_x,
-        "skew_y": req.skew_y,
-        "crop_top": req.crop_top,
-        "crop_bottom": req.crop_bottom,
-        "crop_left": req.crop_left,
-        "crop_right": req.crop_right
-    }
-    save_glyph_configs(configs)
-    return {"message": "Config saved"}
+async def save_glyph(req: GlyphSaveRequest):
+    try:
+        configs = load_glyph_configs()
+        if req.char not in configs:
+            configs[req.char] = {}
+        configs[req.char][req.type] = {
+            "scale": req.scale,
+            "x_offset": req.x_offset,
+            "y_offset": req.y_offset,
+            "rotation": req.rotation,
+            "skew_x": req.skew_x,
+            "skew_y": req.skew_y,
+            "crop_top": req.crop_top,
+            "crop_bottom": req.crop_bottom,
+            "crop_left": req.crop_left,
+            "crop_right": req.crop_right
+        }
+        save_glyph_configs(configs)
+        return {"message": "Config saved", "char": req.char, "type": req.type}
+    except Exception as e:
+        print(f"Error saving glyph config: {e}")
+        import traceback
+        traceback.print_exc()
+        return Response(
+            content=json.dumps({"error": f"Failed to save configuration: {str(e)}"}),
+            status_code=500,
+            media_type="application/json"
+        )
 
 @app.get("/ligatures")
 async def get_ligatures():
     return load_ligature_configs()
 
 @app.post("/ligatures/save")
-async def save_ligature(req: LigatureSaveRequest, admin_pass: str = Depends(verify_admin)):
+async def save_ligature(req: LigatureSaveRequest):
     configs = load_ligature_configs()
     configs[req.sequence] = [c.dict() for c in req.chars]
     save_ligature_configs(configs)
     return {"message": "Ligature rule saved"}
 
 @app.post("/glyphs/preview")
-async def preview_glyph(req: GlyphSaveRequest, admin_pass: str = Depends(verify_admin)):
+async def preview_glyph(req: GlyphSaveRequest):
     # Reuse monogram logic for a single char
     font_path = "NithyaRanjanaDU-Regular.otf"
     font_size = 120
     try:
         font = ImageFont.truetype(font_path, font_size)
     except Exception as e:
-        return {"error": f"Font load failed: {e}"}
+        return Response(
+            content=json.dumps({"error": f"Font load failed: {e}"}),
+            status_code=500,
+            media_type="application/json"
+        )
 
-    # If it's a half-letter, append halant if not present
-    display_char = req.char
-    if req.type == "half" and not display_char.endswith('\u094D'):
-        display_char += '\u094D'
+    try:
+        # If it's a half-letter, append halant if not present
+        display_char = req.char
+        if req.type == "half" and not display_char.endswith('\u094D'):
+            display_char += '\u094D'
 
-    # Create a larger canvas for the initial render to avoid clipping before crop
-    temp_img = Image.new("RGBA", (300, 300), color=(255, 255, 255, 0))
-    temp_draw = ImageDraw.Draw(temp_img)
-    
-    scaled_font_size = int(font_size * req.scale)
-    scaled_font = ImageFont.truetype(font_path, scaled_font_size)
-    
-    bb = scaled_font.getbbox(display_char)
-    w, h = bb[2]-bb[0], bb[3]-bb[1]
-    
-    # Draw at center
-    x = (300 - w) // 2 - bb[0]
-    y = (300 - h) // 2 - bb[1]
-    temp_draw.text((x, y), display_char, font=scaled_font, fill=(45, 27, 105, 255))
-    
-    # Apply transformations (Rotation and Skew)
-    if req.rotation != 0 or req.skew_x != 0 or req.skew_y != 0:
-        if req.rotation != 0:
-            temp_img = temp_img.rotate(req.rotation, resample=Image.BICUBIC, expand=False)
+        # Create a larger canvas for the initial render to avoid clipping before crop
+        temp_img = Image.new("RGBA", (300, 300), color=(255, 255, 255, 0))
+        temp_draw = ImageDraw.Draw(temp_img)
         
-        if req.skew_x != 0 or req.skew_y != 0:
+        scaled_font_size = int(font_size * req.scale)
+        scaled_font = ImageFont.truetype(font_path, scaled_font_size)
+        
+        bb = scaled_font.getbbox(display_char)
+        w, h = bb[2]-bb[0], bb[3]-bb[1]
+        
+        # Draw at center
+        x = (300 - w) // 2 - bb[0]
+        y = (300 - h) // 2 - bb[1]
+        temp_draw.text((x, y), display_char, font=scaled_font, fill=(45, 27, 105, 255))
+        
+        # Apply transformations (Rotation and Skew)
+        if req.rotation != 0 or req.skew_x != 0 or req.skew_y != 0:
+            if req.rotation != 0:
+                temp_img = temp_img.rotate(req.rotation, resample=Image.BICUBIC, expand=False)
+            
+            if req.skew_x != 0 or req.skew_y != 0:
+                tw, th = temp_img.size
+                temp_img = temp_img.transform(temp_img.size, Image.AFFINE, 
+                                             (1, -req.skew_x, req.skew_x * (th/2), -req.skew_y, 1, req.skew_y * (tw/2)),
+                                             resample=Image.BICUBIC)
+        
+        # Apply cropping by clearing pixels
+        if req.crop_top > 0 or req.crop_bottom > 0 or req.crop_left > 0 or req.crop_right > 0:
             tw, th = temp_img.size
-            temp_img = temp_img.transform(temp_img.size, Image.AFFINE, 
-                                         (1, -req.skew_x, req.skew_x * (th/2), -req.skew_y, 1, req.skew_y * (tw/2)),
-                                         resample=Image.BICUBIC)
-    
-    # Apply cropping by clearing pixels
-    if req.crop_top > 0 or req.crop_bottom > 0 or req.crop_left > 0 or req.crop_right > 0:
-        tw, th = temp_img.size
-        c_left = x + bb[0] + req.crop_left
-        c_top = y + bb[1] + req.crop_top
-        c_right = x + bb[2] - req.crop_right
-        c_bottom = y + bb[3] - req.crop_bottom
-        
-        if c_top > 0: temp_img.paste((0,0,0,0), (0, 0, tw, c_top))
-        if c_bottom < th: temp_img.paste((0,0,0,0), (0, c_bottom, tw, th))
-        if c_left > 0: temp_img.paste((0,0,0,0), (0, 0, c_left, th))
-        if c_right < tw: temp_img.paste((0,0,0,0), (c_right, 0, tw, th))
+            c_left = x + bb[0] + req.crop_left
+            c_top = y + bb[1] + req.crop_top
+            c_right = x + bb[2] - req.crop_right
+            c_bottom = y + bb[3] - req.crop_bottom
+            
+            if c_top > 0: temp_img.paste((0,0,0,0), (0, 0, tw, c_top))
+            if c_bottom < th: temp_img.paste((0,0,0,0), (0, c_bottom, tw, th))
+            if c_left > 0: temp_img.paste((0,0,0,0), (0, 0, c_left, th))
+            if c_right < tw: temp_img.paste((0,0,0,0), (c_right, 0, tw, th))
 
-    orig_w, orig_h = w, h
-    x_base = (200 - orig_w) // 2
-    y_base = (200 - orig_h) // 2
+        orig_w, orig_h = w, h
+        x_base = (200 - orig_w) // 2
+        y_base = (200 - orig_h) // 2
 
-    img = Image.new("RGBA", (200, 200), color=(255, 255, 255, 0))
-    crop_bb = (x + bb[0], y + bb[1], x + bb[2], y + bb[3])
-    cropped_part = temp_img.crop(crop_bb)
-    img.paste(cropped_part, (x_base + req.x_offset, y_base + req.y_offset))
+        img = Image.new("RGBA", (200, 200), color=(255, 255, 255, 0))
+        crop_bb = (x + bb[0], y + bb[1], x + bb[2], y + bb[3])
+        cropped_part = temp_img.crop(crop_bb)
+        img.paste(cropped_part, (x_base + req.x_offset, y_base + req.y_offset))
 
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-    return StreamingResponse(buf, media_type="image/png")
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        return StreamingResponse(buf, media_type="image/png", headers={"Cache-Control": "no-cache"})
+    except Exception as e:
+        print(f"Error in preview_glyph: {e}")
+        import traceback
+        traceback.print_exc()
+        return Response(
+            content=json.dumps({"error": f"Preview generation failed: {str(e)}"}),
+            status_code=500,
+            media_type="application/json"
+        )
 
 @app.get("/glyph/preview")
-async def glyph_preview(char: str, admin_pass: str = Depends(verify_admin)):
+async def glyph_preview(char: str):
     font_path = "NithyaRanjanaDU-Regular.otf"
     font_size = 150
     try:
@@ -413,7 +457,7 @@ async def glyph_preview(char: str, admin_pass: str = Depends(verify_admin)):
         return {"error": str(e)}
 
 @app.post("/ligatures/preview")
-async def preview_ligature(req: LigatureSaveRequest, admin_pass: str = Depends(verify_admin)):
+async def preview_ligature(req: LigatureSaveRequest):
     font_path = "NithyaRanjanaDU-Regular.otf"
     font_size = 100
     try:
@@ -569,9 +613,9 @@ async def preview_ligature(req: LigatureSaveRequest, admin_pass: str = Depends(v
     return StreamingResponse(buf, media_type="image/png")
 
 @app.post("/ligatures/inject")
-async def inject_ligature(req: LigatureSaveRequest, admin_pass: str = Depends(verify_admin)):
+async def inject_ligature(req: LigatureSaveRequest):
     # Render the ligature
-    resp = await preview_ligature(req, admin_pass=admin_pass)
+    resp = await preview_ligature(req)
     if isinstance(resp, dict) and "error" in resp:
         return resp
     
