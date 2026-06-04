@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Link2, Search, Plus, Save } from 'lucide-react';
+import { KUTAKSAR_API_BASE } from '@/constants';
 
 const DEVA_MAP: Record<string, string> = {
   'k': 'क', 'kh': 'ख', 'g': 'ग', 'gh': 'घ', 'ng': 'ङ',
@@ -17,7 +18,7 @@ const DEVA_MAP: Record<string, string> = {
   'e': 'ए', 'ai': 'ऐ', 'o': 'ओ', 'au': 'औ',
 };
 
-const API_BASE = 'http://127.0.0.1:8002';
+const API_BASE = KUTAKSAR_API_BASE;
 
 interface LigatureSlot {
   id: number;
