@@ -53,6 +53,23 @@ export default function GlyphComponent() {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [allConfigs, setAllConfigs] = useState<Record<string, any>>({});
+
+  // Fetch all glyph configs on component mount
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/glyphs`);
+        if (res.ok) {
+          const data = await res.json();
+          setAllConfigs(data);
+        }
+      } catch (error) {
+        console.warn('Failed to fetch glyph configs:', error);
+      }
+    };
+    fetchConfigs();
+  }, []);
 
   const charOptions = Object.entries(DEVA_MAP)
     .filter(([k]) => k !== '*' && !/\d/.test(k))
@@ -128,6 +145,33 @@ export default function GlyphComponent() {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 
+  // Load saved config when character or editing mode changes
+  useEffect(() => {
+    if (allConfigs[selectedChar]?.[editingMode]) {
+      const savedConfig = allConfigs[selectedChar][editingMode];
+      setConfig(prev => ({
+        ...prev,
+        ...savedConfig,
+      }));
+      console.log(`Loaded config for ${selectedChar} (${editingMode}):`, savedConfig);
+    } else {
+      // Reset to defaults if no saved config
+      setConfig({
+        scale: 1.0,
+        x_offset: 0,
+        y_offset: 0,
+        rotation: 0,
+        skew_x: 0,
+        skew_y: 0,
+        crop_top: 0,
+        crop_bottom: 0,
+        crop_left: 0,
+        crop_right: 0,
+      });
+      console.log(`No saved config for ${selectedChar} (${editingMode}), using defaults`);
+    }
+  }, [selectedChar, editingMode, allConfigs]);
+
   const fetchPreview = async (configToUse?: GlyphConfig) => {
     setIsLoading(true);
     try {
@@ -189,6 +233,14 @@ export default function GlyphComponent() {
         const data = await res.json();
         setStatus('✓ Configuration saved successfully!');
         console.log('Saved:', data);
+        
+        // Refresh the configs from server
+        const configRes = await fetch(`${API_BASE}/glyphs`);
+        if (configRes.ok) {
+          const newConfigs = await configRes.json();
+          setAllConfigs(newConfigs);
+          console.log('Configs refreshed');
+        }
       } else {
         const errorText = await res.text();
         console.error('Save failed:', res.status, errorText);
@@ -280,12 +332,46 @@ export default function GlyphComponent() {
             ))}
           </div>
 
-          <button
-            onClick={handleSave}
-            className="w-full relative overflow-hidden group bg-gradient-to-r from-[#8b1e3f] to-[#e33629] text-white py-5 rounded-[22px] font-bold text-lg transition-all shadow-[0_15px_35px_rgba(139,30,63,0.25)] hover:shadow-[0_20px_45px_rgba(139,30,63,0.35)] hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
-          >
-            <Save className="w-6 h-6" /> Save Configuration
-          </button>
+          {/* Config Status & Buttons */}
+          <div className="space-y-3">
+            {allConfigs[selectedChar]?.[editingMode] && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs font-medium text-green-700">Saved configuration loaded for this character</span>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                className="flex-1 relative overflow-hidden group bg-gradient-to-r from-[#8b1e3f] to-[#e33629] text-white py-5 rounded-[22px] font-bold text-lg transition-all shadow-[0_15px_35px_rgba(139,30,63,0.25)] hover:shadow-[0_20px_45px_rgba(139,30,63,0.35)] hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
+              >
+                <Save className="w-6 h-6" /> Save
+              </button>
+
+              <button
+                onClick={() => {
+                  setConfig({
+                    scale: 1.0,
+                    x_offset: 0,
+                    y_offset: 0,
+                    rotation: 0,
+                    skew_x: 0,
+                    skew_y: 0,
+                    crop_top: 0,
+                    crop_bottom: 0,
+                    crop_left: 0,
+                    crop_right: 0,
+                  });
+                  setStatus('↻ Reset to defaults');
+                  setTimeout(() => setStatus(''), 2000);
+                }}
+                className="px-6 py-5 rounded-[22px] font-bold text-lg transition-all border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
 
           {status && <p className="text-center text-[#00a300] font-medium text-sm mt-4">{status}</p>}
         </div>

@@ -2,6 +2,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useRef,
   type ChangeEvent,
   type ReactElement,
 } from "react";
@@ -195,6 +196,10 @@ export function monogramShow({
     "Connecting to monogram backend...",
   );
 
+  // Use refs for config hash tracking to avoid unnecessary re-renders
+  const configHashRef = useRef<string>("");
+  const lastAutoRefreshRef = useRef<number>(0);
+
   const activeBackground = transparent ? "transparent" : bgColor;
   const hasText = useMemo(() => text.trim().length > 0, [text]);
   const devanagariText = useMemo(() => toDevanagari(text.trim()), [text]);
@@ -215,58 +220,84 @@ export function monogramShow({
     }
   };
 
+  // Generate monogram with given settings
+  const generateMonogram = async (
+    textToUse: string,
+    fontSizeToUse: number,
+    fgColorToUse: string,
+    bgColorToUse: string,
+    transparentToUse: boolean,
+    paddingToUse: number,
+    verticalToUse: boolean,
+    showStatus = true,
+    addToGallery = false
+  ) => {
+    if (textToUse.trim().length === 0) {
+      return;
+    }
+
+    if (showStatus) {
+      setStatusMessage("Generating monogram...");
+    }
+    setShowDownload(false);
+
+    const payload = {
+      text: textToUse.trim(),
+      font_size: fontSizeToUse,
+      fg_color: fgColorToUse,
+      bg_color: transparentToUse ? "transparent" : bgColorToUse,
+      padding: paddingToUse,
+      line_spacing: 0,
+      vertical: verticalToUse,
+      use_overrides: true,
+    };
+
+    try {
+      const response = await fetch(`${MONOGRAM_API_BASE}/monogram`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Monogram generation failed");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl((current) => {
+        if (current) {
+          URL.revokeObjectURL(current);
+        }
+        return url;
+      });
+      setShowDownload(true);
+      if (addToGallery) {
+        setGalleryItems((items) => [textToUse.trim(), ...items].slice(0, 6));
+      }
+      if (showStatus) {
+        setStatusMessage("Monogram generated successfully.");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown monogram error";
+      if (showStatus) {
+        setStatusMessage(`Error: ${message}`);
+      }
+      setShowDownload(false);
+    }
+  };
+
   const handleGenerate = () => {
     if (!hasText) {
       setStatusMessage("Enter text above before generating.");
       return;
     }
 
-    setStatusMessage("Generating monogram...");
-    setShowDownload(false);
-
-    const payload = {
-      text: text.trim(),
-      font_size: fontSize,
-      fg_color: fgColor,
-      bg_color: transparent ? "transparent" : bgColor,
-      padding,
-      line_spacing: 0,
-      vertical,
-      use_overrides: true,
-    };
-
-    fetch(`${MONOGRAM_API_BASE}/monogram`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || "Monogram generation failed");
-        }
-        return response.blob();
-      })
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        setPreviewUrl((current) => {
-          if (current) {
-            URL.revokeObjectURL(current);
-          }
-          return url;
-        });
-        setShowDownload(true);
-        setGalleryItems((items) => [text.trim(), ...items].slice(0, 6));
-        setStatusMessage("Monogram generated successfully.");
-      })
-      .catch((error: unknown) => {
-        const message =
-          error instanceof Error ? error.message : "Unknown monogram error";
-        setStatusMessage(`Error: ${message}`);
-        setShowDownload(false);
-      });
+    generateMonogram(text, fontSize, fgColor, bgColor, transparent, padding, vertical, true, true);
   };
 
   const handleDownload = () => {
@@ -327,6 +358,112 @@ export function monogramShow({
       cancelled = true;
     };
   }, []);
+
+  // Auto-refresh monogram when glyph or ligature configs change (optimized to preserve user state)
+  useEffect(() => {
+    if (!hasText) {
+      // Only auto-refresh if user has entered text
+      return;
+    }
+
+    let cancelled = false;
+    
+    const checkAndRefresh = async () => {
+      try {
+        const [glyphRes, ligRes] = await Promise.all([
+          fetch(`${MONOGRAM_API_BASE}/glyphs`),
+          fetch(`${MONOGRAM_API_BASE}/ligatures`),
+        ]);
+
+        if (!glyphRes.ok || !ligRes.ok || cancelled) return;
+
+        const glyphData = await glyphRes.json();
+        const ligData = await ligRes.json();
+
+        // Create a hash of the configs
+        const newHash = JSON.stringify({ glyphData, ligData });
+
+        // If hash changed, regenerate with CURRENT user settings (don't reset anything)
+        if (configHashRef.current && configHashRef.current !== newHash) {
+          console.log("Config detected change, auto-refreshing preview...");
+          
+          const now = Date.now();
+          if (now - lastAutoRefreshRef.current > 2000) {
+            // Only allow refresh every 2 seconds to avoid spam
+            lastAutoRefreshRef.current = now;
+            
+            // Generate monogram with CURRENT state (text, fontSize, colors, etc all preserved)
+            const payload = {
+              text: text.trim(),
+              font_size: fontSize,
+              fg_color: fgColor,
+              bg_color: transparent ? "transparent" : bgColor,
+              padding,
+              line_spacing: 0,
+              vertical,
+              use_overrides: true,
+            };
+
+            try {
+              const response = await fetch(`${MONOGRAM_API_BASE}/monogram`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              if (!response.ok) {
+                console.warn("Auto-refresh failed");
+                return;
+              }
+
+              const blob = await response.blob();
+              if (cancelled) return;
+
+              const url = URL.createObjectURL(blob);
+              setPreviewUrl((current) => {
+                if (current) {
+                  URL.revokeObjectURL(current);
+                }
+                return url;
+              });
+            } catch (error) {
+              console.warn("Auto-refresh error:", error);
+            }
+          }
+        }
+
+        // Update hash ref for next comparison
+        configHashRef.current = newHash;
+      } catch (error) {
+        console.warn("Failed to check config updates:", error);
+      }
+    };
+
+    // Check immediately on mount, then every 3 seconds
+    checkAndRefresh();
+    const pollInterval = setInterval(checkAndRefresh, 3000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(pollInterval);
+    };
+  }, [text, fontSize, fgColor, bgColor, transparent, padding, vertical, hasText]);
+
+  // Auto-generate monogram when text or settings change (debounced)
+  useEffect(() => {
+    if (!text.trim().length) {
+      setPreviewUrl("");
+      setShowDownload(false);
+      return;
+    }
+
+    // Debounce generation to avoid too many requests while typing
+    const timeoutId = setTimeout(() => {
+      generateMonogram(text, fontSize, fgColor, bgColor, transparent, padding, vertical, false);
+    }, 500); // Wait 500ms after user stops typing before generating
+
+    return () => clearTimeout(timeoutId);
+  }, [text, fontSize, fgColor, bgColor, transparent, padding, vertical]);
 
   useEffect(() => {
     return () => {
@@ -461,11 +598,12 @@ export function monogramShow({
             {/* button group */}
             <div className="flex ml-auto flex-wrap gap-3 pt-1">
               <button
-                className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary/60"
                 id="btnMonoGen"
                 onClick={handleGenerate}
+                title="Auto-generates as you type. Click to manually refresh."
               >
-                Generate
+                ↻ Refresh
               </button>
               <button
                 className={`${showDownload ? "inline-flex" : "hidden"} items-center justify-center rounded-full border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary/80`}
@@ -488,8 +626,16 @@ export function monogramShow({
           <section className="flex min-w-0 flex-1 flex-col gap-5">
             {/* preview box */}
             <div className="rounded-2xl border border-border bg-background/70 p-5">
-              <div className="mb-4 text-lg font-semibold tracking-tight text-foreground">
-                Preview
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-lg font-semibold tracking-tight text-foreground">
+                  Preview
+                </div>
+                {text.trim().length > 0 && (
+                  <div className="flex items-center gap-2 text-xs bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-full font-medium">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                    Auto-sync on
+                  </div>
+                )}
               </div>
               <div
                 className="flex min-h-75 items-center justify-center rounded-2xl border border-dashed border-border bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_55%)] p-4"

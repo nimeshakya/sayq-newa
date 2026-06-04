@@ -10,7 +10,7 @@
       "crop_top": 0,
       "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -23,38 +23,62 @@
       "crop_bottom": 10,
       "crop_left": 0,
       "crop_right": 7
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 0,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ख": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -18,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 11,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": 7,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
-      "crop_top": 14,
+      "crop_top": 15,
       "crop_bottom": 10,
       "crop_left": 0,
-      "crop_right": 7
+      "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 5,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ग": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -16,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -62,7 +86,7 @@
       "crop_top": 0,
       "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -75,12 +99,24 @@
       "crop_bottom": 10,
       "crop_left": 0,
       "crop_right": 7
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 11,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "घ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -15,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -101,20 +137,32 @@
       "crop_bottom": 10,
       "crop_left": 0,
       "crop_right": 7
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 7,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ङ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": 2,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 6,
       "crop_left": 0,
-      "crop_right": 7
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -127,12 +175,24 @@
       "crop_bottom": 4,
       "crop_left": 0,
       "crop_right": 7
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 4,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "च": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -153,12 +213,24 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "छ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -166,7 +238,7 @@
       "crop_top": 0,
       "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -179,12 +251,24 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ज": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -4,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -192,7 +276,7 @@
       "crop_top": 0,
       "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -205,20 +289,32 @@
       "crop_bottom": 10,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -2,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "झ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -19,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 22,
       "crop_left": 0,
-      "crop_right": 6
+      "crop_right": 4
     },
     "middle": {
       "scale": 1.0,
@@ -231,20 +327,32 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 4,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ञ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -18,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 14,
       "crop_left": 0,
-      "crop_right": 6
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -257,20 +365,32 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 6,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ट": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": 1,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 18,
       "crop_left": 0,
-      "crop_right": 6
+      "crop_right": 5
     },
     "middle": {
       "scale": 1.0,
@@ -283,20 +403,32 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 4,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ठ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -2,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 12,
+      "crop_bottom": 15,
       "crop_left": 0,
-      "crop_right": 4
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -309,20 +441,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 4
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -2,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ड": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 4,
+      "crop_bottom": 8,
       "crop_left": 0,
-      "crop_right": 4
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -335,6 +479,18 @@
       "crop_bottom": 4,
       "crop_left": 0,
       "crop_right": 4
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -14,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ढ": {
@@ -346,9 +502,9 @@
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 4,
+      "crop_bottom": 9,
       "crop_left": 0,
-      "crop_right": 7
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -361,38 +517,24 @@
       "crop_bottom": 4,
       "crop_left": 0,
       "crop_right": 7
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 2,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ण": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
-      "y_offset": 0,
-      "rotation": 0.0,
-      "skew_x": 0.0,
-      "skew_y": 0.0,
-      "crop_top": 0,
-      "crop_bottom": 4,
-      "crop_left": 0,
-      "crop_right": 12
-    },
-    "middle": {
-      "scale": 1.0,
-      "x_offset": 0,
-      "y_offset": 0,
-      "rotation": 0.0,
-      "skew_x": 0.0,
-      "skew_y": 0.0,
-      "crop_top": 16,
-      "crop_bottom": 4,
-      "crop_left": 0,
-      "crop_right": 12
-    }
-  },
-  "त": {
-    "first": {
-      "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -20,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -400,7 +542,7 @@
       "crop_top": 0,
       "crop_bottom": 13,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -410,23 +552,73 @@
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 16,
-      "crop_bottom": 11,
+      "crop_bottom": 4,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 4,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
+    }
+  },
+  "त": {
+    "first": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 13,
+      "crop_left": 0,
+      "crop_right": 0
+    },
+    "middle": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 11,
+      "crop_left": 0,
+      "crop_right": 0
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "थ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -11,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -439,20 +631,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -10,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 13,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "द": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -14,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -465,20 +669,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ध": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -11,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -491,18 +707,30 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 2,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "न": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -9,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 14,
       "crop_left": 0,
       "crop_right": 12
     },
@@ -517,20 +745,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -10,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "प": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -543,20 +783,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 10,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "फ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -4,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 6
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -569,20 +821,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 18,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ब": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -11,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 14,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -595,20 +859,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "भ": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 14,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -621,18 +897,30 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "म": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 12
     },
@@ -647,20 +935,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "य": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -15,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 14,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -673,24 +973,36 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 8,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 18,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "र": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -8,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 14,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
-      "x_offset": 5,
+      "x_offset": -9,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -699,46 +1011,70 @@
       "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 11
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -8,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ल": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -18,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -8,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
-      "crop_top": 16,
-      "crop_bottom": 11,
+      "crop_top": 17,
+      "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -20,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 17,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "व": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -11,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -751,20 +1087,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "श": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -777,20 +1125,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ष": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -12,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -803,20 +1163,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 10,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 16,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "स": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -15,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 12,
       "crop_left": 0,
-      "crop_right": 12
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -829,20 +1201,32 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 12
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": 10,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 18,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ह": {
     "first": {
       "scale": 1.0,
-      "x_offset": 0,
+      "x_offset": -16,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
-      "crop_bottom": 10,
+      "crop_bottom": 17,
       "crop_left": 0,
-      "crop_right": 7
+      "crop_right": 0
     },
     "middle": {
       "scale": 1.0,
@@ -855,6 +1239,18 @@
       "crop_bottom": 11,
       "crop_left": 0,
       "crop_right": 6
+    },
+    "last": {
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 15,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   }
 }
