@@ -17,5 +17,5 @@ export const privateRoutes: RouteObject[] = [
   { path: "learn/neural", element: <LearnAgentPage modelType="supervised" /> },
   { path: "learn/dqn", element: <LearnAgentPage modelType="unsupervised" /> },
   { path: "sessionPage", element: <SessionPage /> },
-  { path: "my-profile", element: <ProfilePage /> }, // Moved entirely to private
+  { path: "my-profile", element: <ProfilePage /> },
 ];
