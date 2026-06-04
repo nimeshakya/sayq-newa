@@ -9,6 +9,11 @@ const TeamPage = lazy(() => import("@/pages/teamPage/TeamPage"));
 const RanjanaPage = lazy(() => import("@/pages/RanjanaPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 
+const GlyphAdminPage = lazy(() => import("@/pages/kutaksharPage/glyphadmin"));
+const LigatureAdminPage = lazy(
+  () => import("@/pages/kutaksharPage/ligatureadmin"),
+);
+
 const withSuspense = (node: React.ReactNode) => {
   return <Suspense fallback={<div>Loading...</div>}>{node}</Suspense>;
 };
@@ -30,4 +35,7 @@ export const publicRoutes: RouteObject[] = [
   },
   { path: "/monogram", element: withSuspense(<KutaksharPage />) },
   { path: "/my-profile", element: withSuspense(<ProfilePage />) },
+
+  { path: "/adminglyph", element: <GlyphAdminPage /> },
+  { path: "/adminligature", element: <LigatureAdminPage /> },
 ];
