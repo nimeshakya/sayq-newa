@@ -79,6 +79,7 @@ const Navigation = () => {
             <span className="logo-text">NewaSayQ</span>
           </Link>
 
+          {/* nav links */}
           <div className={`nav-links`}>
             <NavLink
               to="/"
@@ -163,6 +164,7 @@ const Navigation = () => {
             </NavLink>
           </div>
 
+          {/* search button */}
           <div className="button-container">
             <button
               className="search-icon-btn"
@@ -241,16 +243,11 @@ const Navigation = () => {
               )}
             </div>
           </div>
-
           <button
             className={`menu-toggle ${isMenuOpen ? "active" : ""}`}
             onClick={toggleMenu}
             aria-label="Toggle menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          ></button>
         </div>
       </nav>
 
