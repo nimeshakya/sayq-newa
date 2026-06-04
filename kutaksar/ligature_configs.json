@@ -1,0 +1,112 @@
+{
+  "क+र": [
+    {
+      "char": "क",
+      "scale": 1.0,
+      "x_offset": 0,
+      "y_offset": 0,
+      "y_advance": 40,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
+    },
+    {
+      "char": "र",
+      "scale": 0.7,
+      "x_offset": 0,
+      "y_offset": -10,
+      "y_advance": 60,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
+    }
+  ],
+  "क+ड": [
+    {
+      "char": "क",
+      "scale": 1.0,
+      "x_offset": 0,
+      "y_offset": 0,
+      "y_advance": 80,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 11,
+      "crop_left": 0,
+      "crop_right": 0
+    },
+    {
+      "char": "ड",
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": -37,
+      "y_advance": 80,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
+    }
+  ],
+  "क+ड+च": [
+    {
+      "char": "क",
+      "scale": 1.0,
+      "x_offset": 0,
+      "y_offset": 0,
+      "y_advance": 80,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 11,
+      "crop_left": 0,
+      "crop_right": 0,
+      "mask": null,
+      "adjustments": null
+    },
+    {
+      "char": "ड",
+      "scale": 1.0,
+      "x_offset": -12,
+      "y_offset": -37,
+      "y_advance": 80,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 16,
+      "crop_left": 0,
+      "crop_right": 0,
+      "mask": null,
+      "adjustments": null
+    },
+    {
+      "char": "च",
+      "scale": 1.0,
+      "x_offset": -7,
+      "y_offset": -83,
+      "y_advance": 80,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 14,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0,
+      "mask": null,
+      "adjustments": null
+    }
+  ]
+}
