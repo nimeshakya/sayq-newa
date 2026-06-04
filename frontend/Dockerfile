@@ -1,8 +1,8 @@
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm install
 COPY . .
 
 # Accept build arguments for environment variables

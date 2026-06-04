@@ -8,6 +8,14 @@ import UserModel from "../models/user.model";
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Unknown error";
+};
+
 export const googleSignIn = async (
   req: express.Request,
   res: express.Response
@@ -17,9 +25,12 @@ export const googleSignIn = async (
     if (!credential) {
       return res.status(400).json({ message: "Credential is required!" }).end();
     }
-    
+
     if (!GOOGLE_CLIENT_ID) {
-      return res.status(500).json({ message: "GOOGLE_CLIENT_ID is not configured!" }).end();
+      return res
+        .status(500)
+        .json({ message: "GOOGLE_CLIENT_ID is not configured!" })
+        .end();
     }
 
     // Verify the token with Google
@@ -68,9 +79,14 @@ export const googleSignIn = async (
       .json({ user, token: appToken })
       .end();
   } catch (error) {
+    console.error("Google Authentication Failed:", error);
+
     res
       .status(500)
-      .json({ message: "Google Authentication Failed!", error })
+      .json({
+        message: "Google Authentication Failed!",
+        error: getErrorMessage(error),
+      })
       .end();
   }
 };
