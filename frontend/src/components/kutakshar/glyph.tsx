@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
+import { Settings2, Search, Save } from 'lucide-react';
 
 interface GlyphConfig {
   scale: number;
@@ -194,14 +195,17 @@ export default function GlyphComponent() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Controls */}
-      <div className="bg-white/95 border border-[#8b1e3f]/20 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(139,30,63,0.08)] backdrop-blur-sm">
-        <h2 className="text-2xl font-bold mb-2 text-[#222]">🛠️ Glyph Studio</h2>
-        <p className="text-gray-600 text-sm mb-8">Fine-tune individual characters for perfect monogram stacks.</p>
+      <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all">
+        <div className="flex items-center gap-3 mb-2">
+          <Settings2 className="w-6 h-6 text-[#8b1e3f]" />
+          <h2 className="text-2xl font-bold text-[#222]">Glyph Studio</h2>
+        </div>
+        <p className="text-gray-500 text-sm mb-10">Fine-tune individual characters for perfect monogram stacks.</p>
 
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-1.5 ml-1">Base Character</label>
+              <label className="block text-[11px] uppercase tracking-[0.25em] font-bold text-gray-300 mb-2 ml-1">Base Character</label>
               <Select
                 value={charOptions.find(opt => opt.value === selectedChar)}
                 onChange={(opt: any) => setSelectedChar(opt.value)}
@@ -214,7 +218,7 @@ export default function GlyphComponent() {
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-1.5 ml-1">Editing Mode</label>
+              <label className="block text-[11px] uppercase tracking-[0.25em] font-bold text-gray-300 mb-2 ml-1">Editing Mode</label>
               <Select
                 value={modeOptions.find(opt => opt.value === editingMode)}
                 onChange={(opt: any) => setEditingMode(opt.value as any)}
@@ -242,8 +246,8 @@ export default function GlyphComponent() {
               { label: 'Crop Right', key: 'crop_right' as const, min: 0, max: 200, step: 1, unit: 'px' },
             ].map(({ label, key, min, max, step, unit = '' }) => (
               <div key={key} className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-bold mb-0.5">
-                  <span className="text-gray-400 uppercase tracking-wider">{label}</span>
+                <div className="flex justify-between text-[10px] font-bold mb-0.5 px-1">
+                  <span className="text-gray-400 uppercase tracking-widest">{label}</span>
                   <span className="font-mono text-[#8b1e3f] bg-[#8b1e3f]/5 px-1.5 py-0.5 rounded-md">
                     {config[key]}{unit}
                   </span>
@@ -263,9 +267,9 @@ export default function GlyphComponent() {
 
           <button
             onClick={handleSave}
-            className="w-full bg-gradient-to-r from-[#8b1e3f] to-[#e33629] hover:opacity-90 transition-all py-4 rounded-2xl font-bold text-lg text-white shadow-[0_6px_20px_rgba(139,30,63,0.3)]"
+            className="w-full relative overflow-hidden group bg-gradient-to-r from-[#8b1e3f] to-[#e33629] text-white py-5 rounded-[22px] font-bold text-lg transition-all shadow-[0_15px_35px_rgba(139,30,63,0.25)] hover:shadow-[0_20px_45px_rgba(139,30,63,0.35)] hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
           >
-            💾 Save Configuration
+            <Save className="w-6 h-6" /> Save Configuration
           </button>
 
           {status && <p className="text-center text-[#00a300] font-medium text-sm mt-4">{status}</p>}
@@ -273,10 +277,13 @@ export default function GlyphComponent() {
       </div>
 
       {/* Preview */}
-      <div className="bg-white/95 border border-[#8b1e3f]/20 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(139,30,63,0.08)] flex flex-col">
-        <h3 className="text-xl font-bold mb-6 text-[#222]">🔍 Glyph Preview</h3>
+      <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] flex flex-col">
+        <div className="flex items-center gap-3 mb-8">
+          <Search className="w-6 h-6 text-[#8b1e3f]" />
+          <h3 className="text-xl font-bold text-[#222]">Glyph Preview</h3>
+        </div>
         
-        <div className="flex-1 bg-[#e8f9ff]/20 border-2 border-dashed border-[#8b1e3f]/10 rounded-3xl flex items-center justify-center min-h-[400px] overflow-hidden relative">
+        <div className="flex-1 bg-white border-2 border-dashed border-gray-100 rounded-[32px] flex items-center justify-center relative overflow-hidden min-h-[420px]">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-3xl z-10">
               <div className="text-white text-sm">Generating preview...</div>

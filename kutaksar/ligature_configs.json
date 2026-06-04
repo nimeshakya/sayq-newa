@@ -5,28 +5,32 @@
       "scale": 1.0,
       "x_offset": 0,
       "y_offset": 0,
-      "y_advance": 40,
+      "y_advance": null,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 0,
       "crop_bottom": 0,
       "crop_left": 0,
-      "crop_right": 0
+      "crop_right": 0,
+      "mask": null,
+      "adjustments": null
     },
     {
       "char": "र",
-      "scale": 0.7,
+      "scale": 1.0,
       "x_offset": 0,
-      "y_offset": -10,
-      "y_advance": 60,
+      "y_offset": -36,
+      "y_advance": null,
       "rotation": 0.0,
       "skew_x": 0.0,
       "skew_y": 0.0,
-      "crop_top": 0,
+      "crop_top": 13,
       "crop_bottom": 0,
       "crop_left": 0,
-      "crop_right": 0
+      "crop_right": 0,
+      "mask": null,
+      "adjustments": null
     }
   ],
   "क+ड": [
