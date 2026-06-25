@@ -6,9 +6,7 @@ import {
   type ChangeEvent,
   type ReactElement,
 } from "react";
-import { KUTAKSAR_API_BASE } from "@/constants";
-
-const MONOGRAM_API_BASE = KUTAKSAR_API_BASE;
+import { MONOGRAM_API_BASE } from "@/constants";
 
 export type MonogramShowProps = {
   className?: string;
@@ -230,7 +228,7 @@ export function monogramShow({
     paddingToUse: number,
     verticalToUse: boolean,
     showStatus = true,
-    addToGallery = false
+    addToGallery = false,
   ) => {
     if (textToUse.trim().length === 0) {
       return;
@@ -297,7 +295,17 @@ export function monogramShow({
       return;
     }
 
-    generateMonogram(text, fontSize, fgColor, bgColor, transparent, padding, vertical, true, true);
+    generateMonogram(
+      text,
+      fontSize,
+      fgColor,
+      bgColor,
+      transparent,
+      padding,
+      vertical,
+      true,
+      true,
+    );
   };
 
   const handleDownload = () => {
@@ -367,7 +375,7 @@ export function monogramShow({
     }
 
     let cancelled = false;
-    
+
     const checkAndRefresh = async () => {
       try {
         const [glyphRes, ligRes] = await Promise.all([
@@ -386,12 +394,12 @@ export function monogramShow({
         // If hash changed, regenerate with CURRENT user settings (don't reset anything)
         if (configHashRef.current && configHashRef.current !== newHash) {
           console.log("Config detected change, auto-refreshing preview...");
-          
+
           const now = Date.now();
           if (now - lastAutoRefreshRef.current > 2000) {
             // Only allow refresh every 2 seconds to avoid spam
             lastAutoRefreshRef.current = now;
-            
+
             // Generate monogram with CURRENT state (text, fontSize, colors, etc all preserved)
             const payload = {
               text: text.trim(),
@@ -447,7 +455,16 @@ export function monogramShow({
       cancelled = true;
       clearInterval(pollInterval);
     };
-  }, [text, fontSize, fgColor, bgColor, transparent, padding, vertical, hasText]);
+  }, [
+    text,
+    fontSize,
+    fgColor,
+    bgColor,
+    transparent,
+    padding,
+    vertical,
+    hasText,
+  ]);
 
   // Auto-generate monogram when text or settings change (debounced)
   useEffect(() => {
@@ -459,7 +476,16 @@ export function monogramShow({
 
     // Debounce generation to avoid too many requests while typing
     const timeoutId = setTimeout(() => {
-      generateMonogram(text, fontSize, fgColor, bgColor, transparent, padding, vertical, false);
+      generateMonogram(
+        text,
+        fontSize,
+        fgColor,
+        bgColor,
+        transparent,
+        padding,
+        vertical,
+        false,
+      );
     }, 500); // Wait 500ms after user stops typing before generating
 
     return () => clearTimeout(timeoutId);
