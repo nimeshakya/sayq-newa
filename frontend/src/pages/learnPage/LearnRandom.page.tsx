@@ -4,7 +4,7 @@ import "../../styles/learn.style.scss";
 import "../../styles/_shared.scss";
 import LearnAgentComponent from "../../components/learningComponent/learningAgent.component";
 import axios from "axios";
-import { API_BASE_URL } from "../../constants";
+import { BACKEND_API } from "../../constants";
 
 export default function LearnRandomPage() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function LearnRandomPage() {
   const [error, setError] = useState<string>("");
   const [unLearnedWords, setUnlearnedWords] = useState<any[]>([]);
   const count = 10;
-  const url = `${API_BASE_URL}/words/learn`;
+  const url = `${BACKEND_API}/words/learn`;
   useEffect(() => {
     const fetchLearnWords = async () => {
       try {

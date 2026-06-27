@@ -6,7 +6,7 @@ import TimeTracker from "../timer.component";
 import "../../styles/_shared.scss";
 import "../../styles/learn.style.scss";
 
-import { API_BASE_URL } from "../../constants";
+import { BACKEND_API } from "../../constants";
 import { useUserContext } from "../../context/user.context";
 import Toast from "../common/Toast";
 import type { ToastType } from "../common/Toast";
@@ -69,7 +69,7 @@ export default function LearnAgentComponent({
     if (!user?.id || !currentWord) return;
     try {
       const res = await fetch(
-        `${API_BASE_URL}/userWordProgress/mark-introduced`,
+        `${BACKEND_API}/userWordProgress/mark-introduced`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ export default function LearnAgentComponent({
   const markLearned = async () => {
     if (!user?.id || !currentWord) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/userWordProgress/mark-learned`, {
+      const res = await fetch(`${BACKEND_API}/userWordProgress/mark-learned`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

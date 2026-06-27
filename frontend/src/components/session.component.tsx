@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuestionContext } from "../context/question.context";
 import { useUserContext } from "../context/user.context";
-import { API_BASE_URL } from "../constants";
+import { BACKEND_API } from "../constants";
 
 import "../styles/_shared.scss";
 import Question from "./questions.components";
@@ -57,11 +57,11 @@ export default function SessionComponent({
 
       try {
         const res = await fetch(
-          `${API_BASE_URL}/session-questions?${query.toString()}`,
+          `${BACKEND_API}/session-questions?${query.toString()}`,
           {
             method: "GET",
             credentials: "include",
-          }
+          },
         );
 
         // Handle auth redirect

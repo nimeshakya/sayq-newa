@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuestionContext } from "../context/question.context";
 
-import { API_BASE_URL } from "../constants";
+import { BACKEND_API } from "../constants";
 
 import { useUserContext } from "../context/user.context";
 import type { ResultProp } from "../context/question.context";
@@ -31,7 +31,10 @@ export default function Question({
   const { user } = useUserContext();
   const navigate = useNavigate();
 
-  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+  } | null>(null);
 
   useEffect(() => {
     if (
@@ -65,7 +68,7 @@ export default function Question({
 
   const saveResult = async (resultsToSave: any[]) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/user-stat`, {
+      const res = await fetch(`${BACKEND_API}/user-stat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +84,7 @@ export default function Question({
   const saveWordProgress = async (resultsToSave: any[]) => {
     try {
       const requests = resultsToSave.map((r) =>
-        fetch(`${API_BASE_URL}/word-progress`, {
+        fetch(`${BACKEND_API}/word-progress`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -105,13 +108,19 @@ export default function Question({
 
   const handleNextQuestion = async () => {
     if (selectedAnswer === null) {
-      setToast({ message: "Please select an answer before proceeding", type: "warning" });
+      setToast({
+        message: "Please select an answer before proceeding",
+        type: "warning",
+      });
       return;
     }
 
     const userId = user?.id;
     if (!userId) {
-      setToast({ message: "You are not signed in. Please sign in to continue.", type: "error" });
+      setToast({
+        message: "You are not signed in. Please sign in to continue.",
+        type: "error",
+      });
       return;
     }
 
