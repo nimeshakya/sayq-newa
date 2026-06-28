@@ -3,12 +3,10 @@ import mongoose from "mongoose";
 import { Word } from "../models/word.model";
 import { enrichWordsWithHomonymStatus } from "../utils/homonymChecker.util";
 import UserWordProgressModel from "../models/userWordProgress.model";
+import { RL_SERVICE_URL } from "../constants";
 
 // Use native fetch (available in Node 18+) instead of node-fetch
 const fetch = globalThis.fetch;
-
-const RL_SERVICE_URL = process.env.RL_SERVICE_URL || "http://localhost:8000";
-const DQN_SERVICE_URL = process.env.DQN_SERVICE_URL || "http://localhost:8001";
 
 const clamp = (val: number, min: number, max: number) =>
   Math.max(min, Math.min(max, val));
@@ -225,7 +223,7 @@ export const recommendWordsDQN = async (req: Request, res: Response) => {
     let resp;
     let serviceName = "DQN";
     try {
-      resp = await fetch(`${DQN_SERVICE_URL}/recommend`, {
+      resp = await fetch(`${RL_SERVICE_URL}/api/dqn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

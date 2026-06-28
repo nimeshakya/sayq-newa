@@ -1,10 +1,11 @@
 import io
+import os
 import json
 from pathlib import Path
 from typing import Optional
 
 import data_gen
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from PIL import Image, ImageChops, ImageDraw, ImageFont
@@ -17,6 +18,9 @@ GLYPH_CONFIG_PATH = BASE_DIR / "glyph_configs.json"
 LIGATURE_CONFIG_PATH = BASE_DIR / "ligature_configs.json"
 
 app = FastAPI(title="Monogram API")
+
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",") 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

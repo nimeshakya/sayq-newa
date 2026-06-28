@@ -4,6 +4,7 @@ import { useUserContext } from "../../context/user.context";
 import SearchModal from "../search/SearchModal";
 import "../../styles/navigation/nagigation.scss";
 import logoSvg from "../../assets/logo.svg";
+import ModelTrainButton from "../trainModel/trainDQN";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -164,6 +165,7 @@ const Navigation = () => {
             </NavLink>
           </div>
 
+          <ModelTrainButton />
           {/* search button */}
           <div className="button-container">
             <button
