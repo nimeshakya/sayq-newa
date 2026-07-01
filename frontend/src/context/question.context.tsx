@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { API_BASE_URL } from "../constants";
+import { BACKEND_API } from "../constants";
 
 type QuestionProp = {
   id: string;
@@ -43,7 +43,7 @@ type QuestionContextType = {
 };
 
 const QuestionContext = createContext<QuestionContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const QuestionProvider = ({
@@ -62,7 +62,7 @@ export const QuestionProvider = ({
   };
 
   const FetchQuestion = async (
-    params: FetchQuestionProps = {}
+    params: FetchQuestionProps = {},
   ): Promise<void> => {
     const query = new URLSearchParams();
 
@@ -78,7 +78,7 @@ export const QuestionProvider = ({
       query.append("count", params.count.toString());
     }
 
-    const res = await fetch(`${API_BASE_URL}/questions?${query.toString()}`);
+    const res = await fetch(`${BACKEND_API}/questions?${query.toString()}`);
 
     if (!res.ok) {
       console.error("Failed to fetch words");

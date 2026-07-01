@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/user.context";
 import SessionComponent from "../components/session.component";
-import { API_BASE_URL } from "../constants";
+import { BACKEND_API } from "../constants";
 import "../styles/_shared.scss";
 import "../styles/session.style.scss";
 
@@ -19,7 +19,7 @@ export default function SessionPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/words/categories`);
+        const res = await fetch(`${BACKEND_API}/words/categories`);
         if (res.ok) {
           const data = await res.json();
           setCategories(data);
@@ -34,7 +34,7 @@ export default function SessionPage() {
   useEffect(() => {
     const fetchExpertiseLevel = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/words/expertise-level`);
+        const res = await fetch(`${BACKEND_API}/words/expertise-level`);
         if (res.ok) {
           const data = await res.json();
           setExpertise_levels(data);
@@ -74,7 +74,16 @@ export default function SessionPage() {
           {/* Header */}
           <div className="pageHeader">
             <div className="header-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8b0038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#8b0038"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg>
@@ -141,7 +150,17 @@ export default function SessionPage() {
                 onClick={() => setStart(true)}
               >
                 Start Practice Session
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px' }}>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ marginLeft: "8px" }}
+                >
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>

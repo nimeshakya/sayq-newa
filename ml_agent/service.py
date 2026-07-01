@@ -1,109 +1,210 @@
-"""
-FastAPI service to score/recommend vocabulary words using a lightweight DQN-style scorer.
-The service expects the backend to send word metadata and user-level context.
-"""
+# service.py (Partial replacement for the initialization section)
 import os
 from pathlib import Path
+import traceback
 from typing import List, Optional
+from contextlib import asynccontextmanager
 
 import numpy as np
 import torch
-import torch.nn as nn
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks, HTTPException, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-CKPT_PATH = Path(__file__).parent / "checkpoints" / "scorer.pt"
+load_dotenv()
 
+# Ensure this matches your actual filename (trainer.py or dqn_trainer.py)
+from dqn_trainer import train_dqn_model, DQN, load_words_from_db, DEVICE
+
+CHECKPOINTS_DIR = Path(__file__).parent / "checkpoints"
+SCORER_CKPT_PATH = CHECKPOINTS_DIR / "scorer.pt"
+DQN_CKPT_PATH = CHECKPOINTS_DIR / "dqn_vocab.pt"
+MONGO_URI = os.getenv("MONGO_URI")
+
+scorer_model: Optional[torch.nn.Module] = None
+dqn_model: Optional[DQN] = None
+words_df_cache = None
+
+def load_local_models():
+    global scorer_model, dqn_model, words_df_cache
+    
+    # Importing DQN from trainer
+    from dqn_trainer import DQN as RawScorer
+    scorer_model = RawScorer(state_dim=3, action_dim=1).to(DEVICE)
+    if SCORER_CKPT_PATH.exists():
+        try:
+            state = torch.load(SCORER_CKPT_PATH, map_location=DEVICE)
+            weights = state.get("q_net", state) if isinstance(state, dict) else state
+            scorer_model.load_state_dict(weights, strict=False)
+            scorer_model.eval()
+            print(f"Loaded /recommend scorer model from {SCORER_CKPT_PATH}")
+        except Exception as e:
+            print(f"Could not load Scorer weights: {e}")
+            
+    if MONGO_URI:
+        try:
+            print("Connecting to MongoDB to initialize vocabulary cache...")
+            words_df_cache = load_words_from_db(MONGO_URI)
+            action_dim = len(words_df_cache)
+            dqn_model = DQN(state_dim=2, action_dim=action_dim).to(DEVICE)
+            
+            if DQN_CKPT_PATH.exists():
+                state = torch.load(DQN_CKPT_PATH, map_location=DEVICE)
+                weights = state.get("q_net", state) if isinstance(state, dict) else state
+                dqn_model.load_state_dict(weights)
+                dqn_model.eval()
+                print(f"Loaded /dqn model from {DQN_CKPT_PATH}")
+            else:
+                print(f"Checkpoint {DQN_CKPT_PATH} not found. Running dqn_model with uninitialized weights.")
+        except Exception as e:
+            print("❌ DQN initialization failed. Detailed traceback:")
+            traceback.print_exc()
+    else:
+        print("❌ DQN initialization skipped: MONGO_URI environment variable not found.")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_local_models()
+    yield
+
+# Single initialization of FastAPI
+app = FastAPI(title="RL Vocab Recommender", version="0.3.0", lifespan=lifespan)
+
+# CORS middleware added to the correct, single app instance
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production to match ALLOWED_ORIGINS
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Use an APIRouter with the "/api" prefix to match the React frontend
+api_router = APIRouter(prefix="/api")
+
+def run_background_train():
+    if not MONGO_URI:
+        print("Cannot train: MONGO_URI environment variable is missing.")
+        return
+    try:
+        train_dqn_model(mongo_uri=MONGO_URI, num_episodes=40)
+        load_local_models()
+    except Exception as e:
+        print(f"Background training failed: {e}")
 
 class WordItem(BaseModel):
-  id: str
-  difficulty: float
-  category: Optional[str] = None
-
+    id: str
+    difficulty: float
+    category: Optional[str] = None
 
 class RecommendRequest(BaseModel):
-  userLevel: int = 2
-  k: int = 5
-  recentAccuracy: float = 0.6
-  words: List[WordItem]
+    userLevel: int = 2
+    k: int = 5
+    recentAccuracy: float = 0.6
+    words: List[WordItem]
 
+@api_router.post("/train/rlmodel", status_code=202)
+async def trigger_training(background_tasks: BackgroundTasks):
+    if not MONGO_URI:
+        raise HTTPException(status_code=500, detail="MONGO_URI not configured on server.")
+    background_tasks.add_task(run_background_train)
+    return {"status": "training initiated", "detail": "DQN is training in background."}
 
-class Scorer(nn.Module):
-  def __init__(self, state_dim: int = 3, hidden: int = 64):
-    super().__init__()
-    self.net = nn.Sequential(
-      nn.Linear(state_dim, hidden),
-      nn.ReLU(),
-      nn.Linear(hidden, hidden),
-      nn.ReLU(),
-      nn.Linear(hidden, 1),
-    )
-
-  def forward(self, x: torch.Tensor) -> torch.Tensor:
-    # Returns shape [batch, 1]
-    return self.net(x)
-
-
-def load_model() -> Scorer:
-  model = Scorer().to(DEVICE)
-  if CKPT_PATH.exists():
-    try:
-      state = torch.load(CKPT_PATH, map_location=DEVICE)
-      model.load_state_dict(state)
-      print(f"Loaded scorer checkpoint: {CKPT_PATH}")
-    except Exception as exc:  # pragma: no cover
-      print(f"Failed to load checkpoint {CKPT_PATH}: {exc}")
-  model.eval()
-  return model
-
-
-app = FastAPI(title="RL Vocab Recommender", version="0.1.0")
-scorer = load_model()
-
-
-def build_state(word: WordItem, user_level: int, recent_acc: float) -> np.ndarray:
-  gap = word.difficulty - user_level
-  user_level_norm = user_level / 5.0
-  gap_norm = np.tanh(gap / 3.0)
-  return np.array([user_level_norm, gap_norm, recent_acc], dtype=np.float32)
-
-
-@app.get("/health")
-async def health():
-  return {"status": "ok", "device": str(DEVICE)}
-
+# @api_router.post("/recommend")
+# async def recommend(req: RecommendRequest):
+#     # ... (rest of your /recommend logic remains unchanged)
+#     pass
 
 @app.post("/recommend")
 async def recommend(req: RecommendRequest):
-  if not req.words:
-    return {"recommendations": []}
+    """Traditional scorer: State requires 3 features (User Level, Word-User Gap, Accuracy)"""
+    if scorer_model is None:
+        raise HTTPException(status_code=503, detail="Scorer model not loaded.")
+    if not req.words:
+        return {"recommendations": []}
 
-  k = max(1, min(req.k, len(req.words)))
-  states = np.stack([build_state(w, req.userLevel, req.recentAccuracy) for w in req.words])
-  with torch.no_grad():
-    x = torch.tensor(states, dtype=torch.float32, device=DEVICE)
-    scores = scorer(x).squeeze(-1).cpu().numpy().tolist()
+    k = max(1, min(req.k, len(req.words)))
+    
+    # 3-feature context formulation [user_level, gap, accuracy]
+    states = []
+    for w in req.words:
+        gap = w.difficulty - req.userLevel
+        states.append([req.userLevel / 5.0, np.tanh(gap / 3.0), req.recentAccuracy])
+        
+    with torch.no_grad():
+        x = torch.tensor(states, dtype=torch.float32, device=DEVICE)
+        scores = scorer_model(x).squeeze(-1).cpu().numpy().tolist()
 
-  # Add tiny noise to break ties so the same top-k is not always returned when scores are equal
-  scores = [float(s + np.random.uniform(-1e-6, 1e-6)) for s in scores]
+    # Tie-breaking noise
+    scores = [float(s + np.random.uniform(-1e-6, 1e-6)) for s in scores]
+    ranked = sorted(zip(req.words, scores), key=lambda p: p[1], reverse=True)
+    
+    return {
+        "recommendations": [
+            {"wordId": w.id, "score": float(score), "category": w.category}
+            for w, score in ranked[:k]
+        ]
+    }
+    pass
 
-  ranked = sorted(zip(req.words, scores), key=lambda p: p[1], reverse=True)
-  topk = ranked[:k]
-  return {
-    "recommendations": [
-      {"wordId": w.id, "score": float(score), "category": w.category}
-      for w, score in topk
-    ]
-  }
+
+@api_router.post("/dqn")
+async def dqn_recommend(req: RecommendRequest):
+    """Standard action-selection DQN: State requires 2 features [User Level, Accuracy]"""
+    if dqn_model is None or words_df_cache is None:
+        raise HTTPException(status_code=503, detail="DQN model or database words not initialized.")
+    if not req.words:
+        return {"recommendations": []}
+
+    k = max(1, min(req.k, len(req.words)))
+    
+    # State containing ONLY action-independent user details [User Level, Recent Accuracy]
+    user_state = np.array([req.userLevel / 5.0, req.recentAccuracy], dtype=np.float32)
+    
+    with torch.no_grad():
+        s = torch.tensor(user_state, dtype=torch.float32, device=DEVICE).unsqueeze(0)
+        # Predict Q-values across all actions (word indices)
+        q_values = dqn_model(s).squeeze(0).cpu().numpy().tolist()
+
+    # Create a fast lookup for candidate words in words_df_cache indices
+    word_id_to_score = {}
+    for idx, row in words_df_cache.iterrows():
+        # Read the Q-value mapped directly to the word's database ID
+        word_id_to_score[str(row["_id"])] = q_values[idx]
+
+    # Map candidate words to their estimated Q-value scores
+    scored_candidates = []
+    for w in req.words:
+        score = word_id_to_score.get(w.id, -999.0)  # Use low penalty score if word index mismatch occurs
+        scored_candidates.append((w, score))
+
+    # Tie-breaking noise and sorting
+    scored_candidates = [(w, float(s + np.random.uniform(-1e-6, 1e-6))) for w, s in scored_candidates]
+    ranked = sorted(scored_candidates, key=lambda p: p[1], reverse=True)
+
+    return {
+        "recommendations": [
+            {"wordId": w.id, "score": float(score), "category": w.category}
+            for w, score in ranked[:k]
+        ]
+    }
+
+@api_router.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "device": str(DEVICE),
+        "scorer_loaded": scorer_model is not None,
+        "dqn_loaded": dqn_model is not None,
+        "vocabulary_size": len(words_df_cache) if words_df_cache is not None else 0
+    }
+
+# Include the router in the app
+app.include_router(api_router)
 
 
 if __name__ == "__main__":
-  import uvicorn
+    import uvicorn
 
-  uvicorn.run(
-    "service:app",
-    host="0.0.0.0",
-    port=int(os.getenv("PORT", "8000")),
-    reload=False,
-  )
+    uvicorn.run("service:app", host="0.0.0.0", port=8000, reload=False)

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { API_BASE_URL } from "../../constants";
+import { BACKEND_API } from "../../constants";
 import "../../styles/search/searchModal.scss";
 
 interface Word {
@@ -47,7 +47,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       setError("");
 
       const response = await fetch(
-        `${API_BASE_URL}/words/search?query=${encodeURIComponent(query)}`,
+        `${BACKEND_API}/words/search?query=${encodeURIComponent(query)}`,
         {
           signal: abortControllerRef.current.signal,
         },

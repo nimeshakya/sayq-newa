@@ -5,7 +5,7 @@ import "../../styles/learn.style.scss";
 import "../../styles/_shared.scss";
 import LearnAgentComponent from "../../components/learningComponent/learningAgent.component";
 
-import { API_BASE_URL } from "../../constants";
+import { BACKEND_API } from "../../constants";
 
 type PageProps = { modelType?: "supervised" | "unsupervised" };
 
@@ -18,8 +18,8 @@ export default function LearnAgentPage({
   const navigate = useNavigate();
 
   const modelOptions = {
-    supervised: `${API_BASE_URL}/rl/recommend?userId=${user?.id}&k=${count}`,
-    unsupervised: `${API_BASE_URL}/rl/dqn-recommend?userId=${user?.id}&k=${count}`,
+    supervised: `${BACKEND_API}/rl/recommend?userId=${user?.id}&k=${count}`,
+    unsupervised: `${BACKEND_API}/rl/dqn-recommend?userId=${user?.id}&k=${count}`,
   };
 
   const URL_link = modelOptions[modelType];

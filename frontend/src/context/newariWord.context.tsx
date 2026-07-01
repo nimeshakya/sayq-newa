@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { API_BASE_URL } from "../constants";
+import { BACKEND_API } from "../constants";
 
 /* ================= TYPES ================= */
 
@@ -50,7 +50,7 @@ export const WordProvider = ({ children }: { children: React.ReactNode }) => {
       query.append("count", options.count.toString());
     }
 
-    const res = await fetch(`${API_BASE_URL}/words?${query.toString()}`);
+    const res = await fetch(`${BACKEND_API}/words?${query.toString()}`);
 
     if (!res.ok) {
       console.error("Failed to fetch words");

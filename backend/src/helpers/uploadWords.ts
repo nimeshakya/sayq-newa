@@ -9,9 +9,7 @@ import fs from "fs";
 import mongoose from "mongoose";
 import { Word } from "../models/word.model";
 
-const MONGO_URI =
-  "mongodb+srv://sauravdhoju_newa_db:kqqhFO3d2qQloLl2@sayqcluster0.qsh30xa.mongodb.net/test?retryWrites=true&w=majority";
-
+import { MONGO_URI } from "../constants";
 const BATCH_SIZE = 1000; // Insert 1000 words at a time
 
 (async () => {
