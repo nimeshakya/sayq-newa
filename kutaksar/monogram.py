@@ -3,7 +3,7 @@ import os
 import json
 from pathlib import Path
 from typing import Optional
-
+import numpy as np
 import data_gen
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -74,6 +74,230 @@ def _hex_to_rgb(hex_color: str):
     hex_color = hex_color.lstrip("#")
     return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
+def detect_primary_stem(char_img: Image.Image) -> int:
+    """
+    Detects the horizontal X-coordinate of the primary vertical stem in a character.
+    Focuses on the bottom 60% of the glyph to avoid the headline (Shirorekha) 
+    and top loops, ensuring robust detection for double-stemmed characters like ग and भ.
+    """
+    if char_img.mode != "RGBA":
+        char_img = char_img.convert("RGBA")
+    
+    arr = np.array(char_img)
+    h, w, c = arr.shape
+    if h == 0 or w == 0:
+        return 0
+
+    # Focus on bottom 60% to isolate clean vertical stems
+    start_row = int(h * 0.4)
+    bottom_half_alpha = arr[start_row:, :, 3]
+    
+    # Sum the opacity values vertically along each column
+    col_sums = np.sum(bottom_half_alpha, axis=0)
+    
+    if len(col_sums) == 0 or np.max(col_sums) == 0:
+        return w // 2  # Fallback to visual center
+        
+    # Smooth column values with a moving average to suppress minor noise
+    kernel_size = 3
+    if len(col_sums) > kernel_size:
+        col_sums_smoothed = np.convolve(col_sums, np.ones(kernel_size)/kernel_size, mode='same')
+    else:
+        col_sums_smoothed = col_sums
+
+    # Find significant local peaks
+    peaks = []
+    threshold = np.max(col_sums_smoothed) * 0.4
+    
+    for i in range(1, len(col_sums_smoothed) - 1):
+        if col_sums_smoothed[i] > threshold:
+            if col_sums_smoothed[i] >= col_sums_smoothed[i-1] and col_sums_smoothed[i] >= col_sums_smoothed[i+1]:
+                peaks.append((i, col_sums_smoothed[i]))
+                
+    if not peaks:
+        return int(np.argmax(col_sums_smoothed))
+        
+    # Sort detected peaks by height (descending)
+    peaks.sort(key=lambda x: x[1], reverse=True)
+    
+    # For double-stemmed characters, favor the rightmost major peak (the main vertical spine)
+    if len(peaks) >= 2:
+        primary_peak = peaks[0]
+        rightmost_major_peak = primary_peak
+        for peak in peaks[1:]:
+            if peak[1] > primary_peak[1] * 0.70 and peak[0] > rightmost_major_peak[0]:
+                rightmost_major_peak = peak
+        return int(rightmost_major_peak[0])
+        
+    return int(peaks[0][0])
+
+
+# l
+import numpy as np
+
+# Hardcoded classifications as defined by your structural rules
+DOUBLE_STEM_CHARS = {
+    "ख", "ग", "घ", "ङ", "झ", "ण", "थ", "ध", "प", "फ", "भ", "म", "य", "श", "ष", "स"
+}
+
+def find_stems_by_scanning(char_img: Image.Image) -> tuple[int, int, Optional[tuple[int, int]]]:
+    """
+    Scans the character image columns from right-to-left.
+    Focuses on the very top of the cropped character (to avoid the head),
+    identifies the rightmost stem bounds first, then skips it and locates
+    the second stem (left stem) bounds using the exact color start and end transitions.
+    """
+    if char_img.mode != "RGBA":
+        char_img = char_img.convert("RGBA")
+        
+    arr = np.array(char_img)
+    h, w, c = arr.shape
+    if h == 0 or w == 0:
+        return int(w * 0.75), int(w * 0.85), None
+
+    # Step 1: Move to the top of the letter first (find the first visible pixel row)
+    top_row = 0
+    for y in range(h):
+        if np.any(arr[y, :, 3] > 30):
+            top_row = y
+            break
+            
+    # Step 2: Scan a thin horizontal slice of 6 rows at the top of the cropped letter
+    start_row = top_row
+    end_row = min(h, top_row + 6)
+    
+    top_slice_alpha = arr[start_row:end_row, :, 3]
+    col_sums = np.sum(top_slice_alpha, axis=0)
+    
+    # Establish a clean noise threshold (column must be at least 15% solid ink)
+    max_possible_sum = 255 * (end_row - start_row)
+    threshold = max_possible_sum * 0.15
+
+    # Step 3: Find the first (rightmost) color portion
+    primary_end_x = None  # Right edge of first stem
+    primary_start_x = None  # Left edge of first stem
+    
+    col = w - 1
+    # Move leftwards to find where the first color starts
+    while col >= 0:
+        if col_sums[col] >= threshold:
+            primary_end_x = col
+            break
+        col -= 1
+        
+    if primary_end_x is not None:
+        # Keep moving left until this first color portion ends
+        col = primary_end_x
+        while col >= 0:
+            if col_sums[col] < threshold:
+                primary_start_x = col + 1
+                break
+            col -= 1
+        if primary_start_x is None:
+            primary_start_x = 0
+            
+    # Step 4: "dont detect the first color portion of the whole word" -> Keep moving left to find the second color portion
+    secondary_end_x = None
+    secondary_start_x = None
+    
+    if primary_start_x is not None:
+        col = primary_start_x - 1
+        # Find where the second color starts
+        while col >= 0:
+            if col_sums[col] >= threshold:
+                secondary_end_x = col
+                break
+            col -= 1
+            
+        if secondary_end_x is not None:
+            # Keep moving left until the second color portion ends (stop immediately when color ends)
+            col = secondary_end_x
+            while col >= 0:
+                if col_sums[col] < threshold:
+                    secondary_start_x = col + 1
+                    break
+                col -= 1
+            if secondary_start_x is None:
+                secondary_start_x = 0
+
+    # Ensure clean fallback if primary stem was not found
+    if primary_end_x is None:
+        thickness = max(4, int(w * 0.08))
+        primary_end_x = int(w * 0.85)
+        primary_start_x = max(0, primary_end_x - thickness)
+
+    secondary_bounds = None
+    if secondary_end_x is not None and secondary_start_x is not None:
+        # Enforce minimum thickness bounds for secondary stem
+        if secondary_end_x - secondary_start_x < 3:
+            mid = (secondary_start_x + secondary_end_x) // 2
+            half_thick = max(2, int(w * 0.04))
+            secondary_start_x = max(0, mid - half_thick)
+            secondary_end_x = min(w, mid + half_thick)
+        secondary_bounds = (secondary_start_x, secondary_end_x)
+
+    return int(primary_start_x), int(primary_end_x), secondary_bounds
+
+
+def find_right_stem_bounds(char_img: Image.Image) -> tuple[int, int]:
+    """
+    Backwards compatibility alias using the scan-based detection.
+    """
+    p_start, p_end, _ = find_stems_by_scanning(char_img)
+    return p_start, p_end
+
+
+def find_right_stem_x(char_img: Image.Image) -> int:
+    """
+    Backwards compatibility alias using the scan-based detection.
+    """
+    p_start, p_end, _ = find_stems_by_scanning(char_img)
+    return (p_start + p_end) // 2
+
+
+
+# l
+
+
+
+def slice_secondary_stem(char_img: Image.Image, s_x: int) -> tuple[int, int, int]:
+    """
+    Slices the secondary stem at s_x vertically into Top, Middle, and Bottom parts.
+    Returns (y_start, y_top_break, y_intersection).
+    """
+    arr = np.array(char_img)
+    h, w, c = arr.shape
+    alpha = arr[:, :, 3]
+    
+    # 1. Find y_start (first solid pixel at s_x column)
+    y_start = 0
+    for y in range(h):
+        if alpha[y, s_x] > 50:
+            y_start = y
+            break
+            
+    # 2. y_top_break represents the bottom edge of the horizontal headline
+    headline_thickness = max(8, int(h * 0.16))
+    y_top_break = y_start + headline_thickness
+    
+    # 3. Find y_intersection (where loops/curves attach to the stem)
+    y_intersection = None
+    span = 12
+    for y in range(y_top_break + 5, int(h * 0.85)):
+        left_bound = max(0, s_x - span)
+        right_bound = min(w, s_x + span)
+        row_density = np.sum(alpha[y, left_bound:right_bound] > 50)
+        
+        # A clean vertical stem has narrow horizontal density; loops broaden it
+        if row_density > 15:
+            y_intersection = y
+            break
+            
+    # Fallback to standard proportions if no clear intersection is found
+    if y_intersection is None:
+        y_intersection = y_start + int(h * 0.65)
+        
+    return int(y_start), int(y_top_break), int(y_intersection)
 
 @app.get("/status")
 async def status():
@@ -452,7 +676,6 @@ async def inject_ligature(req: LigatureSaveRequest):
     except Exception as e:
         return {"error": f"Injection failed: {e}"}
 
-
 @app.post("/monogram")
 async def render_monogram(req: MonogramRequest):
     font_path = str(FONT_PATH)
@@ -460,9 +683,8 @@ async def render_monogram(req: MonogramRequest):
     if not text:
         return {"error": "No text provided"}
 
-    # Transliterate if the input looks Romanized.
+    # Transliteration mapping logic (retains your original logic)
     import re
-
     if not re.search(r'[\u0900-\u097F]', text):
         translit_map = {**data_gen.CONSONANTS, **data_gen.VOWELS, **data_gen.NUMBERS, **data_gen.SYMBOLS}
         matra_map = data_gen.MATRAS
@@ -475,7 +697,6 @@ async def render_monogram(req: MonogramRequest):
 
         while i < len(text):
             match = False
-
             if last_was_consonant:
                 for vk in vowel_keys:
                     if text[i:i + len(vk)] == vk:
@@ -509,9 +730,14 @@ async def render_monogram(req: MonogramRequest):
     ascent, descent = font.getmetrics()
     line_height = ascent + descent
 
+    # Define colors early
+    transparent = req.bg_color is None or req.bg_color.lower() == "transparent"
+    bg = (0, 0, 0, 0) if transparent else (*_hex_to_rgb(req.bg_color), 255)
+    fg = (*_hex_to_rgb(req.fg_color), 255)
+
     if req.vertical and "\n" not in text:
         lines = re.findall(CLUSTER_REGEX, text)
-        if not lines:
+        if not font:
             lines = list(text)
     else:
         lines = text.split("\n")
@@ -603,6 +829,7 @@ async def render_monogram(req: MonogramRequest):
         if not found_lig:
             merged_lines.append({"text": lines[i], "type": "char"})
 
+    # --- CALCULATION OF LINE_WIDTHS & TOTAL_RENDERED_HEIGHT ---
     line_widths = []
     total_rendered_height = 0
     configs = load_glyph_configs() if req.use_overrides else {}
@@ -623,26 +850,10 @@ async def render_monogram(req: MonogramRequest):
             line_widths.append(bb[2] - bb[0])
             total_rendered_height += line_height + req.line_spacing
 
-    total_width = max(line_widths) if line_widths else req.font_size
-    safety_top = int(req.font_size * 0.15)
-    img_w = total_width + req.padding * 2
-    img_h = total_rendered_height + req.padding * 2 + safety_top
-
-    transparent = req.bg_color is None or req.bg_color.lower() == "transparent"
-    bg = (0, 0, 0, 0) if transparent else (*_hex_to_rgb(req.bg_color), 255)
-    img = Image.new("RGBA", (img_w, img_h), color=bg)
-    draw = ImageDraw.Draw(img)
-    fg = (*_hex_to_rgb(req.fg_color), 255)
-
-    y_cursor = req.padding + safety_top
-    current_visible_bottom = y_cursor
-    first_item = True
-    first_char_origin_x = None
-    first_char_origin_y = None
-    first_char_text = None
-    last_char_origin_x = None
-    last_char_origin_y = None
-    last_char_text = None
+    # ----------------- PHASE 1: PRE-RENDER AND ANALYZE STEMS -----------------
+    prepared_items = []
+    left_extents = []
+    right_extents = []
 
     for i, item in enumerate(merged_lines):
         line = item["text"]
@@ -650,7 +861,8 @@ async def render_monogram(req: MonogramRequest):
         if item["type"] == "ligature":
             char_configs = item["conf"]
             lig_layer_h = (len(char_configs) * (req.font_size + req.line_spacing)) + 100
-            lig_layer = Image.new("RGBA", (total_width + 100, lig_layer_h), (0, 0, 0, 0))
+            estimated_w = req.font_size * 3  # Wide sandbox layer
+            lig_layer = Image.new("RGBA", (estimated_w, lig_layer_h), (0, 0, 0, 0))
             lig_y_cursor = 0
             studio_y_cursor = 50
 
@@ -709,11 +921,10 @@ async def render_monogram(req: MonogramRequest):
 
                 char_img = char_temp.crop((tx + bb[0], ty + bb[1], tx + bb[2], ty + bb[3]))
 
+                # Unconditional variable declarations (prevents scope bugs)
                 studio_font = ImageFont.truetype(font_path, int(100 * scale))
                 studio_bb = studio_font.getbbox(display_text)
-                cw_studio = studio_bb[2] - studio_bb[0]
-                ch_studio = studio_bb[3] - studio_bb[1]
-
+                cw_studio, ch_studio = studio_bb[2] - studio_bb[0], studio_bb[3] - studio_bb[1]
                 bbox_x = (400 - (cw_studio + 200)) // 2 + override.get("x_offset", 0) + 100
                 bbox_y = studio_y_cursor + override.get("y_offset", 0) + 100
 
@@ -721,7 +932,6 @@ async def render_monogram(req: MonogramRequest):
                 if c_mask:
                     try:
                         import base64
-
                         mask_data = base64.b64decode(c_mask.split(',')[1])
                         mask_img = Image.open(io.BytesIO(mask_data)).convert("L")
                         char_mask = mask_img.crop((bbox_x, bbox_y, bbox_x + char_img.width, bbox_y + char_img.height))
@@ -737,10 +947,8 @@ async def render_monogram(req: MonogramRequest):
                         for adj in c_adjs:
                             lx = adj['x'] - bbox_x
                             ly = adj['y'] - bbox_y
-                            low = adj['ow']
-                            loh = adj['oh']
-                            ldx = adj['dx']
-                            ldy = adj['dy']
+                            low, loh = adj['ow'], adj['oh']
+                            ldx, ldy = adj['dx'], adj['dy']
 
                             part = char_img.crop((lx, ly, lx + low, ly + loh))
                             if adj.get('mode') == 'move':
@@ -751,7 +959,7 @@ async def render_monogram(req: MonogramRequest):
                     except Exception as exc:
                         print(f"Adj error: {exc}")
 
-                xb = (total_width - char_img.width) // 2
+                xb = (estimated_w - char_img.width) // 2
                 lig_layer.paste(char_img, (xb + x_off, lig_y_cursor + y_off), char_img)
 
                 y_adv = override.get("y_advance")
@@ -763,100 +971,180 @@ async def render_monogram(req: MonogramRequest):
                     studio_y_cursor += ch_studio + 20
 
             l_bbox = lig_layer.getbbox()
-            if l_bbox:
-                lig_final = lig_layer.crop(l_bbox)
-                x_base = (total_width - lig_final.width) // 2
+            final_img = lig_layer.crop(l_bbox) if l_bbox else Image.new("RGBA", (1, 1), (0, 0, 0, 0))
+            
+            # Detect primary stem bounds on original nitya font
+            stem_start_x, stem_end_x, _ = find_stems_by_scanning(final_img)
+            stem_center_x = (stem_start_x + stem_end_x) // 2
+            prepared_items.append({
+                "type": "ligature",
+                "img": final_img,
+                "stem_start_x": stem_start_x,
+                "stem_end_x": stem_end_x,
+                "stem_center_x": stem_center_x,
+                "is_double": False,
+                "x_offset": 0,
+                "y_offset": 0,
+                "text": line
+            })
+            left_extents.append(stem_center_x)
+            right_extents.append(final_img.width - stem_center_x)
 
+        else:
+            base_char = line.replace('\u094D', '').strip()
+            for matra_char in ['\u093E', '\u093F', '\u0940', '\u0941', '\u0942', '\u0947', '\u0948', '\u094B', '\u094C']:
+                base_char = base_char.replace(matra_char, '')
+
+            char_conf = configs.get(base_char, {})
+
+            if i == 0:
+                priority = ["first", "full"]
+            elif i == len(merged_lines) - 1:
+                priority = ["last", "full"]
+            else:
+                priority = ["middle", "full"]
+
+            override = {}
+            for p in priority:
+                if p in char_conf:
+                    override = char_conf[p]
+                    break
+
+            display_text = line
+            scale_factor = req.font_size / 120.0
+            scale = override.get("scale", 1.0)
+            x_off = int(override.get("x_offset", 0) * scale_factor)
+            y_off = int(override.get("y_offset", 0) * scale_factor)
+            rot = override.get("rotation", 0.0)
+            sx = override.get("skew_x", 0.0)
+            sy = override.get("skew_y", 0.0)
+            c_top = int(override.get("crop_top", 0) * scale_factor)
+            c_bottom = int(override.get("crop_bottom", 0) * scale_factor)
+            c_left = int(override.get("crop_left", 0) * scale_factor)
+            c_right = int(override.get("crop_right", 0) * scale_factor)
+
+            current_font = font
+            if scale != 1.0:
+                current_font = ImageFont.truetype(font_path, int(req.font_size * scale))
+
+            bb = current_font.getbbox(display_text)
+            w, h = bb[2] - bb[0], bb[3] - bb[1]
+            tw, th = w + 100, h + 100
+            temp_layer = Image.new("RGBA", (tw, th), color=(0, 0, 0, 0))
+            temp_draw = ImageDraw.Draw(temp_layer)
+            tx, ty = (tw - w) // 2 - bb[0], (th - h) // 2 - bb[1]
+            temp_draw.text((tx, ty), display_text, font=current_font, fill=fg)
+
+            if rot != 0 or sx != 0 or sy != 0:
+                if rot != 0:
+                    temp_layer = temp_layer.rotate(rot, resample=Image.BICUBIC, expand=False)
+                if sx != 0 or sy != 0:
+                    tw_layer, th_layer = temp_layer.size
+                    temp_layer = temp_layer.transform(
+                        (tw_layer, th_layer),
+                        Image.AFFINE,
+                        (1, -sx, sx * (th_layer / 2), -sy, 1, sy * (tw_layer / 2)),
+                        resample=Image.BICUBIC,
+                    )
+
+            if c_top > 0 or c_bottom > 0 or c_left > 0 or c_right > 0:
+                tw_layer, th_layer = temp_layer.size
+                crop_x1 = tx + bb[0] + c_left
+                crop_y1 = ty + bb[1] + c_top
+                crop_x2 = tx + bb[2] - c_right
+                crop_y2 = ty + bb[3] - c_bottom
+                if crop_y1 > 0:
+                    temp_layer.paste((0, 0, 0, 0), (0, 0, tw_layer, crop_y1))
+                if crop_y2 < th_layer:
+                    temp_layer.paste((0, 0, 0, 0), (0, crop_y2, tw_layer, th_layer))
+                if crop_x1 > 0:
+                    temp_layer.paste((0, 0, 0, 0), (0, 0, crop_x1, th_layer))
+                if crop_x2 < tw_layer:
+                    temp_layer.paste((0, 0, 0, 0), (crop_x2, 0, tw_layer, th_layer))
+
+            cluster_img = temp_layer.crop((tx + bb[0], ty + bb[1], tx + bb[2], ty + bb[3]))
+            
+            # Detect rightmost and secondary stem bounds using specified scanning method on the glyph image (avoiding nitya font head)
+            stem_start_x, stem_end_x, s_bounds = find_stems_by_scanning(cluster_img)
+            stem_center_x = (stem_start_x + stem_end_x) // 2
+            
+            # Separate single and double stems directly from the hardcoded dictionary
+            is_double = base_char in DOUBLE_STEM_CHARS
+
+            prepared_items.append({
+                "type": "char",
+                "img": cluster_img,
+                "font_bb": bb,
+                "stem_start_x": stem_start_x,
+                "stem_end_x": stem_end_x,
+                "stem_center_x": stem_center_x,
+                "sec_stem_bounds": s_bounds,
+                "is_double": is_double,
+                "x_offset": x_off,
+                "y_offset": y_off,
+                "text": display_text
+            })
+            left_extents.append(stem_center_x)
+            right_extents.append(cluster_img.width - stem_center_x)
+
+    # ----------------- PHASE 2: RESTORED ORIGINAL CENTERING & LAYOUT Math -----------------
+    total_width = max(line_widths) if line_widths else req.font_size
+    safety_top = int(req.font_size * 0.15)
+    img_w = total_width + req.padding * 2
+    img_h = total_rendered_height + req.padding * 2 + safety_top
+
+    img = Image.new("RGBA", (img_w, img_h), color=bg)
+    draw_overlay = ImageDraw.Draw(img)
+
+    y_cursor = req.padding + safety_top
+    current_visible_bottom = y_cursor
+    first_item = True
+    first_char_origin_x = None
+    first_char_origin_y = None
+    first_char_text = None
+    last_char_origin_x = None
+    last_char_origin_y = None
+    last_char_text = None
+
+    # Array to track stem coordinates on the canvas
+    stems_info = []
+
+    for i, item in enumerate(prepared_items):
+        cluster_img = item["img"]
+        x_off = item["x_offset"]
+        y_off = item["y_offset"]
+
+        if item["type"] == "ligature":
+            # Reconstruct original ligature layout metrics
+            l_bbox = cluster_img.getbbox()
+            if l_bbox:
+                x_base = (total_width - cluster_img.width) // 2
                 if first_item:
                     paste_y = y_cursor
                     first_item = False
                 else:
                     paste_y = current_visible_bottom + req.line_spacing - l_bbox[1]
 
-                img.paste(lig_final, (req.padding + x_base, paste_y), lig_final)
-                current_visible_bottom = paste_y + l_bbox[3]
-            else:
-                if not first_item:
-                    current_visible_bottom += line_height + req.line_spacing
+                img.paste(cluster_img, (req.padding + x_base, paste_y), cluster_img)
 
+                # Capture stem metric
+                abs_start = req.padding + x_base + item["stem_start_x"]
+                abs_end = req.padding + x_base + item["stem_end_x"]
+                stems_info.append({
+                    "stem_start_x": abs_start,
+                    "stem_end_x": abs_end,
+                    "top": paste_y + l_bbox[1],
+                    "bottom": paste_y + l_bbox[3]
+                })
+                current_visible_bottom = paste_y + l_bbox[3]
             continue
 
-        base_char = line.replace('\u094D', '')
-        char_conf = configs.get(base_char, {})
-
-        if i == 0:
-            priority = ["first", "full"]
-        elif i == len(merged_lines) - 1:
-            priority = ["last", "full"]
-        else:
-            priority = ["middle", "full"]
-
-        override = None
-        for p in priority:
-            if p in char_conf:
-                override = char_conf[p]
-                break
-
-        if not override:
-            override = {}
-
-        display_text = line
-        scale_factor = req.font_size / 120.0
-        scale = override.get("scale", 1.0)
-        x_off = int(override.get("x_offset", 0) * scale_factor)
-        y_off = int(override.get("y_offset", 0) * scale_factor)
-        rot = override.get("rotation", 0.0)
-        sx = override.get("skew_x", 0.0)
-        sy = override.get("skew_y", 0.0)
-        c_top = int(override.get("crop_top", 0) * scale_factor)
-        c_bottom = int(override.get("crop_bottom", 0) * scale_factor)
-        c_left = int(override.get("crop_left", 0) * scale_factor)
-        c_right = int(override.get("crop_right", 0) * scale_factor)
-
-        current_font = font
-        if scale != 1.0:
-            current_font = ImageFont.truetype(font_path, int(req.font_size * scale))
-
-        bb = current_font.getbbox(display_text)
-        w, h = bb[2] - bb[0], bb[3] - bb[1]
-        tw, th = w + 100, h + 100
-        temp_layer = Image.new("RGBA", (tw, th), color=(0, 0, 0, 0))
-        temp_draw = ImageDraw.Draw(temp_layer)
-        tx, ty = (tw - w) // 2 - bb[0], (th - h) // 2 - bb[1]
-        temp_draw.text((tx, ty), display_text, font=current_font, fill=fg)
-
-        if rot != 0 or sx != 0 or sy != 0:
-            if rot != 0:
-                temp_layer = temp_layer.rotate(rot, resample=Image.BICUBIC, expand=False)
-            if sx != 0 or sy != 0:
-                tw_layer, th_layer = temp_layer.size
-                temp_layer = temp_layer.transform(
-                    (tw_layer, th_layer),
-                    Image.AFFINE,
-                    (1, -sx, sx * (th_layer / 2), -sy, 1, sy * (tw_layer / 2)),
-                    resample=Image.BICUBIC,
-                )
-
-        if c_top > 0 or c_bottom > 0 or c_left > 0 or c_right > 0:
-            tw_layer, th_layer = temp_layer.size
-            crop_x1 = tx + bb[0] + c_left
-            crop_y1 = ty + bb[1] + c_top
-            crop_x2 = tx + bb[2] - c_right
-            crop_y2 = ty + bb[3] - c_bottom
-            if crop_y1 > 0:
-                temp_layer.paste((0, 0, 0, 0), (0, 0, tw_layer, crop_y1))
-            if crop_y2 < th_layer:
-                temp_layer.paste((0, 0, 0, 0), (0, crop_y2, tw_layer, th_layer))
-            if crop_x1 > 0:
-                temp_layer.paste((0, 0, 0, 0), (0, 0, crop_x1, th_layer))
-            if crop_x2 < tw_layer:
-                temp_layer.paste((0, 0, 0, 0), (crop_x2, 0, tw_layer, th_layer))
-
-        cluster_img = temp_layer.crop((tx + bb[0], ty + bb[1], tx + bb[2], ty + bb[3]))
-
+        # Regular Character Layer Layout
         actual_bbox = cluster_img.getbbox()
         if actual_bbox:
-            x_base = (total_width - (bb[2] - bb[0])) // 2
+            # Exact original centering logic
+            font_bb = item["font_bb"]
+            x_base = (total_width - (font_bb[2] - font_bb[0])) // 2
 
             if first_item:
                 paste_y = y_cursor + y_off
@@ -864,21 +1152,78 @@ async def render_monogram(req: MonogramRequest):
             else:
                 paste_y = current_visible_bottom + req.line_spacing - actual_bbox[1] + y_off
 
+            # Render the letters in order of original stack (Rule 4)
             img.paste(cluster_img, (req.padding + x_base + x_off, paste_y), cluster_img)
 
+            # Store right stem positions for calligraphic connectors
+            stem_start_x = item["stem_start_x"]
+            stem_end_x = item["stem_end_x"]
+            s_bounds = item["sec_stem_bounds"]
+
+            abs_start = req.padding + x_base + x_off + stem_start_x
+            abs_end = req.padding + x_base + x_off + stem_end_x
+
+            # Save the stem coordinate metrics
+            stems_info.append({
+                "stem_start_x": abs_start,
+                "stem_end_x": abs_end,
+                "top": paste_y + actual_bbox[1],
+                "bottom": paste_y + actual_bbox[3]
+            })
+
+            # Check if this character is a double stem character (Rule 6)
+            if item["is_double"] and i > 0:
+                top_of_starting_letter = y_cursor
+                top_of_current_letter = paste_y + actual_bbox[1]
+
+                if top_of_current_letter > top_of_starting_letter:
+                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
+                    # Meet exact inner and outer horizontal bounds of the character's stem width (FWHM adjusted)
+                    draw_overlay.rectangle([abs_start + 1, top_of_starting_letter, abs_end - 1, top_of_current_letter], fill=fg)
+
+                    # Also extend the scanned secondary (left) stem continuously up to the top headline
+                    if s_bounds is not None:
+                        sec_center = (s_bounds[0] + s_bounds[1]) // 2
+                        abs_sec_center = req.padding + x_base + x_off + sec_center
+                        
+                        # Calculate the right stem's native thickness
+                        right_thickness = abs_end - abs_start
+                        
+                        # Draw left stem centered around sec_center with right_thickness
+                        abs_sec_start = abs_sec_center - right_thickness // 2
+                        abs_sec_end = abs_sec_center + (right_thickness + 1) // 2
+                        
+                        draw_overlay.rectangle([abs_sec_start + 1, top_of_starting_letter, abs_sec_end - 1, top_of_current_letter], fill=fg)
+
             if first_char_origin_x is None:
-                first_char_origin_x = (req.padding + x_base + x_off) - bb[0]
-                first_char_origin_y = paste_y - bb[1]
-                first_char_text = display_text
-            last_char_origin_x = (req.padding + x_base + x_off) - bb[0]
-            last_char_origin_y = paste_y - bb[1]
-            last_char_text = display_text
+                first_char_origin_x = (req.padding + x_base + x_off) - font_bb[0]
+                first_char_origin_y = paste_y - font_bb[1]
+                first_char_text = item["text"]
+            last_char_origin_x = (req.padding + x_base + x_off) - font_bb[0]
+            last_char_origin_y = paste_y - font_bb[1]
+            last_char_text = item["text"]
 
             current_visible_bottom = paste_y + actual_bbox[3]
         else:
             if not first_item:
                 current_visible_bottom += line_height + req.line_spacing
 
+    # ----------------- PHASE 3: ADJACENT PRIMARY CONNECTOR OVERLAYS -----------------
+    # This closes normal visual gaps for single-stem elements cleanly
+    if len(stems_info) > 1:
+        for j in range(1, len(stems_info)):
+            prev = stems_info[j-1]
+            curr = stems_info[j]
+
+            left_x = curr["stem_start_x"]
+            right_x = curr["stem_end_x"]
+            top_y = prev["bottom"]
+            bottom_y = curr["top"]
+
+            if bottom_y > top_y:
+                draw_overlay.rectangle([left_x + 1, top_y, right_x - 1, bottom_y], fill=fg)
+
+    # ----------------- PHASE 4: APPLY MATRAS -----------------
     if final_matras:
         stack_bbox = img.getbbox()
         if stack_bbox:
@@ -1056,7 +1401,7 @@ async def render_monogram(req: MonogramRequest):
                 elif shared_matra_pos == 'above':
                     matra_glyph_f = temp_with_first.crop(matra_bbox_first) if matra_bbox_first else None
                     if matra_glyph_f:
-                        dx_f = matra_bbox_first[0] - 100
+                        dx_f = mfont.getbbox(matra_char)[0] - 100 if mfont.getbbox(matra_char) else matra_bbox_first[0] - 100
                         dy_f = matra_bbox_first[1] - 100
                         if first_char_origin_x is not None:
                             paste_x = first_char_origin_x + dx_f
@@ -1079,6 +1424,7 @@ async def render_monogram(req: MonogramRequest):
                                 last_char_origin_y += shift
                         img.paste(matra_glyph_f, (paste_x, paste_y), matra_glyph_f)
 
+    # ----------------- PHASE 5: FINAL CROP -----------------
     final_bbox = img.getbbox()
     if final_bbox:
         crop_top = max(0, final_bbox[1] - req.padding)
@@ -1089,6 +1435,15 @@ async def render_monogram(req: MonogramRequest):
     img.save(buf, format="PNG")
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png", headers={"Content-Disposition": 'inline; filename="ranjana_monogram.png"'})
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
