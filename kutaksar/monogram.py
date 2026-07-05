@@ -870,7 +870,7 @@ async def render_monogram(req: MonogramRequest):
                         import base64
                         mask_data = base64.b64decode(c_mask.split(',')[1])
                         mask_img = Image.open(io.BytesIO(mask_data)).convert("L")
-                        char_mask = mask_img.crop((bbox_x, bbox_y, bbox_x + char_img.width, bbox_y + char_img.height))
+                        char_mask = mask_img.crop((x_pos, y_pos, x_pos + char_img.width, y_pos + char_img.height))
                         new_alpha = char_mask.point(lambda x: 0 if x < 128 else 255, 'L')
                         orig_a = char_img.getchannel('A')
                         char_img.putalpha(ImageChops.darker(orig_a, new_alpha))
@@ -1024,8 +1024,18 @@ async def render_monogram(req: MonogramRequest):
 
     # ----------------- PHASE 2: RESTORED ORIGINAL CENTERING & LAYOUT Math -----------------
     total_width = max(line_widths) if line_widths else req.font_size
+    
+    # Calculate dynamic cumulative shift using: shift_offset = (letter_width / 2.0) - (stem_width / 2.0)
+    max_possible_shift = 0
+    for idx, item in enumerate(prepared_items):
+        if item["is_double"] and idx > 0:
+            letter_width = item["img"].width
+            stem_width = item["stem_end_x"] - item["stem_start_x"]
+            shift_offset = int((letter_width / 2.0) - (stem_width / 2.0))
+            max_possible_shift += max(0, shift_offset)
+    
     safety_top = int(req.font_size * 0.15)
-    img_w = total_width + req.padding * 2
+    img_w = total_width + max_possible_shift + req.padding * 2
     img_h = total_rendered_height + req.padding * 2 + safety_top
 
     img = Image.new("RGBA", (img_w, img_h), color=bg)
@@ -1044,6 +1054,9 @@ async def render_monogram(req: MonogramRequest):
     last_char_origin_y = None
     last_char_text = None
 
+    # Horizontal backbone alignment shift tracker
+    backbone_shift_x = 0
+
     # Array to track stem coordinates on the canvas
     stems_info = []
 
@@ -1056,18 +1069,21 @@ async def render_monogram(req: MonogramRequest):
             # Reconstruct original ligature layout metrics
             l_bbox = cluster_img.getbbox()
             if l_bbox:
+                # Bounding-box horizontal center + dynamic shift offset
                 x_base = (total_width - cluster_img.width) // 2
+                paste_x = req.padding + x_base + x_off + backbone_shift_x
+
                 if first_item:
                     paste_y = y_cursor
                     first_item = False
                 else:
                     paste_y = next_start_reference_y + req.line_spacing - l_bbox[1]
 
-                img.paste(cluster_img, (req.padding + x_base, paste_y), cluster_img)
+                img.paste(cluster_img, (paste_x, paste_y), cluster_img)
 
                 # Capture stem metric
-                abs_start = req.padding + x_base + item["stem_start_x"]
-                abs_end = req.padding + x_base + item["stem_end_x"]
+                abs_start = paste_x + item["stem_start_x"]
+                abs_end = paste_x + item["stem_end_x"]
                 stems_info.append({
                     "stem_start_x": abs_start,
                     "stem_end_x": abs_end,
@@ -1081,38 +1097,47 @@ async def render_monogram(req: MonogramRequest):
 
                 # Robust ligature-aware first/last tracking
                 if first_char_origin_x is None:
-                    first_char_origin_x = req.padding + x_base
+                    first_char_origin_x = paste_x
                     first_char_origin_y = paste_y
                     first_char_text = item["text"].split('+')[0] if '+' in item["text"] else item["text"]
-                last_char_origin_x = req.padding + x_base
+                last_char_origin_x = paste_x
                 last_char_origin_y = paste_y
                 last_char_text = item["text"].split('+')[-1] if '+' in item["text"] else item["text"]
+
+            # Process potential ligature double-stem rule (only if it is not the first character)
+            if item["is_double"] and i > 0:
+                half_letter = cluster_img.width / 2.0
+                stem_width = item["stem_end_x"] - item["stem_start_x"]
+                half_stem = stem_width / 2.0
+                shift_offset = int(half_letter - half_stem)
+                backbone_shift_x += shift_offset
 
             continue
 
         # Regular Character Layer Layout
         actual_bbox = cluster_img.getbbox()
         if actual_bbox:
-            # Exact original centering logic
+            # Exact original centering logic + dynamic shift offset
             font_bb = item["font_bb"]
             x_base = (total_width - (font_bb[2] - font_bb[0])) // 2
+            paste_x = req.padding + x_base + x_off + backbone_shift_x
 
             if first_item:
                 paste_y = y_cursor + y_off
                 first_item = False
             else:
-                # Place relative to our vertical starting reference coordinate (avoids gaps on double-stems)
+                # Place relative to our vertical starting reference coordinate
                 paste_y = next_start_reference_y + req.line_spacing - actual_bbox[1] + y_off
 
             # Render the letters in order of original stack
-            img.paste(cluster_img, (req.padding + x_base + x_off, paste_y), cluster_img)
+            img.paste(cluster_img, (paste_x, paste_y), cluster_img)
 
             # Store right stem positions for calligraphic connectors
             stem_start_x = item["stem_start_x"]
             stem_end_x = item["stem_end_x"]
 
-            abs_start = req.padding + x_base + x_off + stem_start_x
-            abs_end = req.padding + x_base + x_off + stem_end_x
+            abs_start = paste_x + stem_start_x
+            abs_end = paste_x + stem_end_x
 
             # Save the stem coordinate metrics
             stems_info.append({
@@ -1136,15 +1161,24 @@ async def render_monogram(req: MonogramRequest):
                 # Identify exact vertical bottom of the rightmost stem
                 y_stem_bottom_local = find_stem_vertical_bottom(cluster_img, stem_start_x, stem_end_x)
                 next_start_reference_y = paste_y + y_stem_bottom_local
+
+                # Update vertical backbone (backbone_shift_x) ONLY if this is not the first character (i > 0)
+                if i > 0:
+                    letter_width = actual_bbox[2] - actual_bbox[0]
+                    half_letter = letter_width / 2.0
+                    stem_width = stem_end_x - stem_start_x
+                    half_stem = stem_width / 2.0
+                    shift_offset = int(half_letter - half_stem)
+                    backbone_shift_x += shift_offset
             else:
                 # For single-stem letters, standard baseline bottom is the starting reference point
                 next_start_reference_y = paste_y + actual_bbox[3]
 
             if first_char_origin_x is None:
-                first_char_origin_x = (req.padding + x_base + x_off) - font_bb[0]
+                first_char_origin_x = paste_x - font_bb[0]
                 first_char_origin_y = paste_y - font_bb[1]
                 first_char_text = item["text"]
-            last_char_origin_x = (req.padding + x_base + x_off) - font_bb[0]
+            last_char_origin_x = paste_x - font_bb[0]
             last_char_origin_y = paste_y - font_bb[1]
             last_char_text = item["text"]
 
@@ -1385,9 +1419,12 @@ async def render_monogram(req: MonogramRequest):
     # ----------------- PHASE 5: FINAL CROP -----------------
     final_bbox = img.getbbox()
     if final_bbox:
+        # Dynamically crop excess whitespace horizontally and vertically
+        crop_left = max(0, final_bbox[0] - req.padding)
         crop_top = max(0, final_bbox[1] - req.padding)
+        crop_right = min(img.width, final_bbox[2] + req.padding)
         crop_bottom = min(img.height, final_bbox[3] + req.padding)
-        img = img.crop((0, crop_top, img.width, crop_bottom))
+        img = img.crop((crop_left, crop_top, crop_right, crop_bottom))
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
