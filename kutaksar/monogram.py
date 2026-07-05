@@ -531,10 +531,8 @@ async def preview_ligature(req: LigatureSaveRequest):
                     for adj in c.adjustments:
                         lx = adj['x'] - x_pos
                         ly = adj['y'] - y_pos
-                        low = adj['ow']
-                        loh = adj['oh']
-                        ldx = adj['dx']
-                        ldy = adj['dy']
+                        low, loh = adj['ow'], adj['oh']
+                        ldx, ldy = adj['dx'], adj['dy']
                         
                         part = char_layer.crop((lx, ly, lx + low, ly + loh))
                         if adj.get('mode') == 'move':
@@ -875,7 +873,7 @@ async def render_monogram(req: MonogramRequest):
                         orig_a = char_img.getchannel('A')
                         char_img.putalpha(ImageChops.darker(orig_a, new_alpha))
                     except Exception as exc:
-                        print(f"Mask error: {exc}")
+                        print(f"Char mask error: {exc}")
 
                 c_adjs = override.get("adjustments")
                 if c_adjs:
@@ -893,7 +891,7 @@ async def render_monogram(req: MonogramRequest):
                                 part = part.resize((int(abs(adj['fw'])), int(abs(adj['fh']))), Image.Resampling.LANCZOS)
                             char_img.paste(part, (int(lx + ldx), int(ly + ldy)), part)
                     except Exception as exc:
-                        print(f"Adj error: {exc}")
+                        print(f"Char adj error: {exc}")
 
                 xb = (estimated_w - char_img.width) // 2
                 lig_layer.paste(char_img, (xb + x_off, lig_y_cursor + y_off), char_img)
@@ -1016,6 +1014,8 @@ async def render_monogram(req: MonogramRequest):
                 "stem_center_x": stem_center_x,
                 "is_double": is_double,
                 "x_offset": x_off,
+                "y_off_local": y_off,
+                "x_off": x_off,
                 "y_offset": y_off,
                 "text": display_text
             })
@@ -1025,7 +1025,7 @@ async def render_monogram(req: MonogramRequest):
     # ----------------- PHASE 2: RESTORED ORIGINAL CENTERING & LAYOUT Math -----------------
     total_width = max(line_widths) if line_widths else req.font_size
     
-    # Calculate dynamic cumulative shift using: shift_offset = (letter_width / 2.0) - (stem_width / 2.0)
+    # Calculate cumulative dynamic shift using: shift_offset = (letter_width / 2.0) - (stem_width / 2.0)
     max_possible_shift = 0
     for idx, item in enumerate(prepared_items):
         if item["is_double"] and idx > 0:
@@ -1053,6 +1053,9 @@ async def render_monogram(req: MonogramRequest):
     last_char_origin_x = None
     last_char_origin_y = None
     last_char_text = None
+    
+    # Track original horizontal start coordinate of the topmost character's rendering slot
+    first_char_paste_x = None
 
     # Horizontal backbone alignment shift tracker
     backbone_shift_x = 0
@@ -1103,6 +1106,10 @@ async def render_monogram(req: MonogramRequest):
                 last_char_origin_x = paste_x
                 last_char_origin_y = paste_y
                 last_char_text = item["text"].split('+')[-1] if '+' in item["text"] else item["text"]
+                
+                # Record the horizontal start of the topmost character
+                if i == 0:
+                    first_char_paste_x = paste_x
 
             # Process potential ligature double-stem rule (only if it is not the first character)
             if item["is_double"] and i > 0:
@@ -1181,6 +1188,10 @@ async def render_monogram(req: MonogramRequest):
             last_char_origin_x = paste_x - font_bb[0]
             last_char_origin_y = paste_y - font_bb[1]
             last_char_text = item["text"]
+            
+            # Record the horizontal start of the topmost character
+            if i == 0:
+                first_char_paste_x = paste_x
 
             current_visible_bottom = paste_y + actual_bbox[3]
         else:
@@ -1363,12 +1374,19 @@ async def render_monogram(req: MonogramRequest):
                                 first_char_origin_x += shift_x
                             if last_char_origin_x is not None:
                                 last_char_origin_x += shift_x
+                            if first_char_paste_x is not None:
+                                first_char_paste_x += shift_x
+                            # Horizontally shift the recorded stem coordinates to keep them synchronized
+                            for stem in stems_info:
+                                stem["stem_start_x"] += shift_x
+                                stem["stem_end_x"] += shift_x
 
                         need_w = paste_x + scaled.width
                         if need_w > img.width:
                             ni = Image.new('RGBA', (need_w, img.height), bg)
                             ni.paste(img, (0, 0))
                             img = ni
+                        
                         img.paste(scaled, (paste_x, paste_y), scaled)
 
                 elif shared_matra_pos == 'below':
@@ -1405,7 +1423,7 @@ async def render_monogram(req: MonogramRequest):
                         if paste_y < 0:
                             shift = -paste_y + 2
                             ni = Image.new('RGBA', (img.width, img.height + shift), bg)
-                            ni.paste(img, (0, shift))
+                            ni.paste(img, (shift, 0))
                             img = ni
                             paste_y = 0
                             s_top += shift
@@ -1415,6 +1433,79 @@ async def render_monogram(req: MonogramRequest):
                             if last_char_origin_y is not None:
                                 last_char_origin_y += shift
                         img.paste(matra_glyph_f, (paste_x, paste_y), matra_glyph_f)
+
+    # ----------------- PHASE 4.5: EXTRACT & STRETCH MIDDLE SHIROREKHA SECTION TO END POINT -----------------
+    word_bbox = img.getbbox()
+    if word_bbox and stems_info and first_char_paste_x is not None:
+        first_img = prepared_items[0]["img"]
+        headline_thickness = max(4, int(req.font_size * 0.12))
+        
+        # 1. Define split points for the 3 sections of the topmost character's shirorekha
+        split_x1 = int(first_img.width * 0.33)
+        split_x2 = int(first_img.width * 0.66)
+        
+        # 2. Detect the end point of the rightmost stem of the word
+        # We do this by scanning the alpha channel from right to left (starting at word_bbox[2] - 1)
+        # to find the first column with substantial vertical ink concentration (representing a vertical stem)
+        arr = np.array(img)
+        h, w, c = arr.shape
+        
+        # Create a robust ink mask that works for both transparent and opaque backgrounds
+        if transparent:
+            ink_mask = arr[:, :, 3] > 50
+        else:
+            bg_rgb = np.array(bg[:3])
+            diff = np.abs(arr[:, :, :3] - bg_rgb)
+            ink_mask = np.sum(diff, axis=2) > 15
+            
+        rightmost_stem_x = None
+        scan_start = word_bbox[2] - 1
+        scan_end = first_char_paste_x + split_x2
+        
+        # Define a robust threshold for a vertical stem (at least 25% of font size height)
+        vertical_stem_threshold = max(10, int(req.font_size * 0.25))
+        
+        for col in range(scan_start, scan_end, -1):
+            if col < w:
+                ink_count = np.sum(ink_mask[:, col])
+                if ink_count >= vertical_stem_threshold:
+                    rightmost_stem_x = col
+                    break
+                    
+        # Fallback to word_bbox[2] if no stem column is detected (safety guard)
+        x_end = rightmost_stem_x if rightmost_stem_x is not None else word_bbox[2]
+        
+        # 3. Calculate target width for stretching ONLY the middle segment
+        # The rightmost section of the original shirorekha has a width of (first_img.width - split_x2)
+        original_right_w = first_img.width - split_x2
+        
+        # In the new layout, the unextended rightmost section must end exactly at x_end (the rightmost stem)
+        paste_right_x = x_end - original_right_w
+        
+        # The stretched middle section starts at (first_char_paste_x + split_x1) and ends at paste_right_x
+        x_mid_start = first_char_paste_x + split_x1
+        target_mid_w = paste_right_x - x_mid_start
+        
+        # Only stretch if the new middle section width is larger than the original middle section width
+        original_mid_w = split_x2 - split_x1
+        if target_mid_w > original_mid_w:
+            # Crop the middle section from the topmost character's image
+            mid_sec = first_img.crop((split_x1, 0, split_x2, headline_thickness))
+            
+            # Crop the unstretched right section (preserving its native calligraphic terminal/serif)
+            right_sec = first_img.crop((split_x2, 0, first_img.width, headline_thickness))
+            
+            # Stretch the middle section horizontally using LANCZOS resampling to prevent pixelation/blur
+            extended_mid_sec = mid_sec.resize((target_mid_w, headline_thickness), Image.Resampling.LANCZOS)
+            
+            # Use the vertical coordinate (height level) of the first character's shirorekha
+            shirorekha_y = stems_info[0]["top"]
+            
+            # Paste the extended middle section
+            img.paste(extended_mid_sec, (x_mid_start, shirorekha_y), extended_mid_sec)
+            
+            # Paste the native unstretched right section at the very end
+            img.paste(right_sec, (paste_right_x, shirorekha_y), right_sec)
 
     # ----------------- PHASE 5: FINAL CROP -----------------
     final_bbox = img.getbbox()
