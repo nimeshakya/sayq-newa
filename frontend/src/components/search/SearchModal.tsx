@@ -3,19 +3,131 @@ import { BACKEND_API } from "../../constants";
 import "../../styles/search/searchModal.scss";
 
 interface Word {
-  _id: string;
+  _id?: string;
   id: string;
   newari_word: string;
   nepali_meaning: string;
   category: string;
   expertise_lvl: number;
   type: string;
+  isHomonym?: boolean;
+  homonymData?: {
+    meanings: string[];
+    wordIds?: Word[];
+    wordDetails?: Word[];
+  } | null;
 }
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+type SearchWordRecord = {
+  _id?: string;
+  id?: string;
+  newari_word?: string;
+  nepali_meaning?: string;
+  category?: string;
+  expertise_lvl?: number;
+  type?: string;
+  isHomonym?: boolean;
+  homonymData?: {
+    meanings?: string[];
+    wordIds?: unknown[];
+    wordDetails?: unknown[];
+  } | null;
+  _doc?: SearchWordRecord;
+};
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const normalizeWordRecord = (
+  record: unknown,
+  includeHomonymData = true,
+): Word | null => {
+  if (!isObject(record)) {
+    return null;
+  }
+
+  const typedRecord = record as SearchWordRecord;
+  const source = isObject(typedRecord._doc)
+    ? (typedRecord._doc as SearchWordRecord)
+    : typedRecord;
+
+  const normalized: Word = {
+    _id: source._id ?? typedRecord._id,
+    id: source.id ?? "",
+    newari_word: source.newari_word ?? "",
+    nepali_meaning: source.nepali_meaning ?? "",
+    category: source.category ?? "",
+    expertise_lvl: Number(source.expertise_lvl ?? 0),
+    type: source.type ?? "",
+    isHomonym: Boolean(source.isHomonym ?? typedRecord.isHomonym),
+  };
+
+  if (!includeHomonymData) {
+    return normalized;
+  }
+
+  const homonymData = source.homonymData ?? typedRecord.homonymData;
+
+  if (homonymData) {
+    normalized.homonymData = {
+      meanings: Array.isArray(homonymData.meanings)
+        ? homonymData.meanings
+        : [],
+      wordIds: Array.isArray(homonymData.wordIds)
+        ? homonymData.wordIds
+            .map((item) => normalizeWordRecord(item, false))
+            .filter((item): item is Word => item !== null)
+        : [],
+      wordDetails: Array.isArray(homonymData.wordDetails)
+        ? homonymData.wordDetails
+            .map((item) => normalizeWordRecord(item, false))
+            .filter((item): item is Word => item !== null)
+        : [],
+    };
+  }
+
+  return normalized;
+};
+
+const normalizeSearchResults = (data: unknown): Word[] => {
+  const records = Array.isArray(data) ? data : data ? [data] : [];
+
+  const flattened = records.flatMap((record) => {
+    const normalized = normalizeWordRecord(record);
+
+    if (!normalized) {
+      return [];
+    }
+
+    const homonymDetails = normalized.homonymData?.wordDetails;
+
+    if (normalized.isHomonym && homonymDetails?.length) {
+      return homonymDetails.map((detail) => ({
+        ...detail,
+        isHomonym: true,
+        homonymData: normalized.homonymData,
+      }));
+    }
+
+    return [normalized];
+  });
+
+  const deduped = new Map<string, Word>();
+
+  flattened.forEach((item) => {
+    const key = item.id || item._id || `${item.newari_word}-${item.nepali_meaning}`;
+    if (!deduped.has(key)) {
+      deduped.set(key, item);
+    }
+  });
+
+  return Array.from(deduped.values());
+};
 
 const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,9 +170,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       }
 
       const data = await response.json();
-      setResults(data);
-    } catch (err: any) {
-      if (err.name !== "AbortError") {
+      setResults(normalizeSearchResults(data));
+    } catch (err: unknown) {
+      if (!(err instanceof DOMException) || err.name !== "AbortError") {
         setError("No words found");
         setResults([]);
       }
@@ -71,6 +183,8 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
   // Debounce the search
   useEffect(() => {
+    setSelectedResult(null);
+
     const timer = setTimeout(() => {
       performSearch(searchQuery);
     }, 300);
@@ -197,6 +311,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     {selectedResult.newari_word}
                   </div>
                   <div className="detail-badges">
+                    {selectedResult.isHomonym && (
+                      <span className="badge badge-homonym">Homonym</span>
+                    )}
                     <span className="badge badge-expertise">
                       Level {selectedResult.expertise_lvl}
                     </span>
@@ -232,6 +349,21 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     </span>
                   </div>
                 </div>
+
+                {selectedResult.homonymData?.meanings?.length ? (
+                  <div className="detail-homonym-section">
+                    <span className="meaning-label">
+                      Other meanings for this word
+                    </span>
+                    <div className="homonym-meaning-list">
+                      {selectedResult.homonymData.meanings.map((meaning) => (
+                        <span key={meaning} className="homonym-meaning-pill">
+                          {meaning}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : (
@@ -276,6 +408,11 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                             {word.nepali_meaning}
                           </div>
                           <div className="card-footer">
+                            {word.isHomonym && (
+                              <span className="card-badge badge-homonym">
+                                Homonym
+                              </span>
+                            )}
                             <span className="card-badge badge-category">
                               {word.category}
                             </span>

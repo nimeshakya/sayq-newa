@@ -15,7 +15,7 @@ gnome-terminal --tab --title="Frontend" -- bash -c "cd '$ROOT_DIR/frontend' && n
 gnome-terminal --tab --title="ML Agent" -- bash -c "source '$ROOT_DIR/env/bin/activate' && cd '$ROOT_DIR/ml_agent' && uvicorn service:app --reload; exec bash"
 
 # Kutaksar API - Terminal 4
-gnome-terminal --tab --title="Kutaksar API" -- bash -c "source '$ROOT_DIR/env/bin/activate' && cd '$ROOT_DIR/kutaksar' && uvicorn api:app --reload --port 8002; exec bash"
+gnome-terminal --tab --title="Kutaksar API" -- bash -c "source '$ROOT_DIR/env/bin/activate' && cd '$ROOT_DIR/kutaksar' && uvicorn api:app --reload --port 8001; exec bash"
 
 echo "All services launched in separate terminal tabs!"
 echo "Check the terminal windows to see the output from each service."
