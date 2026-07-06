@@ -12,7 +12,7 @@ const HeroSection = () => {
           <h1>NewaSayQ</h1>
           <h2>Learn Newa (Nepal Bhasa)</h2>
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
-          <h3>ज्वजलपा</h3>
+          <h3>जोजोलपा</h3>
           <span className="arrow">↓</span>
           <strong>Namaste</strong>
           <span>नमस्ते</span>
