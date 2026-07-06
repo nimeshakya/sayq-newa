@@ -1154,17 +1154,7 @@ async def render_monogram(req: MonogramRequest):
                 "bottom": paste_y + actual_bbox[3]
             })
 
-            # Check if this character is a double stem character (Rule 6)
-            if item["is_double"] and i > 0:
-                top_of_starting_letter = y_cursor
-                top_of_current_letter = paste_y + actual_bbox[1]
-
-                if top_of_current_letter > top_of_starting_letter:
-                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
-                    draw_overlay.rectangle([abs_start + 1, top_of_starting_letter, abs_end - 1, top_of_current_letter], fill=fg)
-
             # --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
-# --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
             if item["is_double"]:
                 # Identify exact vertical bottom of the rightmost stem
                 y_stem_bottom_local = find_stem_vertical_bottom(cluster_img, stem_start_x, stem_end_x)
@@ -1174,8 +1164,6 @@ async def render_monogram(req: MonogramRequest):
                 lowest_safe_point = max(y_stem_bottom_local, visual_bottom)
                 
                 next_start_reference_y = paste_y + lowest_safe_point
-
-             
 
                 # Update vertical backbone (backbone_shift_x) ONLY if this is not the first character (i > 0)
                 if i > 0:
@@ -1188,6 +1176,16 @@ async def render_monogram(req: MonogramRequest):
             else:
                 # For single-stem letters, standard baseline bottom is the starting reference point
                 next_start_reference_y = paste_y + actual_bbox[3]
+
+            # Check if this character is a double stem character (Rule 6) - Must occur after anchoring maths
+            if item["is_double"] and i > 0:
+                top_of_starting_letter = y_cursor
+                top_of_current_letter = paste_y + actual_bbox[1]
+
+                if top_of_current_letter > top_of_starting_letter:
+                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
+                    # Use the local absolute bounds (abs_start, abs_end) without the +1/-1 pinch
+                    draw_overlay.rectangle([abs_start, top_of_starting_letter, abs_end, top_of_current_letter], fill=fg)
 
             if first_char_origin_x is None:
                 first_char_origin_x = paste_x - font_bb[0]
@@ -1218,7 +1216,8 @@ async def render_monogram(req: MonogramRequest):
             bottom_y = curr["top"]
 
             if bottom_y > top_y:
-                draw_overlay.rectangle([left_x + 1, top_y, right_x - 1, bottom_y], fill=fg)
+                # Use local left_x and right_x without the +1/-1 pinch
+                draw_overlay.rectangle([left_x, top_y, right_x, bottom_y], fill=fg)
 
     # ----------------- PHASE 4: APPLY MATRAS -----------------
     if final_matras:
@@ -1516,7 +1515,6 @@ async def render_monogram(req: MonogramRequest):
             img.paste(right_sec, (paste_right_x, shirorekha_y), right_sec)
 
     # ----------------- PHASE 5: FINAL CROP -----------------
- # ----------------- PHASE 5: FINAL CROP -----------------
     if transparent:
         final_bbox = img.getbbox()
     else:
@@ -1541,4 +1539,4 @@ async def render_monogram(req: MonogramRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=False)
