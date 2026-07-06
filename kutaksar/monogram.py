@@ -1164,10 +1164,18 @@ async def render_monogram(req: MonogramRequest):
                     draw_overlay.rectangle([abs_start + 1, top_of_starting_letter, abs_end - 1, top_of_current_letter], fill=fg)
 
             # --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
+# --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
             if item["is_double"]:
                 # Identify exact vertical bottom of the rightmost stem
                 y_stem_bottom_local = find_stem_vertical_bottom(cluster_img, stem_start_x, stem_end_x)
-                next_start_reference_y = paste_y + y_stem_bottom_local
+                
+                # FORCE the next letter below the absolute lowest visual pixel of this character
+                visual_bottom = actual_bbox[3] if actual_bbox else cluster_img.height
+                lowest_safe_point = max(y_stem_bottom_local, visual_bottom)
+                
+                next_start_reference_y = paste_y + lowest_safe_point
+
+             
 
                 # Update vertical backbone (backbone_shift_x) ONLY if this is not the first character (i > 0)
                 if i > 0:
@@ -1524,4 +1532,4 @@ async def render_monogram(req: MonogramRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=False)
+    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=True)
