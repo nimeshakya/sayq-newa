@@ -1154,17 +1154,7 @@ async def render_monogram(req: MonogramRequest):
                 "bottom": paste_y + actual_bbox[3]
             })
 
-            # Check if this character is a double stem character (Rule 6)
-            if item["is_double"] and i > 0:
-                top_of_starting_letter = y_cursor
-                top_of_current_letter = paste_y + actual_bbox[1]
-
-                if top_of_current_letter > top_of_starting_letter:
-                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
-                    draw_overlay.rectangle([abs_start + 1, top_of_starting_letter, abs_end - 1, top_of_current_letter], fill=fg)
-
             # --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
-# --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
             if item["is_double"]:
                 # Identify exact vertical bottom of the rightmost stem
                 y_stem_bottom_local = find_stem_vertical_bottom(cluster_img, stem_start_x, stem_end_x)
@@ -1174,8 +1164,6 @@ async def render_monogram(req: MonogramRequest):
                 lowest_safe_point = max(y_stem_bottom_local, visual_bottom)
                 
                 next_start_reference_y = paste_y + lowest_safe_point
-
-             
 
                 # Update vertical backbone (backbone_shift_x) ONLY if this is not the first character (i > 0)
                 if i > 0:
@@ -1188,6 +1176,16 @@ async def render_monogram(req: MonogramRequest):
             else:
                 # For single-stem letters, standard baseline bottom is the starting reference point
                 next_start_reference_y = paste_y + actual_bbox[3]
+
+            # Check if this character is a double stem character (Rule 6) - Must occur after anchoring maths
+            if item["is_double"] and i > 0:
+                top_of_starting_letter = y_cursor
+                top_of_current_letter = paste_y + actual_bbox[1]
+
+                if top_of_current_letter > top_of_starting_letter:
+                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
+                    # Use the local absolute bounds (abs_start, abs_end) without the +1/-1 pinch
+                    draw_overlay.rectangle([abs_start, top_of_starting_letter, abs_end, top_of_current_letter], fill=fg)
 
             if first_char_origin_x is None:
                 first_char_origin_x = paste_x - font_bb[0]
@@ -1218,7 +1216,8 @@ async def render_monogram(req: MonogramRequest):
             bottom_y = curr["top"]
 
             if bottom_y > top_y:
-                draw_overlay.rectangle([left_x + 1, top_y, right_x - 1, bottom_y], fill=fg)
+                # Use local left_x and right_x without the +1/-1 pinch
+                draw_overlay.rectangle([left_x, top_y, right_x, bottom_y], fill=fg)
 
     # ----------------- PHASE 4: APPLY MATRAS -----------------
     if final_matras:
@@ -1306,6 +1305,7 @@ async def render_monogram(req: MonogramRequest):
                 temp_ref = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
                 ImageDraw.Draw(temp_ref).text((100, 100), base_char, font=mfont, fill=fg)
                 diff = ImageChops.difference(temp_with, temp_ref)
+                
                 return diff.getbbox(), diff
 
             for matra_char in final_matras:
@@ -1319,28 +1319,25 @@ async def render_monogram(req: MonogramRequest):
                     if shared_matra_pos == 'left':
                         matra_glyph = temp_with_first.crop(matra_bbox_first) if matra_bbox_first else None
                         if matra_glyph:
-                            dx = matra_bbox_first[0] - 100
-                            dy = matra_bbox_first[1] - 100
+                            t_x_first = first_char_origin_x - matra_glyph.width + 8 if first_char_origin_x is not None else s_left - matra_glyph.width
+                            t_x_last = last_char_origin_x - matra_glyph.width + 8 if last_char_origin_x is not None else s_left - matra_glyph.width
                             
-                            if first_char_origin_x is not None:
-                                paste_x = first_char_origin_x - matra_glyph.width + 8
-                                paste_y = first_char_origin_y + dy
-                            else:
-                                paste_x = s_left - matra_glyph.width
-                                paste_y = s_top
-                    else:  # 'right' matras align horizontally with the last letter
+                            paste_x = min(t_x_first, t_x_last)
+                            paste_y = first_char_origin_y + (matra_bbox_first[1] - 100)
+                    else:  # 'right' matras align dynamically to clear the widest letter using native spacing
                         matra_glyph = temp_with_last.crop(matra_bbox_last) if matra_bbox_last else None
                         if matra_glyph:
-                            dx = matra_bbox_last[0] - 100
+                            dx_first = matra_bbox_first[0] - 100 if matra_bbox_first else 0
+                            dx_last = matra_bbox_last[0] - 100 if matra_bbox_last else 0
+                            
+                            t_x_first = (first_char_origin_x + dx_first) if first_char_origin_x is not None else s_right
+                            t_x_last = (last_char_origin_x + dx_last) if last_char_origin_x is not None else s_right
+                            
+                            paste_x = max(t_x_first, t_x_last)
+                            
                             # Vertical offset 'dy' still originates from the top first letter's headline
                             dy = matra_bbox_first[1] - 100 if matra_bbox_first else (matra_bbox_last[1] - 100)
-                            
-                            if last_char_origin_x is not None:
-                                paste_x = last_char_origin_x + dx
-                                paste_y = first_char_origin_y + dy
-                            else:
-                                paste_x = s_right
-                                paste_y = s_top
+                            paste_y = first_char_origin_y + dy
 
                     if matra_glyph:
                         if last_char_origin_y is not None and matra_bbox_last:
@@ -1516,7 +1513,15 @@ async def render_monogram(req: MonogramRequest):
             img.paste(right_sec, (paste_right_x, shirorekha_y), right_sec)
 
     # ----------------- PHASE 5: FINAL CROP -----------------
-    final_bbox = img.getbbox()
+    if transparent:
+        final_bbox = img.getbbox()
+    else:
+        # If the background is solid, getbbox() will return the entire image.
+        # We find the true bounding box by checking the difference from a blank background.
+        bg_reference = Image.new("RGBA", img.size, bg)
+        diff = ImageChops.difference(img, bg_reference)
+        final_bbox = diff.getbbox()
+
     if final_bbox:
         # Dynamically crop excess whitespace horizontally and vertically
         crop_left = max(0, final_bbox[0] - req.padding)
@@ -1532,4 +1537,4 @@ async def render_monogram(req: MonogramRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=False)
