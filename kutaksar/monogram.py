@@ -1305,6 +1305,7 @@ async def render_monogram(req: MonogramRequest):
                 temp_ref = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
                 ImageDraw.Draw(temp_ref).text((100, 100), base_char, font=mfont, fill=fg)
                 diff = ImageChops.difference(temp_with, temp_ref)
+                
                 return diff.getbbox(), diff
 
             for matra_char in final_matras:
@@ -1318,28 +1319,25 @@ async def render_monogram(req: MonogramRequest):
                     if shared_matra_pos == 'left':
                         matra_glyph = temp_with_first.crop(matra_bbox_first) if matra_bbox_first else None
                         if matra_glyph:
-                            dx = matra_bbox_first[0] - 100
-                            dy = matra_bbox_first[1] - 100
+                            t_x_first = first_char_origin_x - matra_glyph.width + 8 if first_char_origin_x is not None else s_left - matra_glyph.width
+                            t_x_last = last_char_origin_x - matra_glyph.width + 8 if last_char_origin_x is not None else s_left - matra_glyph.width
                             
-                            if first_char_origin_x is not None:
-                                paste_x = first_char_origin_x - matra_glyph.width + 8
-                                paste_y = first_char_origin_y + dy
-                            else:
-                                paste_x = s_left - matra_glyph.width
-                                paste_y = s_top
-                    else:  # 'right' matras align horizontally with the last letter
+                            paste_x = min(t_x_first, t_x_last)
+                            paste_y = first_char_origin_y + (matra_bbox_first[1] - 100)
+                    else:  # 'right' matras align dynamically to clear the widest letter using native spacing
                         matra_glyph = temp_with_last.crop(matra_bbox_last) if matra_bbox_last else None
                         if matra_glyph:
-                            dx = matra_bbox_last[0] - 100
+                            dx_first = matra_bbox_first[0] - 100 if matra_bbox_first else 0
+                            dx_last = matra_bbox_last[0] - 100 if matra_bbox_last else 0
+                            
+                            t_x_first = (first_char_origin_x + dx_first) if first_char_origin_x is not None else s_right
+                            t_x_last = (last_char_origin_x + dx_last) if last_char_origin_x is not None else s_right
+                            
+                            paste_x = max(t_x_first, t_x_last)
+                            
                             # Vertical offset 'dy' still originates from the top first letter's headline
                             dy = matra_bbox_first[1] - 100 if matra_bbox_first else (matra_bbox_last[1] - 100)
-                            
-                            if last_char_origin_x is not None:
-                                paste_x = last_char_origin_x + dx
-                                paste_y = first_char_origin_y + dy
-                            else:
-                                paste_x = s_right
-                                paste_y = s_top
+                            paste_y = first_char_origin_y + dy
 
                     if matra_glyph:
                         if last_char_origin_y is not None and matra_bbox_last:
