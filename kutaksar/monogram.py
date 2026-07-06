@@ -41,8 +41,7 @@ class MonogramRequest(BaseModel):
 # Build a single transliteration → Devanagari lookup map
 DEVANAGARI_MAP = {**data_gen.CONSONANTS, **data_gen.VOWELS, **data_gen.NUMBERS, **data_gen.SYMBOLS}
 
-# Updated with * quantifier to allow multiple combining diacritics (e.g. vowel matra + visarga)
-CLUSTER_REGEX = r'[क-हक़-य़][्]?[ा-ौँ-ः॑-॔ॢ-ॣ]*|[अ-औ]|ॐ'
+CLUSTER_REGEX = r'[क-हक़-य़][्]?[ा-ौँ-ः॑-॔ॢ-ॣ]?|[अ-औ]'
 
 def load_glyph_configs():
     if GLYPH_CONFIG_PATH.exists():
@@ -72,7 +71,7 @@ def detect_primary_stem(char_img: Image.Image) -> int:
     """
     Detects the horizontal X-coordinate of the primary vertical stem in a character.
     Focuses on the bottom 60% of the glyph to avoid the headline (Shirorekha) 
-    and top loops, ensuring robust detection for double-stemmed characters like ग and bh.
+    and top loops, ensuring robust detection for double-stemmed characters like ग and भ.
     """
     if char_img.mode != "RGBA":
         char_img = char_img.convert("RGBA")
@@ -479,9 +478,9 @@ async def preview_ligature(req: LigatureSaveRequest):
         try:
             char_font = ImageFont.truetype(font_path, int(font_size * c.scale))
             bb = char_font.getbbox(c.char)
-            cw, th = bb[2] - bb[0], bb[3] - bb[1]
+            cw, ch = bb[2] - bb[0], bb[3] - bb[1]
             
-            char_layer = Image.new("RGBA", (cw + 200, th + 200), (0,0,0,0))
+            char_layer = Image.new("RGBA", (cw + 200, ch + 200), (0,0,0,0))
             char_draw = ImageDraw.Draw(char_layer)
             char_draw.text((100 - bb[0], 100 - bb[1]), c.char, font=char_font, fill=(45, 27, 105, 255))
             
@@ -621,7 +620,7 @@ async def render_monogram(req: MonogramRequest):
     # Transliteration mapping logic (retains your original logic)
     import re
     if not re.search(r'[ऀ-ॿ]', text):
-        translit_map = {**data_gen.CONSONANTS, **data_gen.SPECIAL, **data_gen.VOWELS, **data_gen.NUMBERS, **data_gen.SYMBOLS}
+        translit_map = {**data_gen.CONSONANTS, **data_gen.VOWELS, **data_gen.NUMBERS, **data_gen.SYMBOLS}
         matra_map = data_gen.MATRAS
         keys = sorted(translit_map.keys(), key=len, reverse=True)
         vowel_keys = sorted(data_gen.VOWELS.keys(), key=len, reverse=True)
@@ -874,7 +873,7 @@ async def render_monogram(req: MonogramRequest):
                         orig_a = char_img.getchannel('A')
                         char_img.putalpha(ImageChops.darker(orig_a, new_alpha))
                     except Exception as exc:
-                        print(f"Char mask error: exc")
+                        print(f"Char mask error: {exc}")
 
                 c_adjs = override.get("adjustments")
                 if c_adjs:
@@ -892,7 +891,7 @@ async def render_monogram(req: MonogramRequest):
                                 part = part.resize((int(abs(adj['fw'])), int(abs(adj['fh']))), Image.Resampling.LANCZOS)
                             char_img.paste(part, (int(lx + ldx), int(ly + ldy)), part)
                     except Exception as exc:
-                        print(f"Char adj error: exc")
+                        print(f"Char adj error: {exc}")
 
                 xb = (estimated_w - char_img.width) // 2
                 lig_layer.paste(char_img, (xb + x_off, lig_y_cursor + y_off), char_img)
@@ -1015,6 +1014,8 @@ async def render_monogram(req: MonogramRequest):
                 "stem_center_x": stem_center_x,
                 "is_double": is_double,
                 "x_offset": x_off,
+                "y_off_local": y_off,
+                "x_off": x_off,
                 "y_offset": y_off,
                 "text": display_text
             })
@@ -1154,16 +1155,6 @@ async def render_monogram(req: MonogramRequest):
             })
 
             # --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
-            # Check if this character is a double stem character (Rule 6)
-            if item["is_double"] and i > 0:
-                top_of_starting_letter = y_cursor
-                top_of_current_letter = paste_y + actual_bbox[1]
-
-                if top_of_current_letter > top_of_starting_letter:
-                    # Extend ONLY the rightmost stem from top of current letter to top of starting letter
-                    draw_overlay.rectangle([abs_start + 1, top_of_starting_letter, abs_end - 1, top_of_current_letter], fill=fg)
-
-            # --- ANCHOR THE STARTING REFERENCE POINT FOR THE NEXT LETTER ---
             if item["is_double"]:
                 # Identify exact vertical bottom of the rightmost stem
                 y_stem_bottom_local = find_stem_vertical_bottom(cluster_img, stem_start_x, stem_end_x)
@@ -1173,7 +1164,6 @@ async def render_monogram(req: MonogramRequest):
                 lowest_safe_point = max(y_stem_bottom_local, visual_bottom)
                 
                 next_start_reference_y = paste_y + lowest_safe_point
-                next_start_reference_y = paste_y + y_stem_bottom_local
 
                 # Update vertical backbone (backbone_shift_x) ONLY if this is not the first character (i > 0)
                 if i > 0:
@@ -1404,24 +1394,6 @@ async def render_monogram(req: MonogramRequest):
                         
                         img.paste(scaled, (paste_x, paste_y), scaled)
 
-                        # --- DRAW VERTICAL CONNECTOR TO FILL GAP BETWEEN MATRA STEM AND SHIROREKHA ---
-                        # 1. Detect the horizontal boundaries of the matra's vertical stem
-                        m_start, m_end = find_rightmost_stem_bounds(matra_glyph)
-                        
-                        # 2. Convert to absolute canvas coordinates
-                        abs_m_start = paste_x + m_start
-                        abs_m_end = paste_x + m_end
-                        
-                        # 3. Define vertical bounds for the connector to bridge the gap perfectly
-                        shirorekha_y = stems_info[0]["top"]
-                        bottom_y = paste_y + max(15, int(req.font_size * 0.20))
-                        
-                        if bottom_y > shirorekha_y:
-                            # Create a fresh drawing context on the active canvas
-                            draw_local = ImageDraw.Draw(img)
-                            # Draw a solid vertical bridge matching the Phase 3 style
-                            draw_local.rectangle([abs_m_start + 1, shirorekha_y, abs_m_end - 1, bottom_y], fill=fg)
-
                 elif shared_matra_pos == 'below':
                     matra_glyph_l = temp_with_last.crop(matra_bbox_last) if matra_bbox_last else None
                     if matra_glyph_l:
@@ -1471,14 +1443,7 @@ async def render_monogram(req: MonogramRequest):
     word_bbox = img.getbbox()
     if word_bbox and stems_info and first_char_paste_x is not None:
         first_img = prepared_items[0]["img"]
-        
-        # Detect the true top row of ink in the first character to avoid cropping transparent padding
-        first_bbox = first_img.getbbox()
-        y_top = first_bbox[1] if first_bbox else 0
-        
-        # Add 3 pixels of safety vertical overlap to completely eliminate any horizontal gaps
         headline_thickness = max(4, int(req.font_size * 0.12))
-        crop_h = headline_thickness + 3
         
         # 1. Define split points for the 3 sections of the topmost character's shirorekha
         split_x1 = int(first_img.width * 0.33)
@@ -1529,14 +1494,14 @@ async def render_monogram(req: MonogramRequest):
         # Only stretch if the new middle section width is larger than the original middle section width
         original_mid_w = split_x2 - split_x1
         if target_mid_w > original_mid_w:
-            # Crop the middle section from the topmost character's image, starting at y_top and extending slightly down for overlap
-            mid_sec = first_img.crop((split_x1, y_top, split_x2, y_top + crop_h))
+            # Crop the middle section from the topmost character's image
+            mid_sec = first_img.crop((split_x1, 0, split_x2, headline_thickness))
             
             # Crop the unstretched right section (preserving its native calligraphic terminal/serif)
-            right_sec = first_img.crop((split_x2, y_top, first_img.width, y_top + crop_h))
+            right_sec = first_img.crop((split_x2, 0, first_img.width, headline_thickness))
             
             # Stretch the middle section horizontally using LANCZOS resampling to prevent pixelation/blur
-            extended_mid_sec = mid_sec.resize((target_mid_w, crop_h), Image.Resampling.LANCZOS)
+            extended_mid_sec = mid_sec.resize((target_mid_w, headline_thickness), Image.Resampling.LANCZOS)
             
             # Use the vertical coordinate (height level) of the first character's shirorekha
             shirorekha_y = stems_info[0]["top"]
@@ -1572,5 +1537,4 @@ async def render_monogram(req: MonogramRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=False)
     uvicorn.run("monogram:app", host="0.0.0.0", port=8001, reload=False)
