@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
 
 # Mapping from transliteration to Devanagari (based on script.js)
 CONSONANTS = {
@@ -12,6 +12,11 @@ CONSONANTS = {
     'y': 'य', 'r': 'र', 'l': 'ल', 'v': 'व', 'w': 'व',
     's': 'श', 'sh': 'ष', 'S': 'स', 'h': 'ह',
     '*': '्',  # Halant / Virama for half-letters
+}
+
+SPECIAL = {
+    'OM': 'ॐ',
+    ':': 'ः'      # Added Visarga mapping here so the keyboard colon translates directly to U+0903
 }
 
 VOWELS = {
@@ -83,7 +88,8 @@ def create_dataset():
     if not os.path.exists(DATASET_DIR):
         os.makedirs(DATASET_DIR)
     
-    all_chars = {**CONSONANTS, **VOWELS, **NUMBERS, **SYMBOLS}
+    # Merged SPECIAL (Om, Visarga, etc.) into the dataset categories
+    all_chars = {**CONSONANTS, **SPECIAL, **VOWELS, **NUMBERS, **SYMBOLS}
     
     # Track generated characters to avoid duplicates (e.g., 'v' and 'w' both mapping to 'व')
     generated_chars = set()
@@ -104,7 +110,8 @@ def create_dataset():
             '?': 'question',
             '(': 'paren_left',
             ')': 'paren_right',
-            '-': 'dash'
+            '-': 'dash',
+            ':': 'visarga'  # Prevent colon directory path errors
         }
         
         folder_name = safe_names.get(label, char)
@@ -133,6 +140,8 @@ def create_dataset():
                 bg = Image.new('L', IMAGE_SIZE, color=255)
                 # Paste at center
                 bg.paste(aug_img, ((IMAGE_SIZE[0] - new_w) // 2, (IMAGE_SIZE[1] - new_h) // 2))
+                
+                # Generate a clean monochrome mask of the text
                 aug_img = bg
                 
                 # Random translation
@@ -145,11 +154,11 @@ def create_dataset():
                 aug_img = aug_img.crop((left, top, left + IMAGE_SIZE[0], top + IMAGE_SIZE[1]))
                 aug_img = aug_img.resize(IMAGE_SIZE)
                 
-                # Add subtle noise
-                arr = np.array(aug_img).astype(np.float32)
-                noise = np.random.normal(0, 3, arr.shape)
-                arr = np.clip(arr + noise, 0, 255).astype(np.uint8)
-                aug_img = Image.fromarray(arr)
+                # Filter noise and write
+                arr_chan = np.array(aug_img).astype(np.float32)
+                noise = np.random.normal(0, 3, arr_chan.shape)
+                arr_chan = np.clip(arr_chan + noise, 0, 255).astype(np.uint8)
+                aug_img = Image.fromarray(arr_chan)
                 
                 aug_img.save(os.path.join(char_dir, f"{file_label}_aug_{i}.png"))
                 
