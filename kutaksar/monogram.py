@@ -1516,7 +1516,16 @@ async def render_monogram(req: MonogramRequest):
             img.paste(right_sec, (paste_right_x, shirorekha_y), right_sec)
 
     # ----------------- PHASE 5: FINAL CROP -----------------
-    final_bbox = img.getbbox()
+ # ----------------- PHASE 5: FINAL CROP -----------------
+    if transparent:
+        final_bbox = img.getbbox()
+    else:
+        # If the background is solid, getbbox() will return the entire image.
+        # We find the true bounding box by checking the difference from a blank background.
+        bg_reference = Image.new("RGBA", img.size, bg)
+        diff = ImageChops.difference(img, bg_reference)
+        final_bbox = diff.getbbox()
+
     if final_bbox:
         # Dynamically crop excess whitespace horizontally and vertically
         crop_left = max(0, final_bbox[0] - req.padding)
