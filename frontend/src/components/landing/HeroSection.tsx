@@ -9,10 +9,10 @@ const HeroSection = () => {
     <section className="hero" id="home">
       <div className="hero__content">
         <div>
-          <h1>NewaSayQ</h1>
-          <h2>Learn Newa (Nepal Bhasa)</h2>
+          <h1>Newa:SayQ</h1>
+          <h2>Learn Newa (Nepalbhasa)</h2>
           <p>Preserve culture. Practice naturally. Speak confidently.</p>
-          <h3>जोजोलपा</h3>
+          <h3>ज्वजलपा </h3>
           <span className="arrow">↓</span>
           <strong>Namaste</strong>
           <span>नमस्ते</span>

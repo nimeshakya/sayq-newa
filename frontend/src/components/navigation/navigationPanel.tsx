@@ -77,7 +77,7 @@ const Navigation = () => {
         <div className="nav-container">
           <Link to="/" className="nav-logo">
             <img src={logoSvg} className="logo-icon" width={40} />
-            <span className="logo-text">NewaSayQ</span>
+            <span className="logo-text">Newa:SayQ</span>
           </Link>
 
           {/* nav links */}

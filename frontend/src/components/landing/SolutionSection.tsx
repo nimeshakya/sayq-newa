@@ -1,7 +1,7 @@
 const SolutionSection = () => {
   return (
     <section className="section solution">
-      <h2>How NewaSayQ Helps</h2>
+      <h2>How Newa:SayQ Helps</h2>
 
       <div className="card-grid">
         <div className="card">Interactive Lessons</div>

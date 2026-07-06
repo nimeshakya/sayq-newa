@@ -22,7 +22,7 @@ const supervisor: TeamMember = {
   role: "Project Supervisor",
   contact: "shreeramkhaitu@gmail.com",
   // bio: "Guiding the team with expertise, mentorship, and strategic direction.",
-  imageUrl: shree
+  imageUrl: shree,
 };
 
 /* Team Members */
@@ -33,7 +33,7 @@ const teamMembers: TeamMember[] = [
     role: "780340",
     contact: "sauravdhoju12@gmail.com",
     // bio: "Passionate about building scalable applications and solving complex problems.",
-    imageUrl: saurav
+    imageUrl: saurav,
   },
   {
     id: 2,
@@ -41,7 +41,7 @@ const teamMembers: TeamMember[] = [
     role: "780302",
     contact: "aashishchakradhar01@gmail.com",
     // bio: "Creating intuitive and beautiful user experiences is my top priority.",
-    imageUrl: aashish
+    imageUrl: aashish,
   },
   {
     id: 3,
@@ -49,7 +49,7 @@ const teamMembers: TeamMember[] = [
     role: "780315",
     contact: "jeenakarmi@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
-    imageUrl: jina
+    imageUrl: jina,
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ const teamMembers: TeamMember[] = [
     role: "780324",
     contact: "nimeshakyabtw@gmail.com",
     // bio: "Ensuring projects are delivered on time and meet the highest quality standards.",
-    imageUrl: nim
+    imageUrl: nim,
   },
 ];
 
@@ -86,8 +86,8 @@ const TeamPage = () => {
       <div className="team-header">
         <h1>Meet Our Team</h1>
         <p>
-          The talented individuals behind NewaSayQ working together to bring you
-          the best learning experience.
+          The talented individuals behind Newa:SayQ working together to bring
+          you the best learning experience.
         </p>
       </div>
 
