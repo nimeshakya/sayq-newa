@@ -6,17 +6,17 @@ const AboutSection = () => {
     <section className="section about" id="about">
       <div className="about-container">
         <div className="about-header">
-          <h2>What is NewaSayQ?</h2>
+          <h2>What is Newa:SayQ?</h2>
           <div className="header-underline"></div>
         </div>
 
         <div className="about-content">
           <div className="about-text">
             <p className="about-intro">
-              NewaSayQ is a <span className="highlight">digital platform</span>{" "}
+              Newa:SayQ is a <span className="highlight">digital platform</span>{" "}
               dedicated to teaching
-              <span className="highlight"> Newa (Nepal Bhasa)</span> using
-              modern learning techniques.
+              <span className="highlight"> Newa (Nepalbhasa)</span> using modern
+              learning techniques.
             </p>
           </div>
         </div>

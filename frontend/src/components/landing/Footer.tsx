@@ -3,7 +3,7 @@ import "../../styles/landing/footer.scss";
 const Footer = () => {
   return (
     <footer className="footer">
-      <p>© {new Date().getFullYear()} NewaSayQ. Preserving Nepal Bhasa.</p>
+      <p>© {new Date().getFullYear()} Newa:SayQ. Preserving Nepalbhasa.</p>
     </footer>
   );
 };

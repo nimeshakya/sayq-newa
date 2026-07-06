@@ -7,7 +7,7 @@ const WhyNewariSection = () => {
         <div className="why-header">
           <h2>Why Learn Newa?</h2>
           <p className="subtitle">
-            Discover the rich heritage and cultural significance of Nepal Bhasa
+            Discover the rich heritage and cultural significance of Nepalbhasa
           </p>
         </div>
 
@@ -42,7 +42,7 @@ const WhyNewariSection = () => {
               <h3>Historical Importance</h3>
               <p>
                 Unlock centuries of literature, art, and wisdom preserved in
-                Nepal Bhasa
+                Nepalbhasa
               </p>
               <div className="card-decoration"></div>
             </div>
