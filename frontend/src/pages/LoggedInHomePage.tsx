@@ -213,11 +213,11 @@ export default function LoggedInHomePage() {
           <div className="welcome-content">
             {/* <div className="welcome-badge">Welcome Back</div> */}
             <h1 className="welcome-title">
-              ज्वोजलापा, <span className="user-name">{user?.name}</span>
+              जोजोलपा, <span className="user-name">{user?.name}</span>
             </h1>
             <p className="welcome-subtitle">
-              तपाईंलाई नेवा भाषा सिक्ने यात्रामा स्वागत छ । <br />
-              " छिगु नेवा भाषा सयेकेगु यात्राय् लसकुस दु । "
+              तपाईंलाई नेवा भाषा सिक्ने यात्रामा स्वागत छ । <br />" छिगु नेवा
+              भाषा सयेकेगु यात्राय् लसकुस दु । "
             </p>
           </div>
 
