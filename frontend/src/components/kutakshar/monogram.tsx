@@ -1,8 +1,8 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
-  useRef,
   type ChangeEvent,
   type ReactElement,
 } from "react";
@@ -14,20 +14,43 @@ export type MonogramShowProps = {
   className?: string;
 };
 
-type GuideRow = {
-  keys: string;
-  glyphs: string;
-};
-
-const guideRows: GuideRow[] = [
-  { keys: "k, kh, g, gh", glyphs: "क ख ग घ" },
-  { keys: "c, ch, j, jh", glyphs: "च छ ज झ" },
-  { keys: "t, th, d, dh", glyphs: "त थ द ध" },
-  { keys: "T, Th, D, Dh", glyphs: "ट ठ ड ढ" },
-  { keys: "s, sh, S", glyphs: "श ष स" },
-  { keys: "* (asterisk)", glyphs: "् (Halant)" },
-  { keys: "a, aa, i, ii", glyphs: "अ आ इ ई" },
-  { keys: "u, uu, e, ai", glyphs: "उ ऊ ए ऐ" },
+// --- PRESETS & CONFIGS ---
+const THEMES = [
+  {
+    name: "Classic",
+    fg: "#2d1b69",
+    bg: "#ffffff",
+    transparent: false,
+    padding: 40,
+  },
+  {
+    name: "Royal Gold",
+    fg: "#d4af37",
+    bg: "#18181b",
+    transparent: false,
+    padding: 50,
+  },
+  {
+    name: "Rose Quartz",
+    fg: "#9f1239",
+    bg: "#fff1f2",
+    transparent: false,
+    padding: 45,
+  },
+  {
+    name: "Midnight",
+    fg: "#ffffff",
+    bg: "#0f172a",
+    transparent: false,
+    padding: 60,
+  },
+  {
+    name: "Minimal",
+    fg: "#171717",
+    bg: "#ffffff",
+    transparent: true,
+    padding: 30,
+  },
 ];
 
 const translitConsonants: Record<string, string> = {
@@ -116,21 +139,16 @@ const transliterationKeys = Object.keys({
 }).sort((left, right) => right.length - left.length);
 
 function toDevanagari(text: string): string {
-  if (/[\u0900-\u097F]/.test(text)) {
-    return text;
-  }
-
+  if (/[\u0900-\u097F]/.test(text)) return text;
   const vowelKeys = Object.keys(translitVowels).sort(
-    (left, right) => right.length - left.length,
+    (l, r) => r.length - l.length,
   );
-
   let converted = "";
   let index = 0;
   let lastWasConsonant = false;
 
   while (index < text.length) {
     let matched = false;
-
     if (lastWasConsonant) {
       for (const vowelKey of vowelKeys) {
         if (text.slice(index, index + vowelKey.length) === vowelKey) {
@@ -142,7 +160,6 @@ function toDevanagari(text: string): string {
         }
       }
     }
-
     if (!matched) {
       for (const key of transliterationKeys) {
         if (text.slice(index, index + key.length) === key) {
@@ -156,25 +173,22 @@ function toDevanagari(text: string): string {
             converted += key;
             lastWasConsonant = false;
           }
-
           index += key.length;
           matched = true;
           break;
         }
       }
     }
-
     if (!matched) {
       converted += text[index];
       index += 1;
       lastWasConsonant = false;
     }
   }
-
   return converted;
 }
 
-export function monogramShow({
+export function MonogramShow({
   className,
 }: MonogramShowProps = {}): ReactElement {
   const [text, setText] = useState("");
@@ -184,130 +198,50 @@ export function monogramShow({
   const [bgColor, setBgColor] = useState("#ffffff");
   const [transparent, setTransparent] = useState(false);
   const [vertical, setVertical] = useState(true);
+
   const [showDetectBadge, setShowDetectBadge] = useState(false);
   const [convertedText, setConvertedText] = useState("");
-  const [statusMessage, setStatusMessage] = useState(
-    "Enter text above and click Generate.",
-  );
-  const [galleryItems, setGalleryItems] = useState<string[]>([]);
+  const [statusMessage, setStatusMessage] = useState("Awaiting input...");
   const [showDownload, setShowDownload] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [monogramStatus, setMonogramStatus] = useState<string>(
-    "Connecting to monogram backend...",
-  );
-
-  // Use refs for config hash tracking to avoid unnecessary re-renders
-  const configHashRef = useRef<string>("");
-  const lastAutoRefreshRef = useRef<number>(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copyLabel, setCopyLabel] = useState("Copy");
+  const [activeTheme, setActiveTheme] = useState("Classic");
 
   const activeBackground = transparent ? "transparent" : bgColor;
   const hasText = useMemo(() => text.trim().length > 0, [text]);
-  const devanagariText = useMemo(() => toDevanagari(text.trim()), [text]);
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const nextValue = event.target.value;
     const hasValue = nextValue.trim().length > 0;
-
     setText(nextValue);
     setShowDetectBadge(hasValue);
     setConvertedText(hasValue ? toDevanagari(nextValue.trim()) : "");
-  };
-
-  const handleSyncBgState = (checked: boolean) => {
-    setTransparent(checked);
-    if (checked) {
-      setBgColor("#ffffff");
-    }
-  };
-
-  // Generate monogram with given settings
-  const generateMonogram = async (
-    textToUse: string,
-    fontSizeToUse: number,
-    fgColorToUse: string,
-    bgColorToUse: string,
-    transparentToUse: boolean,
-    paddingToUse: number,
-    verticalToUse: boolean,
-    showStatus = true,
-    addToGallery = false,
-  ) => {
-    if (textToUse.trim().length === 0) {
-      return;
-    }
-
-    if (showStatus) {
-      setStatusMessage("Generating monogram...");
-    }
-    setShowDownload(false);
-
-    const payload = {
-      text: textToUse.trim(),
-      font_size: fontSizeToUse,
-      fg_color: fgColorToUse,
-      bg_color: transparentToUse ? "transparent" : bgColorToUse,
-      padding: paddingToUse,
-      line_spacing: 0,
-      vertical: verticalToUse,
-      use_overrides: true,
-    };
-
-    try {
-      const response = await fetch(`${MONOGRAM_API_BASE}/monogram`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Monogram generation failed");
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setPreviewUrl((current) => {
-        if (current) {
-          URL.revokeObjectURL(current);
-        }
-        return url;
-      });
-      setShowDownload(true);
-      if (addToGallery) {
-        setGalleryItems((items) => [textToUse.trim(), ...items].slice(0, 6));
-      }
-      if (showStatus) {
-        setStatusMessage("Monogram generated successfully.");
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown monogram error";
-      if (showStatus) {
-        setStatusMessage(`Error: ${message}`);
-      }
+    if (!hasValue) {
+      setPreviewUrl("");
       setShowDownload(false);
+      setStatusMessage("Awaiting input...");
     }
   };
 
-  const handleGenerate = () => {
-    if (!hasText) {
-      setStatusMessage("Enter text above before generating.");
-      return;
-    }
+  const applyTheme = (theme: (typeof THEMES)[0]) => {
+    setActiveTheme(theme.name);
+    setFgColor(theme.fg);
+    setBgColor(theme.bg);
+    setTransparent(theme.transparent);
+    setPadding(theme.padding);
+  };
 
-    generateMonogram(
-      text,
-      fontSize,
-      fgColor,
-      bgColor,
-      transparent,
-      padding,
-      vertical,
-      true,
-      true,
-    );
+  const handleCopyConverted = async () => {
+    if (!convertedText) return;
+    try {
+      await navigator.clipboard.writeText(convertedText);
+      setCopyLabel("Copied!");
+      setTimeout(() => setCopyLabel("Copy"), 1500);
+    } catch {
+      setCopyLabel("Failed");
+      setTimeout(() => setCopyLabel("Copy"), 1500);
+    }
   };
 
   const handleDownload = () => {
@@ -315,483 +249,394 @@ export function monogramShow({
       setStatusMessage("Generate a monogram first.");
       return;
     }
-
     const anchor = document.createElement("a");
     anchor.href = previewUrl;
     anchor.download = "ranjana_monogram.png";
     anchor.click();
   };
 
-  const handleReset = () => {
-    setText("");
-    setFontSize(80);
-    setPadding(40);
-    setFgColor("#2d1b69");
-    setBgColor("#ffffff");
-    setTransparent(false);
-    setVertical(true);
-    setShowDetectBadge(false);
-    setConvertedText("");
-    setStatusMessage("Enter text above and click Generate.");
-    setGalleryItems([]);
-    setShowDownload(false);
+  const generateMonogram = useCallback(
+    async (showStatus = true) => {
+      if (text.trim().length === 0) return;
 
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl("");
-    }
-  };
+      if (showStatus) {
+        setStatusMessage("Crafting your monogram...");
+        setIsGenerating(true);
+      }
 
-  useEffect(() => {
-    let cancelled = false;
+      const payload = {
+        text: text.trim(),
+        font_size: fontSize,
+        fg_color: fgColor,
+        bg_color: transparent ? "transparent" : bgColor,
+        padding: padding,
+        line_spacing: 0,
+        vertical: vertical,
+        use_overrides: true,
+      };
 
-    fetch(`${MONOGRAM_API_BASE}/status`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (cancelled) {
-          return;
-        }
-
-        setMonogramStatus(
-          Boolean(data?.font_exists)
-            ? "Monogram backend ready."
-            : "Monogram backend started, but font/config is missing.",
-        );
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setMonogramStatus("Monogram backend unavailable on port 8001.");
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Auto-refresh monogram when glyph or ligature configs change (optimized to preserve user state)
-  useEffect(() => {
-    if (!hasText) {
-      // Only auto-refresh if user has entered text
-      return;
-    }
-
-    let cancelled = false;
-
-    const checkAndRefresh = async () => {
       try {
-        const [glyphRes, ligRes] = await Promise.all([
-          fetch(`${MONOGRAM_API_BASE}/glyphs`),
-          fetch(`${MONOGRAM_API_BASE}/ligatures`),
-        ]);
+        const response = await fetch(`${MONOGRAM_API_BASE}/monogram`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-        if (!glyphRes.ok || !ligRes.ok || cancelled) return;
+        if (!response.ok) throw new Error("Generation failed");
 
-        const glyphData = await glyphRes.json();
-        const ligData = await ligRes.json();
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
 
-        // Create a hash of the configs
-        const newHash = JSON.stringify({ glyphData, ligData });
-
-        // If hash changed, regenerate with CURRENT user settings (don't reset anything)
-        if (configHashRef.current && configHashRef.current !== newHash) {
-          console.log("Config detected change, auto-refreshing preview...");
-
-          const now = Date.now();
-          if (now - lastAutoRefreshRef.current > 2000) {
-            // Only allow refresh every 2 seconds to avoid spam
-            lastAutoRefreshRef.current = now;
-
-            // Generate monogram with CURRENT state (text, fontSize, colors, etc all preserved)
-            const payload = {
-              text: text.trim(),
-              font_size: fontSize,
-              fg_color: fgColor,
-              bg_color: transparent ? "transparent" : bgColor,
-              padding,
-              line_spacing: 0,
-              vertical,
-              use_overrides: true,
-            };
-
-            try {
-              const response = await fetch(`${MONOGRAM_API_BASE}/monogram`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-
-              if (!response.ok) {
-                console.warn("Auto-refresh failed");
-                return;
-              }
-
-              const blob = await response.blob();
-              if (cancelled) return;
-
-              const url = URL.createObjectURL(blob);
-              setPreviewUrl((current) => {
-                if (current) {
-                  URL.revokeObjectURL(current);
-                }
-                return url;
-              });
-            } catch (error) {
-              console.warn("Auto-refresh error:", error);
-            }
-          }
+        // Artificial slight delay to make the loading state feel deliberate and premium
+        setTimeout(() => {
+          setPreviewUrl((current) => {
+            if (current) URL.revokeObjectURL(current);
+            return url;
+          });
+          setShowDownload(true);
+          if (showStatus) setStatusMessage("Ready to download");
+          setIsGenerating(false);
+        }, 300);
+      } catch {
+        if (showStatus) {
+          setStatusMessage("Couldn't generate design");
+          setIsGenerating(false);
         }
-
-        // Update hash ref for next comparison
-        configHashRef.current = newHash;
-      } catch (error) {
-        console.warn("Failed to check config updates:", error);
+        setShowDownload(false);
       }
-    };
+    },
+    [text, fontSize, fgColor, bgColor, transparent, padding, vertical],
+  );
 
-    // Check immediately on mount, then every 3 seconds
-    checkAndRefresh();
-    const pollInterval = setInterval(checkAndRefresh, 3000);
-
-    return () => {
-      cancelled = true;
-      clearInterval(pollInterval);
-    };
-  }, [
-    text,
-    fontSize,
-    fgColor,
-    bgColor,
-    transparent,
-    padding,
-    vertical,
-    hasText,
-  ]);
-
-  // Auto-generate monogram when text or settings change (debounced)
+  // Debounced auto-generation
   useEffect(() => {
-    if (!text.trim().length) {
-      setPreviewUrl("");
-      setShowDownload(false);
-      return;
-    }
-
-    // Debounce generation to avoid too many requests while typing
+    if (!text.trim().length) return;
+    setIsGenerating(true);
     const timeoutId = setTimeout(() => {
-      generateMonogram(
-        text,
-        fontSize,
-        fgColor,
-        bgColor,
-        transparent,
-        padding,
-        vertical,
-        false,
-      );
-    }, 500); // Wait 500ms after user stops typing before generating
-
+      generateMonogram(true);
+    }, 600);
     return () => clearTimeout(timeoutId);
-  }, [text, fontSize, fgColor, bgColor, transparent, padding, vertical]);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
+  }, [generateMonogram, text]);
 
   return (
-    <div className={className}>
-      <div
-        className="rounded-3xl border border-border/70 bg-card/90 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.18)] backdrop-blur sm:p-6"
-        id="panelMonogram"
-      >
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <section className="flex w-full flex-col gap-5 rounded-2xl border border-border/70 bg-background/60 p-5 xl:max-w-105 xl:flex-[0_0_420px]">
-            <div className="space-y-2">
-              <div className="text-lg font-semibold tracking-tight text-foreground">
-                Monogram Generator
-              </div>
-              <p className="text-sm leading-6 text-muted-foreground">
-                Type in romanized transliteration or Devanagari. The input is
-                converted before rendering with the NithyaRanjana font.
-              </p>
-            </div>
-            <div className="space-y-2">
+    <div
+      className={`min-h-screen bg-[#fafafa] flex justify-center p-4 sm:p-8 font-sans ${className || ""}`}
+    >
+      <div className="w-full max-w-[1200px] flex flex-col lg:flex-row gap-8">
+        {/* --- LEFT COLUMN: CONTROLS --- */}
+        <div className="w-full lg:w-[440px] shrink-0 bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col gap-8">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              Studio
+            </h1>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Design your NithyaRanjana monogram. Type in romanized
+              transliteration or Devanagari.
+            </p>
+          </div>
+
+          {/* Text Input */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-end">
               <label
-                className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
                 htmlFor="monoInput"
+                className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400"
               >
-                Text
+                Text content
               </label>
-              <textarea
-                className="min-h-28 w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/10"
-                id="monoInput"
-                placeholder="e.g. namaskar or नमस्कार"
-                rows={4}
-                onChange={handleTextChange}
-                value={text}
-              />
-            </div>
-
-            <div
-              className={`flex flex-col gap-3 rounded-2xl border border-border bg-background/70 p-4 ${showDetectBadge ? "flex" : "hidden"}`}
-              id="monoDetect"
-            >
-              <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Devanagari Preview
-              </div>
-              <div
-                className="rounded-xl border border-border bg-muted/70 px-3 py-3 text-base leading-7 text-foreground"
-                id="monoConverted"
+              <span
+                className={`text-[10px] font-medium transition-opacity ${isGenerating ? "opacity-100 text-amber-500" : "opacity-0"}`}
               >
-                {convertedText}
-              </div>
-            </div>
-            <details className="group rounded-2xl border border-border bg-background/70 p-4">
-              <summary className="cursor-pointer list-item text-sm font-medium text-foreground">
-                Transliteration Guide
-              </summary>
-              <div className="mt-4 overflow-hidden rounded-xl border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      {guideRows.map((row) => (
-                        <tr
-                          key={row.keys}
-                          className="border-b border-border/60 last:border-b-0"
-                        >
-                          <td className="py-2 pr-4 font-medium text-primary">
-                            {row.keys}
-                          </td>
-                          <td className="py-2">{row.glyphs}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="mt-3 italic text-muted-foreground">
-                  Tip: Use * for half-letters, for example "k*ra".
-                </p>
-              </div>
-            </details>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Font Size <span id="lblFontSize">{fontSize}</span>px
-                </label>
-                <input
-                  type="range"
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-secondary accent-primary"
-                  id="monoFontSize"
-                  min="30"
-                  max="200"
-                  value={fontSize}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setFontSize(Number(event.target.value))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Padding <span id="lblPadding">{padding}</span>px
-                </label>
-                <input
-                  type="range"
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-secondary accent-primary"
-                  id="monoPadding"
-                  min="10"
-                  max="100"
-                  value={padding}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setPadding(Number(event.target.value))
-                  }
-                />
-              </div>
-            </div>
-
-            {/* message box */}
-            <div
-              className="flex items-start gap-3 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
-              id="monoStatus"
-              hidden
-            >
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-              <span className="leading-6">
-                {statusMessage} {monogramStatus ? `(${monogramStatus})` : ""}
+                Syncing...
               </span>
             </div>
+            <textarea
+              id="monoInput"
+              className="w-full min-h-[120px] resize-none border border-gray-200 rounded-[20px] p-5 text-gray-900 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-400 transition-all placeholder:text-gray-300 text-lg shadow-inner shadow-gray-50/50"
+              placeholder="e.g. namaskar or नमस्कार"
+              value={text}
+              onChange={handleTextChange}
+            />
+          </div>
 
-            {/* button group */}
-            <div className="flex ml-auto flex-wrap gap-3 pt-1">
-              <button
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary/60"
-                id="btnMonoGen"
-                onClick={handleGenerate}
-                title="Auto-generates as you type. Click to manually refresh."
-              >
-                ↻ Refresh
-              </button>
-              <button
-                className={`${showDownload ? "inline-flex" : "hidden"} items-center justify-center rounded-full border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary/80`}
-                id="btnMonoDl"
-                onClick={handleDownload}
-                hidden
-              >
-                ⬇️ Download PNG
-              </button>
-              <button
-                className="inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary/60"
-                onClick={handleReset}
-              >
-                ✕ Reset
-              </button>
+          {/* Premium Themes Picker */}
+          <div className="space-y-3">
+            <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">
+              Curated Themes
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {THEMES.map((theme) => (
+                <button
+                  key={theme.name}
+                  onClick={() => applyTheme(theme)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 border ${
+                    activeTheme === theme.name
+                      ? "bg-gray-900 text-white border-gray-900 shadow-md scale-105"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  {theme.name}
+                </button>
+              ))}
             </div>
-          </section>
+          </div>
 
-          {/* right side  */}
-          <section className="flex min-w-0 flex-1 flex-col gap-5">
-            {/* preview box */}
-            <div className="rounded-2xl border border-border bg-background/70 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-lg font-semibold tracking-tight text-foreground">
-                  Preview
-                </div>
-                {text.trim().length > 0 && (
-                  <div className="flex items-center gap-2 text-xs bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-full font-medium">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-                    Auto-sync on
-                  </div>
-                )}
-              </div>
-              <div
-                className="flex min-h-75 items-center justify-center rounded-2xl border border-dashed border-border bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_55%)] p-4"
-                id="monoPreviewWrap"
-              >
-                {previewUrl ? (
-                  <img
-                    id="monoImg"
-                    src={previewUrl}
-                    alt="Monogram"
-                    className="max-h-90 max-w-full rounded-2xl object-contain shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
-                  />
-                ) : (
-                  <div
-                    className={`flex flex-col items-center gap-3 text-center text-muted-foreground ${showDetectBadge ? "hidden" : "flex"}`}
-                    id="monoPlaceholder"
-                  >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-2xl"></div>
-                    <div className="text-sm leading-6">
-                      Your Ranjana monogram
-                      <br />
-                      will appear here
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* session gallery */}
-            <div
-              className="rounded-2xl border border-border bg-background/70 p-5"
-              id="monoGalleryCard"
-              hidden
-            >
-              <div className="text-lg font-semibold tracking-tight text-foreground">
-                Session Gallery
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your recently generated monograms in this session.
-              </p>
-              <div
-                className="mt-4 flex min-h-25 gap-4 overflow-x-auto pb-2"
-                id="monoGallery"
-              >
-                {galleryItems.length === 0 ? (
-                  <span className="text-sm text-muted-foreground">
-                    No history yet.
-                  </span>
-                ) : (
-                  galleryItems.map((item, index) => (
-                    <div
-                      key={`${item}-${index}`}
-                      className="min-w-30 rounded-2xl border border-border bg-secondary/50 px-4 py-3 text-sm text-foreground shadow-sm"
-                    >
-                      <span className="block truncate">{item}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* color background option */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* font color */}
-              <div className=" flex flex-col justify-center space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Ink Colour
+          {/* Sliders */}
+          <div className="grid grid-cols-2 gap-6 bg-gray-50/50 p-5 rounded-[24px] border border-gray-100">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  Size
                 </label>
+                <span className="text-[11px] font-mono text-gray-900 bg-white px-2 py-0.5 rounded-md border border-gray-200">
+                  {fontSize}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="30"
+                max="200"
+                value={fontSize}
+                onChange={(e) => {
+                  setFontSize(Number(e.target.value));
+                  setActiveTheme("Custom");
+                }}
+                className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-900 hover:accent-gray-700 transition-all"
+              />
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  Padding
+                </label>
+                <span className="text-[11px] font-mono text-gray-900 bg-white px-2 py-0.5 rounded-md border border-gray-200">
+                  {padding}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                value={padding}
+                onChange={(e) => {
+                  setPadding(Number(e.target.value));
+                  setActiveTheme("Custom");
+                }}
+                className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-900 hover:accent-gray-700 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Colors & Layout */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                Ink
+              </label>
+              <div className="relative overflow-hidden rounded-[16px] border border-gray-200 hover:border-gray-300 transition-colors">
                 <input
                   type="color"
-                  className="h-11 w-16 cursor-pointer rounded-lg border border-border bg-background p-1"
-                  id="monoFg"
                   value={fgColor}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setFgColor(event.target.value)
-                  }
+                  onChange={(e) => {
+                    setFgColor(e.target.value);
+                    setActiveTheme("Custom");
+                  }}
+                  className="absolute -top-2 -left-2 w-[150%] h-[150%] cursor-pointer"
                 />
-              </div>
-
-              {/* background customization */}
-              <div className="flex flex-col justify-center space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Background Colour
-                </label>
-                <div className="flex flex-row gap-3">
-                  <input
-                    type="color"
-                    className="h-11 w-16 cursor-pointer rounded-lg border border-border bg-background p-1 disabled:cursor-not-allowed disabled:opacity-60"
-                    id="monoBg"
-                    value={activeBackground}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                      setBgColor(event.target.value)
-                    }
-                    disabled={transparent}
+                <div className="relative pointer-events-none h-10 w-full bg-white flex items-center px-3 gap-2">
+                  <div
+                    className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
+                    style={{ backgroundColor: fgColor }}
                   />
-
-                  <div className=" flex gap-3 flex-col">
-                    <label className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm text-foreground">
-                      <input
-                        type="checkbox"
-                        id="monoTransparent"
-                        checked={transparent}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          handleSyncBgState(event.target.checked)
-                        }
-                      />
-                      Transparent
-                    </label>
-                    <label className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm text-foreground">
-                      <input
-                        type="checkbox"
-                        id="monoVertical"
-                        checked={vertical}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          setVertical(event.target.checked)
-                        }
-                      />
-                      Vertical Stack
-                    </label>
-                  </div>
+                  <span className="text-xs font-mono text-gray-600 uppercase">
+                    {fgColor}
+                  </span>
                 </div>
               </div>
             </div>
-          </section>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                Canvas
+              </label>
+              <div
+                className={`relative overflow-hidden rounded-[16px] border transition-colors ${transparent ? "border-gray-100 opacity-50" : "border-gray-200 hover:border-gray-300"}`}
+              >
+                <input
+                  type="color"
+                  value={
+                    activeBackground === "transparent"
+                      ? "#ffffff"
+                      : activeBackground
+                  }
+                  onChange={(e) => {
+                    setBgColor(e.target.value);
+                    setActiveTheme("Custom");
+                  }}
+                  disabled={transparent}
+                  className="absolute -top-2 -left-2 w-[150%] h-[150%] cursor-pointer disabled:cursor-not-allowed"
+                />
+                <div className="relative pointer-events-none h-10 w-full bg-white flex items-center px-3 gap-2">
+                  <div
+                    className="w-4 h-4 rounded-full border border-black/10 shadow-sm"
+                    style={{
+                      backgroundColor:
+                        activeBackground === "transparent"
+                          ? "#ffffff"
+                          : activeBackground,
+                    }}
+                  />
+                  <span className="text-xs font-mono text-gray-600 uppercase">
+                    {transparent ? "NONE" : activeBackground}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Toggles */}
+          <div className="flex gap-3">
+            <label className="flex-1 group">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={transparent}
+                onChange={(e) => {
+                  setTransparent(e.target.checked);
+                  setActiveTheme("Custom");
+                }}
+              />
+              <div className="flex items-center justify-center gap-2 py-3 px-4 border border-gray-200 rounded-[16px] text-xs font-semibold text-gray-700 cursor-pointer transition-all peer-checked:bg-gray-900 peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-gray-800">
+                Transparent
+              </div>
+            </label>
+
+            <label className="flex-1 group">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={vertical}
+                onChange={(e) => setVertical(e.target.checked)}
+              />
+              <div className="flex items-center justify-center gap-2 py-3 px-4 border border-gray-200 rounded-[16px] text-xs font-semibold text-gray-700 cursor-pointer transition-all peer-checked:bg-gray-900 peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-gray-800">
+                Vertical Stack
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* --- RIGHT COLUMN: PREVIEW --- */}
+        <div className="flex-1 flex flex-col gap-6">
+          {/* Action Bar */}
+          <div className="flex justify-between items-center bg-white border border-gray-200 rounded-full p-2 pr-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-50 rounded-full px-4 py-2 flex items-center gap-2 border border-gray-100">
+                <span
+                  className={`h-2 w-2 rounded-full ${isGenerating ? "bg-amber-400 animate-pulse" : hasText ? "bg-emerald-400" : "bg-gray-300"}`}
+                />
+                <span className="text-xs font-medium text-gray-600">
+                  {statusMessage}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleDownload}
+              disabled={!showDownload || isGenerating}
+              className="flex items-center gap-2 bg-gray-900 text-white text-xs font-bold py-2 px-5 rounded-full hover:bg-gray-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Export High-Res
+            </button>
+          </div>
+
+          {/* Canvas */}
+          <div
+            className="flex-1 w-full rounded-[32px] border border-gray-200 bg-white shadow-sm flex items-center justify-center p-8 relative overflow-hidden min-h-[500px]"
+            style={
+              transparent
+                ? {
+                    backgroundImage:
+                      "linear-gradient(45deg, #f1f5f9 25%, transparent 25%), linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f1f5f9 75%), linear-gradient(-45deg, transparent 75%, #f1f5f9 75%)",
+                    backgroundSize: "24px 24px",
+                    backgroundPosition: "0 0, 0 12px, 12px -12px, -12px 0px",
+                  }
+                : undefined
+            }
+          >
+            {isGenerating ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-48 bg-gray-100 rounded-2xl animate-pulse shadow-inner" />
+                <p className="text-sm font-medium text-gray-400 animate-pulse">
+                  Rendering Glyphs...
+                </p>
+              </div>
+            ) : previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Monogram Preview"
+                className="max-h-full max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)]"
+              />
+            ) : (
+              <div className="text-center text-gray-400 max-w-sm">
+                <div className="w-16 h-16 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
+                    />
+                  </svg>
+                </div>
+                <p className="text-base font-semibold text-gray-600">
+                  The canvas is blank
+                </p>
+                <p className="text-sm mt-1 leading-relaxed">
+                  Type any word in the left panel to instantly generate your
+                  custom typography art.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Helper Footer */}
+          {showDetectBadge && (
+            <div className="flex justify-between items-center bg-gray-900 rounded-2xl p-4 text-white shadow-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Interpreted As
+                </span>
+                <span className="text-lg font-medium">{convertedText}</span>
+              </div>
+              <button
+                onClick={handleCopyConverted}
+                className="text-xs font-semibold bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-full"
+              >
+                {copyLabel}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export const MonogramShow = monogramShow;
-export default monogramShow;
+export default MonogramShow;
