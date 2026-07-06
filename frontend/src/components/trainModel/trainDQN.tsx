@@ -47,7 +47,7 @@ export default function ModelTrainButton() {
   return (
     <header>
       {/* Trigger Button */}
-      <button
+      <button hidden
         onClick={handleTrainModel}
         disabled={isTriggering}
         style={{

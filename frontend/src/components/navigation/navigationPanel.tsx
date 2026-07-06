@@ -94,6 +94,7 @@ const Navigation = () => {
             </NavLink>
 
             <NavLink
+              hidden
               to="/learnPage"
               end
               className={({ isActive }) =>
@@ -104,6 +105,7 @@ const Navigation = () => {
               Learning
             </NavLink>
             <NavLink
+              hidden
               to="/learn/neural"
               end
               className={({ isActive }) =>
@@ -121,7 +123,7 @@ const Navigation = () => {
               }
               onClick={() => setIsMenuOpen(false)}
             >
-              DQN Learning
+              Learning
             </NavLink>
             <NavLink
               to="/sessionPage"
@@ -144,16 +146,6 @@ const Navigation = () => {
               Ranjana
             </NavLink>
             <NavLink
-              to="/teamPage"
-              end
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Meet Our Team
-            </NavLink>
-            <NavLink
               to="/monogram"
               end
               className={({ isActive }) =>
@@ -162,6 +154,16 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Monogram
+            </NavLink>
+            <NavLink
+              to="/teamPage"
+              end
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Meet Our Team
             </NavLink>
           </div>
 
