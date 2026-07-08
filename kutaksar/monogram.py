@@ -931,13 +931,15 @@ async def render_monogram(req: MonogramRequest):
 
             char_conf = configs.get(base_char, {})
 
-            if i == 0:
+# 1. Determine priority based on line position and total length
+            if len(merged_lines) == 1:
+                priority = ["full"]
+            elif i == 0:
                 priority = ["first", "full"]
             elif i == len(merged_lines) - 1:
                 priority = ["last", "full"]
             else:
                 priority = ["middle", "full"]
-
             override = {}
             for p in priority:
                 if p in char_conf:
