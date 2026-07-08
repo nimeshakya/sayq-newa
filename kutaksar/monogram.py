@@ -79,7 +79,7 @@ def detect_primary_stem(char_img: Image.Image) -> int:
     arr = np.array(char_img)
     h, w, c = arr.shape
     if h == 0 or w == 0:
-        return w // 2
+        return 0
 
     # Focus on bottom 60% to isolate clean vertical stems
     start_row = int(h * 0.4)
@@ -124,7 +124,7 @@ def detect_primary_stem(char_img: Image.Image) -> int:
         
     return int(peaks[0][0])
 
-# Hardcoded classifications as defined by structural rules
+# Hardcoded classifications as defined by your structural rules
 DOUBLE_STEM_CHARS = {
     "ख", "ग", "घ", "ङ", "झ", "ण", "थ", "ध", "प", "फ", "भ", "म", "य", "श", "ष", "स"
 }
@@ -1229,94 +1229,122 @@ async def render_monogram(req: MonogramRequest):
             s_w = s_right - s_left
 
             mfont = ImageFont.truetype(font_path, req.font_size)
-            
-            # Setup dynamic size bounds to avoid clipping matras during rendering
-            tw = req.font_size * 4
-            th = req.font_size * 4
-            anchor_x = req.font_size * 2
-            anchor_y = req.font_size * 2
+            tw, th = 500, 500
 
             def _get_matra_bbox_and_glyph(base_char, matra_char, pos='right'):
-                if not base_char:
+                if not base_char or pos == 'below':
                     base_char = 'क'
 
-                # Clean base_char of any matras to avoid nested matra rendering issues
-                clean_base = base_char
-                for m in MATRA_POS.keys():
-                    clean_base = clean_base.replace(m, '')
-
-                temp_with = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
-                draw_with = ImageDraw.Draw(temp_with)
-                
-                temp_ref = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
-                draw_ref = ImageDraw.Draw(temp_ref)
-
                 if pos == 'left':
-                    # Prepend left matras and align right-baseline (anchor="rs")
-                    # so that the base character on the right remains perfectly aligned.
-                    text_with = matra_char + clean_base
-                    draw_with.text((anchor_x, anchor_y), text_with, font=mfont, fill=fg, anchor="rs")
-                    draw_ref.text((anchor_x, anchor_y), clean_base, font=mfont, fill=fg, anchor="rs")
-                    left_baseline_x_canvas = anchor_x - mfont.getlength(clean_base)
-                else:
-                    # Append other matras and align left-baseline (anchor="ls")
-                    # so that the base character on the left remains perfectly aligned.
-                    text_with = clean_base + matra_char
-                    draw_with.text((anchor_x, anchor_y), text_with, font=mfont, fill=fg, anchor="ls")
-                    draw_ref.text((anchor_x, anchor_y), clean_base, font=mfont, fill=fg, anchor="ls")
-                    left_baseline_x_canvas = anchor_x
+                    temp_s = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
+                    ImageDraw.Draw(temp_s).text((100, 100), matra_char, font=mfont, fill=fg)
+                    bb_s = temp_s.getbbox()
+                    if bb_s:
+                        s_pix = temp_s.load()
+                        col_alpha = [sum(s_pix[x, y][3] for y in range(th)) for x in range(tw)]
+                        peak_x = max(range(bb_s[0], bb_s[2]), key=lambda x: col_alpha[x])
+                        gap_x = bb_s[2]
 
+                        for x in range(peak_x + 1, tw):
+                            if col_alpha[x] == 0:
+                                gap_x = x
+                                break
+
+                        if matra_char == 'ि':
+                            import numpy as np
+                            from collections import Counter
+
+                            arr = np.array(temp_s)
+                            draw = ImageDraw.Draw(temp_s)
+
+                            left_edges = []
+                            for y in range(bb_s[1] + 20, bb_s[3]):
+                                row = arr[y, bb_s[0]:bb_s[2], 3]
+                                nonzero = np.where(row > 0)[0]
+                                if len(nonzero) > 0:
+                                    left_edges.append(bb_s[0] + nonzero[0])
+                            if left_edges:
+                                stem_left_x = Counter(left_edges).most_common(1)[0][0]
+                                draw.rectangle([(0, bb_s[1] + 20), (int(stem_left_x) - 1, bb_s[3])], fill=(0, 0, 0, 0))
+
+                            dip_x = peak_x
+                            min_alpha = col_alpha[peak_x]
+                            for x in range(peak_x, bb_s[2]):
+                                if col_alpha[x] < min_alpha:
+                                    min_alpha = col_alpha[x]
+                                    dip_x = x
+                                elif col_alpha[x] > min_alpha * 1.5 and col_alpha[x] > 3000:
+                                    break
+
+                            arch_bottom_y = bb_s[1]
+                            found_top = False
+                            for y in range(bb_s[1], bb_s[3]):
+                                if s_pix[dip_x, y][3] > 0:
+                                    found_top = True
+                                elif found_top and s_pix[dip_x, y][3] == 0:
+                                    arch_bottom_y = y
+                                    break
+
+                            draw.rectangle([(dip_x, arch_bottom_y), (tw, th)], fill=(0, 0, 0, 0))
+
+                            c_alpha = [sum(s_pix[x, y][3] for y in range(th)) for x in range(tw)]
+                            end_x = bb_s[2]
+                            for x in range(tw - 1, peak_x, -1):
+                                if c_alpha[x] > 0:
+                                    end_x = x
+                                    break
+                            gap_x = end_x + 1
+
+                        pure_ikar = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
+                        pure_ikar.paste(temp_s.crop((0, 0, gap_x, th)), (0, 0))
+                        return pure_ikar.getbbox(), pure_ikar
+
+                text_with = base_char + matra_char
+                temp_with = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
+                ImageDraw.Draw(temp_with).text((100, 100), text_with, font=mfont, fill=fg)
+                temp_ref = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
+                ImageDraw.Draw(temp_ref).text((100, 100), base_char, font=mfont, fill=fg)
                 diff = ImageChops.difference(temp_with, temp_ref)
-                bbox = diff.getbbox()
-
-                if not bbox:
-                    # Fallback to direct rendering if the difference is empty
-                    temp_direct = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
-                    draw_direct = ImageDraw.Draw(temp_direct)
-                    draw_direct.text((anchor_x, anchor_y), matra_char, font=mfont, fill=fg, anchor="ls")
-                    bbox = temp_direct.getbbox()
-                    return bbox, temp_direct, anchor_x
-
-                return bbox, diff, left_baseline_x_canvas
+                
+                return diff.getbbox(), diff
 
             for matra_char in final_matras:
                 shared_matra_pos = MATRA_POS[matra_char]
                 shared_matra = matra_char
-                matra_bbox_first, temp_with_first, left_base_x_first = _get_matra_bbox_and_glyph(first_char_text, shared_matra, shared_matra_pos)
-                matra_bbox_last, temp_with_last, left_base_x_last = _get_matra_bbox_and_glyph(last_char_text, shared_matra, shared_matra_pos)
-
-                # Determine baseline positions of the stack endpoints on the main canvas
-                first_baseline_x = first_char_origin_x if first_char_origin_x is not None else s_left
-                first_baseline_y = (first_char_origin_y + ascent) if first_char_origin_y is not None else s_top + ascent
-
-                last_baseline_x = last_char_origin_x if last_char_origin_x is not None else s_left
-                last_baseline_y = (last_char_origin_y + ascent) if last_char_origin_y is not None else s_bottom - descent
+                matra_bbox_first, temp_with_first = _get_matra_bbox_and_glyph(first_char_text, shared_matra, shared_matra_pos)
+                matra_bbox_last, temp_with_last = _get_matra_bbox_and_glyph(last_char_text, shared_matra, shared_matra_pos)
 
                 if shared_matra_pos in ('right', 'left'):
+                    # Determine which letter text and bbox to use for the matra shape/offset
                     if shared_matra_pos == 'left':
                         matra_glyph = temp_with_first.crop(matra_bbox_first) if matra_bbox_first else None
                         if matra_glyph:
-                            # Offset relative to the dynamically computed left-baseline of the base character
-                            dx = matra_bbox_first[0] - left_base_x_first
-                            dy = matra_bbox_first[1] - anchor_y
+                            t_x_first = first_char_origin_x - matra_glyph.width + 8 if first_char_origin_x is not None else s_left - matra_glyph.width
+                            t_x_last = last_char_origin_x - matra_glyph.width + 8 if last_char_origin_x is not None else s_left - matra_glyph.width
                             
-                            paste_x = first_baseline_x + dx
-                            paste_y = first_baseline_y + dy
-                    else:  # 'right' matras
+                            paste_x = min(t_x_first, t_x_last)
+                            paste_y = first_char_origin_y + (matra_bbox_first[1] - 100)
+                    else:  # 'right' matras align dynamically to clear the widest letter using native spacing
                         matra_glyph = temp_with_last.crop(matra_bbox_last) if matra_bbox_last else None
                         if matra_glyph:
-                            dx_first = matra_bbox_first[0] - left_base_x_first
-                            dx_last = matra_bbox_last[0] - left_base_x_last
+                            dx_first = matra_bbox_first[0] - 100 if matra_bbox_first else 0
+                            dx_last = matra_bbox_last[0] - 100 if matra_bbox_last else 0
                             
-                            t_x_first = first_baseline_x + dx_first
-                            t_x_last = last_baseline_x + dx_last
+                            t_x_first = (first_char_origin_x + dx_first) if first_char_origin_x is not None else s_right
+                            t_x_last = (last_char_origin_x + dx_last) if last_char_origin_x is not None else s_right
                             
                             paste_x = max(t_x_first, t_x_last)
-                            paste_y = first_baseline_y + (matra_bbox_first[1] - anchor_y)
+                            
+                            # Vertical offset 'dy' still originates from the top first letter's headline
+                            dy = matra_bbox_first[1] - 100 if matra_bbox_first else (matra_bbox_last[1] - 100)
+                            paste_y = first_char_origin_y + dy
 
                     if matra_glyph:
-                        dy_last_bottom = (matra_bbox_last[3] - anchor_y) if matra_bbox_last else matra_glyph.height
-                        target_bottom = last_baseline_y + dy_last_bottom
+                        if last_char_origin_y is not None and matra_bbox_last:
+                            target_bottom = last_char_origin_y + (matra_bbox_last[3] - 100)
+                        else:
+                            target_bottom = s_bottom
+
                         target_height = target_bottom - paste_y
 
                         if target_height > matra_glyph.height:
@@ -1353,6 +1381,7 @@ async def render_monogram(req: MonogramRequest):
                                 last_char_origin_x += shift_x
                             if first_char_paste_x is not None:
                                 first_char_paste_x += shift_x
+                            # Horizontally shift the recorded stem coordinates to keep them synchronized
                             for stem in stems_info:
                                 stem["stem_start_x"] += shift_x
                                 stem["stem_end_x"] += shift_x
@@ -1368,11 +1397,14 @@ async def render_monogram(req: MonogramRequest):
                 elif shared_matra_pos == 'below':
                     matra_glyph_l = temp_with_last.crop(matra_bbox_last) if matra_bbox_last else None
                     if matra_glyph_l:
-                        dx_l = matra_bbox_last[0] - left_base_x_last
-                        dy_l = matra_bbox_last[1] - anchor_y
-                        
-                        paste_x = last_baseline_x + dx_l
-                        paste_y = last_baseline_y + dy_l
+                        dx_l = matra_bbox_last[0] - 100
+                        dy_l = matra_bbox_last[1] - 100
+                        if last_char_origin_x is not None:
+                            paste_x = last_char_origin_x + dx_l
+                            paste_y = last_char_origin_y + dy_l
+                        else:
+                            paste_x = s_left + (s_w - matra_glyph_l.width) // 2
+                            paste_y = s_bottom + 2
 
                         need_h = paste_y + matra_glyph_l.height + 4
                         if need_h > img.height:
@@ -1384,16 +1416,19 @@ async def render_monogram(req: MonogramRequest):
                 elif shared_matra_pos == 'above':
                     matra_glyph_f = temp_with_first.crop(matra_bbox_first) if matra_bbox_first else None
                     if matra_glyph_f:
-                        dx_f = matra_bbox_first[0] - left_base_x_first
-                        dy_f = matra_bbox_first[1] - anchor_y
-                        
-                        paste_x = first_baseline_x + dx_f
-                        paste_y = first_baseline_y + dy_f
+                        dx_f = mfont.getbbox(matra_char)[0] - 100 if mfont.getbbox(matra_char) else matra_bbox_first[0] - 100
+                        dy_f = matra_bbox_first[1] - 100
+                        if first_char_origin_x is not None:
+                            paste_x = first_char_origin_x + dx_f
+                            paste_y = first_char_origin_y + dy_f
+                        else:
+                            paste_x = s_left + (s_w - matra_glyph_f.width) // 2
+                            paste_y = s_top - matra_glyph_f.height - 2
 
                         if paste_y < 0:
                             shift = -paste_y + 2
                             ni = Image.new('RGBA', (img.width, img.height + shift), bg)
-                            ni.paste(img, (0, shift))  # Fixed vertical shift direction bug
+                            ni.paste(img, (shift, 0))
                             img = ni
                             paste_y = 0
                             s_top += shift
@@ -1402,10 +1437,6 @@ async def render_monogram(req: MonogramRequest):
                                 first_char_origin_y += shift
                             if last_char_origin_y is not None:
                                 last_char_origin_y += shift
-                            # Shift stem coordinates vertically to keep them synchronized
-                            for stem in stems_info:
-                                stem["top"] += shift
-                                stem["bottom"] += shift
                         img.paste(matra_glyph_f, (paste_x, paste_y), matra_glyph_f)
 
     # ----------------- PHASE 4.5: EXTRACT & STRETCH MIDDLE SHIROREKHA SECTION TO END POINT -----------------
