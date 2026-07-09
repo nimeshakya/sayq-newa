@@ -35,6 +35,18 @@
       "crop_bottom": 0,
       "crop_left": 0,
       "crop_right": 0
+    },
+    "full": {
+      "scale": 1.0,
+      "x_offset": 0,
+      "y_offset": 0,
+      "rotation": 0.0,
+      "skew_x": 0.0,
+      "skew_y": 0.0,
+      "crop_top": 0,
+      "crop_bottom": 0,
+      "crop_left": 0,
+      "crop_right": 0
     }
   },
   "ख": {
@@ -736,7 +748,7 @@
     },
     "middle": {
       "scale": 1.0,
-      "x_offset": -10,
+      "x_offset": -11,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
@@ -932,7 +944,7 @@
       "skew_x": 0.0,
       "skew_y": 0.0,
       "crop_top": 16,
-      "crop_bottom": 11,
+      "crop_bottom": 12,
       "crop_left": 0,
       "crop_right": 0
     },
@@ -1052,7 +1064,7 @@
     },
     "last": {
       "scale": 1.0,
-      "x_offset": -20,
+      "x_offset": -17,
       "y_offset": 0,
       "rotation": 0.0,
       "skew_x": 0.0,
